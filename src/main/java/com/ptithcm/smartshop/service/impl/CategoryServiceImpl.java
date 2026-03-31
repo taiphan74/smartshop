@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import com.ptithcm.smartshop.util.SlugUtil;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -59,11 +61,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO save(CategoryRequest request) {
-        if (request.getSlug() != null && categoryRepository.findBySlug(request.getSlug()).isPresent()) {
+        String slug = StringUtils.hasText(request.getSlug()) 
+                ? SlugUtil.toSlug(request.getSlug()) 
+                : SlugUtil.toSlug(request.getName());
+
+        if (categoryRepository.findBySlug(slug).isPresent()) {
             throw new ConflictException("Category", "slug");
         }
         
         Category category = categoryMapper.toEntity(request);
+        category.setSlug(slug);
         
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())
@@ -80,7 +87,17 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
         
+        String slug = StringUtils.hasText(request.getSlug()) 
+                ? SlugUtil.toSlug(request.getSlug()) 
+                : SlugUtil.toSlug(request.getName());
+
+        Optional<Category> existingCategory = categoryRepository.findBySlug(slug);
+        if (existingCategory.isPresent() && !existingCategory.get().getId().equals(id)) {
+            throw new ConflictException("Category", "slug");
+        }
+
         categoryMapper.updateEntity(request, category);
+        category.setSlug(slug);
         
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())

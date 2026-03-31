@@ -24,6 +24,9 @@ public class Product {
     @Column(nullable = false, length = 255)
     private String name;
 
+    @Column(nullable = false, unique = true, length = 255)
+    private String slug;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -63,6 +66,14 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public String getDescription() {

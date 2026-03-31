@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import com.ptithcm.smartshop.util.SlugUtil;
+import com.ptithcm.smartshop.exception.ConflictException;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -44,13 +47,28 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<ProductDTO> findBySlug(String slug) {
+        return productRepository.findBySlug(slug).map(productMapper::toDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ProductDTO> findByCategory(String categoryId) {
         return productMapper.toDTOList(productRepository.findByCategory_Id(categoryId));
     }
 
     @Override
     public ProductDTO save(ProductRequest request) {
+        String slug = StringUtils.hasText(request.getSlug()) 
+                ? SlugUtil.toSlug(request.getSlug()) 
+                : SlugUtil.toSlug(request.getName());
+
+        if (productRepository.findBySlug(slug).isPresent()) {
+            throw new ConflictException("Product", "slug");
+        }
+
         Product product = productMapper.toEntity(request);
+        product.setSlug(slug);
         
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));
@@ -65,7 +83,17 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
         
+        String slug = StringUtils.hasText(request.getSlug()) 
+                ? SlugUtil.toSlug(request.getSlug()) 
+                : SlugUtil.toSlug(request.getName());
+
+        Optional<Product> existingProduct = productRepository.findBySlug(slug);
+        if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id)) {
+            throw new ConflictException("Product", "slug");
+        }
+
         productMapper.updateEntity(request, product);
+        product.setSlug(slug);
         
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));

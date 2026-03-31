@@ -8,6 +8,7 @@ public class ProductDTO {
     
     private String id;
     private String name;
+    private String slug;
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
@@ -21,11 +22,12 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(String id, String name, String description, BigDecimal price, Integer stockQuantity,
+    public ProductDTO(String id, String name, String slug, String description, BigDecimal price, Integer stockQuantity,
                       Boolean status, LocalDateTime createdAt, LocalDateTime updatedAt, String categoryId,
                       String categoryName, List<ProductImageDTO> images) {
         this.id = id;
         this.name = name;
+        this.slug = slug;
         this.description = description;
         this.price = price;
         this.stockQuantity = stockQuantity;
@@ -51,6 +53,14 @@ public class ProductDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public String getDescription() {

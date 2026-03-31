@@ -11,6 +11,8 @@ public class ProductRequest {
     @NotBlank(message = "Tên sản phẩm không được để trống")
     private String name;
     
+    private String slug;
+    
     private String description;
     
     @NotNull(message = "Giá sản phẩm không được để trống")
@@ -28,9 +30,10 @@ public class ProductRequest {
     public ProductRequest() {
     }
 
-    public ProductRequest(String name, String description, BigDecimal price, Integer stockQuantity,
+    public ProductRequest(String name, String slug, String description, BigDecimal price, Integer stockQuantity,
                           Boolean status, String categoryId) {
         this.name = name;
+        this.slug = slug;
         this.description = description;
         this.price = price;
         this.stockQuantity = stockQuantity;
@@ -44,6 +47,14 @@ public class ProductRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public String getDescription() {
