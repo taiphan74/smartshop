@@ -49,12 +49,8 @@ public class ProductWebController {
             productView.put("images", productDTO.getImages());
             productView.put("mainImageUrl", mainImageUrl);
             
-            // Các dữ liệu hiển thị (mock data nếu Entity chưa có)
-            productView.put("originalPrice", productDTO.getPrice() != null ? productDTO.getPrice().multiply(new BigDecimal("1.3")) : new BigDecimal("770000"));
-            productView.put("discountPercent", 30);
-            productView.put("rating", 4.9);
-            productView.put("reviewCount", "28,6k");
-
+            productView.put("description", productDTO.getDescription());
+            productView.put("stockQuantity", productDTO.getStockQuantity());
 
             model.addAttribute("product", productView);
             return "product-detail";
