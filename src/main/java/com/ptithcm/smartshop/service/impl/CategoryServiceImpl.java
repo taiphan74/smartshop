@@ -109,13 +109,18 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO update(String id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
-        
-        String baseSlug = SlugUtil.toSlug(request.getName());
-        String slug = generateUniqueSlug(baseSlug);
+
+        // Only regenerate slug if name changed and the resulting slug is different
+        if (!java.util.Objects.equals(category.getName(), request.getName())) {
+            String baseSlug = SlugUtil.toSlug(request.getName());
+            if (!baseSlug.equals(category.getSlug())) {
+                String slug = generateUniqueSlug(baseSlug);
+                category.setSlug(slug);
+            }
+        }
 
         categoryMapper.updateEntity(request, category);
-        category.setSlug(slug);
-        
+
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
@@ -123,7 +128,7 @@ public class CategoryServiceImpl implements CategoryService {
         } else {
             category.setParent(null);
         }
-        
+
         Category updated = categoryRepository.save(category);
         return categoryMapper.toDTO(updated);
     }
@@ -137,6 +142,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private String generateUniqueSlug(String baseSlug) {
+        if (!categoryRepository.findBySlug(baseSlug).isPresent()) {
+            return baseSlug;
+        }
+        
         String slug;
         do {
             slug = baseSlug + "-" + SlugUtil.randomSuffix(6);

@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.controller;
 
-import com.ptithcm.smartshop.dto.ProductDTO;
+import com.ptithcm.smartshop.dto.ProductDetailDTO;
 import com.ptithcm.smartshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,11 +25,11 @@ public class ProductWebController {
 
     @GetMapping("/san-pham/{slug}")
     public String getProductDetail(@PathVariable("slug") String slug, Model model) {
-        Optional<ProductDTO> productOpt = productService.findBySlug(slug);
-        
+        Optional<ProductDetailDTO> productOpt = productService.findBySlug(slug);
+
         if (productOpt.isPresent()) {
-            ProductDTO productDTO = productOpt.get();
-            
+            ProductDetailDTO productDTO = productOpt.get();
+
             // Tìm ảnh chính (Main Image)
             String mainImageUrl = "https://via.placeholder.com/400"; // Ảnh mặc định nếu chưa có
             if (productDTO.getImages() != null && !productDTO.getImages().isEmpty()) {
@@ -48,14 +48,14 @@ public class ProductWebController {
             productView.put("price", productDTO.getPrice() != null ? productDTO.getPrice() : BigDecimal.ZERO);
             productView.put("images", productDTO.getImages());
             productView.put("mainImageUrl", mainImageUrl);
-            
+
             productView.put("description", productDTO.getDescription());
             productView.put("stockQuantity", productDTO.getStockQuantity());
 
             model.addAttribute("product", productView);
             return "product-detail";
         }
-        
+
         // Nếu không tìm thấy, có thể trả về một trang 404 hoặc chuyển về trang chủ
         return "redirect:/";
     }
