@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Shop</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                blue: '#0A68FF',
+                'blue-hover': '#0059D6',
+                'blue-soft': '#EAF2FF',
+                red: '#FF424E',
+                'red-hover': '#F92F3B',
+                'red-soft': '#FFF0F1',
+                green: '#00AB56',
+                'green-soft': '#EFFFF4',
+              },
+              primary: {
+                DEFAULT: '#0A68FF',
+                hover: '#0059D6',
+                soft: '#EAF2FF',
+              },
+              warning: '#FFB200',
+              surface: {
+                DEFAULT: '#FFFFFF',
+                soft: '#FAFAFC',
+              },
+              border: {
+                DEFAULT: '#EBEBF0',
+                strong: '#DDDDE3',
+              },
+              text: {
+                primary: '#27272A',
+                secondary: '#808089',
+                muted: '#A6A6B0',
+              },
+              yellow: {
+                DEFAULT: '#ffce3d',
+              }
+            },
+            backgroundColor: {
+              'page-bg': '#F5F5FA',
+            },
+            borderRadius: {
+              'sm': '8px',
+              'md': '12px',
+              'lg': '16px',
+              'pill': '999px',
+            },
+            boxShadow: {
+              'sm': '0 1px 2px rgba(39, 39, 42, 0.04)',
+              'md': '0 4px 14px rgba(39, 39, 42, 0.08)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <!-- Component Navbar -->
+    <nav th:fragment="navbar" class="bg-brand-blue text-white pt-2 pb-4 shadow-md">
+        <div class="container mx-auto px-4 flex flex-col gap-4">
+            <!-- Top bar -->
+            <div class="flex justify-between items-center text-xs opacity-90">
+                <div class="flex gap-4 border-r border-white/20 pr-4">
+                    <a href="#" class="hover:opacity-80">Kênh Người Bán</a>
+                    <a href="#" class="hover:opacity-80">Trở thành Người bán Shopee</a>
+                    <a href="#" class="hover:opacity-80">Tải ứng dụng</a>
+                </div>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:opacity-80">Thông báo</a>
+                    <a href="#" class="hover:opacity-80">Hỗ trợ</a>
+                    <a href="#" class="hover:opacity-80 font-medium">Đăng Ký</a>
+                    <span class="opacity-50 border-l border-white/40"></span>
+                    <a href="#" class="hover:opacity-80 font-medium">Đăng Nhập</a>
+                </div>
+            </div>
+            <!-- Main Navbar body -->
+            <div class="flex items-center gap-8 mt-2">
+                <a href="/" class="text-3xl font-medium tracking-tight flex items-center gap-2">
+                    🛒 SmartShop
+                </a>
+                <div class="flex-1 ml-8 relative">
+                    <input type="text" placeholder="Tìm kiểm sản phẩm, thương hiệu..." class="w-full bg-surface text-text-primary rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-brand-blue-soft">
+                    <button class="bg-brand-blue hover:bg-brand-blue-hover absolute right-1 top-1 bottom-1 text-white px-4 rounded-md transition">🔍</button>
+                </div>
+                <div class="ml-6 text-3xl cursor-pointer hover:opacity-80">
+                   🛒
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer th:fragment="footer" class="bg-surface border-t border-border mt-16 py-12">
+        <div class="container mx-auto px-4 text-center text-text-secondary text-sm">
+            <p class="mb-2 uppercase text-text-primary font-medium">© 2026 SmartShop. Tất cả các quyền được bảo lưu.</p>
+            <p>Nền tảng thương mại điện tử mua sắm trực tuyến hàng đầu.</p>
+        </div>
+    </footer>
+</body>
+</html>
