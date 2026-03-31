@@ -41,9 +41,6 @@ public class ProductVariant {
     @Column(nullable = false)
     private Boolean status = true;
 
-    @Column(length = 100)
-    private String barcode;
-
     private Double weight;
 
     @Column(name = "thumbnail_url")
@@ -123,14 +120,6 @@ public class ProductVariant {
 
     public void setStatus(Boolean status) {
         this.status = status;
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
     }
 
     public Double getWeight() {
