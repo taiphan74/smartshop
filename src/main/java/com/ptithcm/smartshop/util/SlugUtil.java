@@ -2,6 +2,7 @@ package com.ptithcm.smartshop.util;
 
 import java.text.Normalizer;
 import java.util.Locale;
+import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
 public class SlugUtil {
@@ -9,6 +10,8 @@ public class SlugUtil {
     private static final Pattern NON_LATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern MULTIPLE_HYPHENS = Pattern.compile("-+");
+    private static final String CHARSET = "abcdefghijklmnopqrstuvwxyz0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static String toSlug(String input) {
         if (input == null || input.isEmpty()) {
@@ -41,5 +44,16 @@ public class SlugUtil {
         }
 
         return slug;
+    }
+
+    public static String randomSuffix(int length) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            int index = RANDOM.nextInt(CHARSET.length());
+            sb.append(CHARSET.charAt(index));
+        }
+
+        return sb.toString();
     }
 }

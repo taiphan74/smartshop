@@ -11,11 +11,9 @@ import com.ptithcm.smartshop.repository.ProductRepository;
 import com.ptithcm.smartshop.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ptithcm.smartshop.util.SlugUtil;
 import java.util.List;
 import java.util.Optional;
-import com.ptithcm.smartshop.util.SlugUtil;
-import com.ptithcm.smartshop.exception.ConflictException;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -59,13 +57,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO save(ProductRequest request) {
-        String slug = StringUtils.hasText(request.getSlug()) 
-                ? SlugUtil.toSlug(request.getSlug()) 
-                : SlugUtil.toSlug(request.getName());
-
-        if (productRepository.findBySlug(slug).isPresent()) {
-            throw new ConflictException("Product", "slug");
-        }
+        String baseSlug = SlugUtil.toSlug(request.getName());
+        String slug = generateUniqueSlug(baseSlug);
 
         Product product = productMapper.toEntity(request);
         product.setSlug(slug);
@@ -83,14 +76,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
         
-        String slug = StringUtils.hasText(request.getSlug()) 
-                ? SlugUtil.toSlug(request.getSlug()) 
-                : SlugUtil.toSlug(request.getName());
-
-        Optional<Product> existingProduct = productRepository.findBySlug(slug);
-        if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id)) {
-            throw new ConflictException("Product", "slug");
-        }
+        String baseSlug = SlugUtil.toSlug(request.getName());
+        String slug = generateUniqueSlug(baseSlug);
 
         productMapper.updateEntity(request, product);
         product.setSlug(slug);
@@ -109,5 +96,13 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Product", id);
         }
         productRepository.deleteById(id);
+    }
+
+    private String generateUniqueSlug(String baseSlug) {
+        String slug;
+        do {
+            slug = baseSlug + "-" + SlugUtil.randomSuffix(6);
+        } while (productRepository.findBySlug(slug).isPresent());
+        return slug;
     }
 }

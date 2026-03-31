@@ -50,7 +50,6 @@ public class ProductMapper {
         
         Product product = new Product();
         product.setName(request.getName());
-        product.setSlug(request.getSlug());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStockQuantity(request.getStockQuantity());
@@ -65,7 +64,6 @@ public class ProductMapper {
         }
         
         product.setName(request.getName());
-        product.setSlug(request.getSlug());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setStockQuantity(request.getStockQuantity());

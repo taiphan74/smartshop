@@ -3,7 +3,6 @@ package com.ptithcm.smartshop.service.impl;
 import com.ptithcm.smartshop.dto.CategoryDTO;
 import com.ptithcm.smartshop.dto.request.CategoryRequest;
 import com.ptithcm.smartshop.entity.Category;
-import com.ptithcm.smartshop.exception.ConflictException;
 import com.ptithcm.smartshop.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.mapper.CategoryMapper;
 import com.ptithcm.smartshop.repository.CategoryRepository;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import com.ptithcm.smartshop.util.SlugUtil;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -61,13 +59,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO save(CategoryRequest request) {
-        String slug = StringUtils.hasText(request.getSlug()) 
-                ? SlugUtil.toSlug(request.getSlug()) 
-                : SlugUtil.toSlug(request.getName());
-
-        if (categoryRepository.findBySlug(slug).isPresent()) {
-            throw new ConflictException("Category", "slug");
-        }
+        String baseSlug = SlugUtil.toSlug(request.getName());
+        String slug = generateUniqueSlug(baseSlug);
         
         Category category = categoryMapper.toEntity(request);
         category.setSlug(slug);
@@ -87,14 +80,8 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
         
-        String slug = StringUtils.hasText(request.getSlug()) 
-                ? SlugUtil.toSlug(request.getSlug()) 
-                : SlugUtil.toSlug(request.getName());
-
-        Optional<Category> existingCategory = categoryRepository.findBySlug(slug);
-        if (existingCategory.isPresent() && !existingCategory.get().getId().equals(id)) {
-            throw new ConflictException("Category", "slug");
-        }
+        String baseSlug = SlugUtil.toSlug(request.getName());
+        String slug = generateUniqueSlug(baseSlug);
 
         categoryMapper.updateEntity(request, category);
         category.setSlug(slug);
@@ -117,5 +104,13 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ResourceNotFoundException("Category", id);
         }
         categoryRepository.deleteById(id);
+    }
+
+    private String generateUniqueSlug(String baseSlug) {
+        String slug;
+        do {
+            slug = baseSlug + "-" + SlugUtil.randomSuffix(6);
+        } while (categoryRepository.findBySlug(slug).isPresent());
+        return slug;
     }
 }

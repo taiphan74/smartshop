@@ -41,7 +41,6 @@ public class CategoryMapper {
         
         Category category = new Category();
         category.setName(request.getName());
-        category.setSlug(request.getSlug());
         
         return category;
     }
@@ -52,7 +51,6 @@ public class CategoryMapper {
         }
         
         category.setName(request.getName());
-        category.setSlug(request.getSlug());
         
         return category;
     }

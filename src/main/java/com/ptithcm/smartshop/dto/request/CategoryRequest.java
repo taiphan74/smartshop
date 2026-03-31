@@ -6,15 +6,13 @@ public class CategoryRequest {
     
     @NotBlank(message = "Tên danh mục không được để trống")
     private String name;
-    private String slug;
     private String parentId;
 
     public CategoryRequest() {
     }
 
-    public CategoryRequest(String name, String slug, String parentId) {
+    public CategoryRequest(String name, String parentId) {
         this.name = name;
-        this.slug = slug;
         this.parentId = parentId;
     }
 
@@ -24,14 +22,6 @@ public class CategoryRequest {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
     }
 
     public String getParentId() {
