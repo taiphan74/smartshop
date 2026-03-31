@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-seed-rbac-data
+      author: codex
+      changes:
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: USER_READ }
+              - column: { name: description, value: View users }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: USER_CREATE }
+              - column: { name: description, value: Create users }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: USER_UPDATE }
+              - column: { name: description, value: Update users }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: USER_DELETE }
+              - column: { name: description, value: Delete users }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: name, value: ADMIN }
+              - column: { name: description, value: Administrator role }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: name, value: CUSTOMER }
+              - column: { name: description, value: Customer role }
+        - sql:
+            sql: |
+              INSERT INTO role_permissions(role_id, permission_id)
+              SELECT r.id, p.id
+              FROM roles r
+              CROSS JOIN permissions p
+              WHERE r.name = 'ADMIN';
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: admin }
+              - column: { name: email, value: admin@smartshop.local }
+              - column: { name: password, value: $2a$10$OHI.d1Ts5/wxS6/uQRtdI.WVM.uDZ/FJGswnabD7AsrBlxDVo.DPy }
+              - column: { name: full_name, value: System Administrator }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: customer }
+              - column: { name: email, value: customer@smartshop.local }
+              - column: { name: password, value: $2a$10$OHI.d1Ts5/wxS6/uQRtdI.WVM.uDZ/FJGswnabD7AsrBlxDVo.DPy }
+              - column: { name: full_name, value: Default Customer }
+              - column: { name: enabled, valueBoolean: true }
+        - sql:
+            sql: |
+              INSERT INTO user_roles(user_id, role_id)
+              SELECT u.id, r.id
+              FROM users u
+              JOIN roles r ON r.name = 'ADMIN'
+              WHERE u.username = 'admin';
+        - sql:
+            sql: |
+              INSERT INTO user_roles(user_id, role_id)
+              SELECT u.id, r.id
+              FROM users u
+              JOIN roles r ON r.name = 'CUSTOMER'
+              WHERE u.username = 'customer';
