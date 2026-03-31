@@ -18,6 +18,8 @@ public class ProductDetailDTO {
     private String categoryId;
     private String categoryName;
     private List<ProductImageDTO> images;
+    private List<ProductOptionDTO> options;
+    private List<ProductVariantDTO> variants;
 
     public ProductDetailDTO() {
     }
@@ -116,5 +118,21 @@ public class ProductDetailDTO {
 
     public void setImages(List<ProductImageDTO> images) {
         this.images = images;
+    }
+
+    public List<ProductOptionDTO> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<ProductOptionDTO> options) {
+        this.options = options;
+    }
+
+    public List<ProductVariantDTO> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<ProductVariantDTO> variants) {
+        this.variants = variants;
     }
 }

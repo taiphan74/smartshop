@@ -1,14 +1,18 @@
 package com.ptithcm.smartshop.mapper;
 
-import com.ptithcm.smartshop.dto.ProductDetailDTO;
-import com.ptithcm.smartshop.dto.ProductImageDTO;
-import com.ptithcm.smartshop.dto.ProductListDTO;
+import com.ptithcm.smartshop.dto.*;
 import com.ptithcm.smartshop.dto.request.ProductRequest;
 import com.ptithcm.smartshop.entity.Product;
 import com.ptithcm.smartshop.entity.ProductImage;
+import com.ptithcm.smartshop.entity.ProductOption;
+import com.ptithcm.smartshop.entity.ProductOptionValue;
+import com.ptithcm.smartshop.entity.ProductVariant;
 import com.ptithcm.smartshop.repository.ProductProjection;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +28,10 @@ public class ProductMapper {
         dto.setId(product.getId());
         dto.setName(product.getName());
         dto.setSlug(product.getSlug());
-        dto.setPrice(product.getPrice());
+        dto.setPrice(product.getVariants().stream()
+                .map(ProductVariant::getPrice)
+                .min(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO));
         dto.setStatus(product.getStatus());
 
         if (product.getCategory() != null) {
@@ -52,8 +59,13 @@ public class ProductMapper {
         dto.setName(product.getName());
         dto.setSlug(product.getSlug());
         dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-        dto.setStockQuantity(product.getStockQuantity());
+        dto.setPrice(product.getVariants().stream()
+                .map(ProductVariant::getPrice)
+                .min(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO));
+        dto.setStockQuantity(product.getVariants().stream()
+                .mapToInt(ProductVariant::getStockQuantity)
+                .sum());
         dto.setStatus(product.getStatus());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
@@ -69,6 +81,18 @@ public class ProductMapper {
                     .collect(Collectors.toList()));
         }
 
+        if (product.getOptions() != null) {
+            dto.setOptions(product.getOptions().stream()
+                    .map(this::toOptionDTO)
+                    .collect(Collectors.toList()));
+        }
+
+        if (product.getVariants() != null) {
+            dto.setVariants(product.getVariants().stream()
+                    .map(this::toVariantDTO)
+                    .collect(Collectors.toList()));
+        }
+
         return dto;
     }
 
@@ -80,8 +104,6 @@ public class ProductMapper {
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setStockQuantity(request.getStockQuantity());
         product.setStatus(request.getStatus());
         
         return product;
@@ -94,8 +116,6 @@ public class ProductMapper {
         
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setStockQuantity(request.getStockQuantity());
         product.setStatus(request.getStatus());
         
         return product;
@@ -157,5 +177,47 @@ public class ProductMapper {
         return projections.stream()
                 .map(this::toListDTO)
                 .collect(Collectors.toList());
+    }
+
+    public ProductVariantDTO toVariantDTO(ProductVariant variant) {
+        if (variant == null) return null;
+        ProductVariantDTO dto = new ProductVariantDTO();
+        dto.setId(variant.getId());
+        dto.setSku(variant.getSku());
+        dto.setPrice(variant.getPrice());
+        dto.setCompareAtPrice(variant.getCompareAtPrice());
+        dto.setStockQuantity(variant.getStockQuantity());
+        dto.setBarcode(variant.getBarcode());
+        dto.setWeight(variant.getWeight());
+        dto.setThumbnailUrl(variant.getThumbnailUrl());
+        if (variant.getOptionValues() != null) {
+            dto.setOptionValues(variant.getOptionValues().stream()
+                    .map(this::toOptionValueDTO)
+                    .collect(Collectors.toList()));
+        }
+        return dto;
+    }
+
+    public ProductOptionDTO toOptionDTO(ProductOption option) {
+        if (option == null) return null;
+        ProductOptionDTO dto = new ProductOptionDTO();
+        dto.setId(option.getId());
+        dto.setName(option.getName());
+        dto.setSortOrder(option.getSortOrder());
+        if (option.getValues() != null) {
+            dto.setValues(option.getValues().stream()
+                    .map(this::toOptionValueDTO)
+                    .collect(Collectors.toList()));
+        }
+        return dto;
+    }
+
+    public ProductOptionValueDTO toOptionValueDTO(ProductOptionValue value) {
+        if (value == null) return null;
+        ProductOptionValueDTO dto = new ProductOptionValueDTO();
+        dto.setId(value.getId());
+        dto.setValue(value.getValue());
+        dto.setSortOrder(value.getSortOrder());
+        return dto;
     }
 }

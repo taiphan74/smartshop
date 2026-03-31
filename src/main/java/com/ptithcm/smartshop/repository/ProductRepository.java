@@ -18,9 +18,12 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query("SELECT p.id AS id, " +
            "p.name AS name, " +
            "p.slug AS slug, " +
-           "p.price AS price, " +
            "p.status AS status, " +
            "p.category.name AS categoryName, " +
+           "COALESCE(" +
+           "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
+           "  0.0" +
+           ") AS price, " +
            "COALESCE(" +
            "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
@@ -31,9 +34,12 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query("SELECT p.id AS id, " +
            "p.name AS name, " +
            "p.slug AS slug, " +
-           "p.price AS price, " +
            "p.status AS status, " +
            "p.category.name AS categoryName, " +
+           "COALESCE(" +
+           "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
+           "  0.0" +
+           ") AS price, " +
            "COALESCE(" +
            "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +

@@ -48,12 +48,12 @@ public class ProductWebController {
             productView.put("price", productDTO.getPrice() != null ? productDTO.getPrice() : BigDecimal.ZERO);
             productView.put("images", productDTO.getImages());
             productView.put("mainImageUrl", mainImageUrl);
-
             productView.put("description", productDTO.getDescription());
             productView.put("stockQuantity", productDTO.getStockQuantity());
+            productView.put("categoryName", productDTO.getCategoryName());
 
             model.addAttribute("product", productView);
-            return "product-detail";
+            return "product/detail";
         }
 
         // Nếu không tìm thấy, có thể trả về một trang 404 hoặc chuyển về trang chủ
