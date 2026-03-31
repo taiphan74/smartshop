@@ -1,22 +1,21 @@
-package com.ptithcm.smartshop.user.service.impl;
+package com.ptithcm.smartshop.auth.service.impl;
 
+import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
+import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
+import com.ptithcm.smartshop.auth.dto.AuthResponse;
+import com.ptithcm.smartshop.auth.service.AuthService;
 import com.ptithcm.smartshop.common.exception.ConflictException;
 import com.ptithcm.smartshop.common.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.common.exception.UnauthorizedException;
 import com.ptithcm.smartshop.security.CustomUserDetails;
-import com.ptithcm.smartshop.security.RoleCode;
 import com.ptithcm.smartshop.security.SessionConstants;
 import com.ptithcm.smartshop.security.SessionUser;
-import com.ptithcm.smartshop.user.dto.AuthLoginRequest;
-import com.ptithcm.smartshop.user.dto.AuthRegisterRequest;
-import com.ptithcm.smartshop.user.dto.AuthResponse;
 import com.ptithcm.smartshop.user.dto.UserResponse;
 import com.ptithcm.smartshop.user.entity.Role;
 import com.ptithcm.smartshop.user.entity.User;
 import com.ptithcm.smartshop.user.enums.UserStatus;
 import com.ptithcm.smartshop.user.repository.RoleRepository;
 import com.ptithcm.smartshop.user.repository.UserRepository;
-import com.ptithcm.smartshop.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.Set;
@@ -32,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+	private static final String CUSTOMER_ROLE_CODE = "CUSTOMER";
 
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
@@ -60,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
 			throw new ConflictException("Phone already exists");
 		}
 
-		Role customerRole = roleRepository.findByCode(RoleCode.CUSTOMER)
+		Role customerRole = roleRepository.findByCode(CUSTOMER_ROLE_CODE)
 			.orElseThrow(() -> new ResourceNotFoundException("Default role CUSTOMER was not found"));
 
 		User user = new User();

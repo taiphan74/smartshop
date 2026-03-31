@@ -1,8 +1,8 @@
-package com.ptithcm.smartshop.user.service;
+package com.ptithcm.smartshop.auth.service;
 
-import com.ptithcm.smartshop.user.dto.AuthLoginRequest;
-import com.ptithcm.smartshop.user.dto.AuthRegisterRequest;
-import com.ptithcm.smartshop.user.dto.AuthResponse;
+import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
+import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
+import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {

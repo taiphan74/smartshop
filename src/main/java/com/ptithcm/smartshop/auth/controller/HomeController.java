@@ -1,7 +1,7 @@
-package com.ptithcm.smartshop.user.controller;
+package com.ptithcm.smartshop.auth.controller;
 
-import com.ptithcm.smartshop.user.dto.AuthResponse;
-import com.ptithcm.smartshop.user.service.AuthService;
+import com.ptithcm.smartshop.auth.dto.AuthResponse;
+import com.ptithcm.smartshop.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

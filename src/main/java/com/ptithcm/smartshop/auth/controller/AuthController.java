@@ -1,10 +1,10 @@
-package com.ptithcm.smartshop.user.controller;
+package com.ptithcm.smartshop.auth.controller;
 
+import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
+import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
+import com.ptithcm.smartshop.auth.service.AuthService;
 import com.ptithcm.smartshop.common.exception.ConflictException;
 import com.ptithcm.smartshop.security.SessionConstants;
-import com.ptithcm.smartshop.user.dto.AuthLoginRequest;
-import com.ptithcm.smartshop.user.dto.AuthRegisterRequest;
-import com.ptithcm.smartshop.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
