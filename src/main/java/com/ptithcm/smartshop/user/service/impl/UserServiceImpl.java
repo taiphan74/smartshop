@@ -2,13 +2,13 @@ package com.ptithcm.smartshop.user.service.impl;
 
 import com.ptithcm.smartshop.common.exception.ConflictException;
 import com.ptithcm.smartshop.common.exception.ResourceNotFoundException;
+import com.ptithcm.smartshop.security.rbac.repository.RoleRepository;
 import com.ptithcm.smartshop.user.dto.UserCreateRequest;
 import com.ptithcm.smartshop.user.dto.UserResponse;
 import com.ptithcm.smartshop.user.dto.UserUpdateRequest;
 import com.ptithcm.smartshop.user.entity.Role;
 import com.ptithcm.smartshop.user.entity.User;
 import com.ptithcm.smartshop.user.enums.UserStatus;
-import com.ptithcm.smartshop.user.repository.RoleRepository;
 import com.ptithcm.smartshop.user.repository.UserRepository;
 import com.ptithcm.smartshop.user.service.UserService;
 import java.util.HashSet;

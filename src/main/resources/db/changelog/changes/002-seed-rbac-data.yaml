@@ -6,22 +6,22 @@ databaseChangeLog:
         - insert:
             tableName: permissions
             columns:
-              - column: { name: code, value: USER_READ }
+              - column: { name: code, value: user:read }
               - column: { name: description, value: View users }
         - insert:
             tableName: permissions
             columns:
-              - column: { name: code, value: USER_CREATE }
+              - column: { name: code, value: user:create }
               - column: { name: description, value: Create users }
         - insert:
             tableName: permissions
             columns:
-              - column: { name: code, value: USER_UPDATE }
+              - column: { name: code, value: user:update }
               - column: { name: description, value: Update users }
         - insert:
             tableName: permissions
             columns:
-              - column: { name: code, value: USER_DELETE }
+              - column: { name: code, value: user:delete }
               - column: { name: description, value: Delete users }
         - insert:
             tableName: roles

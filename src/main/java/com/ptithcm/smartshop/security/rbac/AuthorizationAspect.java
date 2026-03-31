@@ -1,9 +1,10 @@
-package com.ptithcm.smartshop.auth.security;
+package com.ptithcm.smartshop.security.rbac;
 
-import com.ptithcm.smartshop.auth.annotation.RequirePermission;
 import com.ptithcm.smartshop.auth.annotation.RequireRole;
 import com.ptithcm.smartshop.common.exception.UnauthorizedException;
 import com.ptithcm.smartshop.security.CustomUserDetails;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,10 +18,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthorizationAspect {
 
-	private final DatabaseAccessVerifier databaseAccessVerifier;
+	private final AuthorizationService authorizationService;
 
-	public AuthorizationAspect(DatabaseAccessVerifier databaseAccessVerifier) {
-		this.databaseAccessVerifier = databaseAccessVerifier;
+	public AuthorizationAspect(AuthorizationService authorizationService) {
+		this.authorizationService = authorizationService;
 	}
 
 	@Before("@within(requirePermission) || @annotation(requirePermission)")
@@ -33,8 +34,20 @@ public class AuthorizationAspect {
 		}
 
 		UUID userId = getCurrentUserId();
-		if (!databaseAccessVerifier.hasPermission(userId, requirePermission.value())) {
-			throw new AccessDeniedException("Permission denied: " + requirePermission.value().code());
+		List<Permission> requiredPermissions = Arrays.stream(requirePermission.value()).toList();
+		List<Permission> anyOfPermissions = Arrays.stream(requirePermission.anyOf()).toList();
+		List<Permission> allOfPermissions = Arrays.stream(requirePermission.allOf()).toList();
+		if (requiredPermissions.isEmpty() && anyOfPermissions.isEmpty() && allOfPermissions.isEmpty()) {
+			throw new IllegalStateException("@RequirePermission must declare value, anyOf, or allOf");
+		}
+		if (!authorizationService.hasAllPermissions(userId, requiredPermissions)) {
+			throw new AccessDeniedException("Permission denied: required permissions " + requiredPermissions);
+		}
+		if (!authorizationService.hasAllPermissions(userId, allOfPermissions)) {
+			throw new AccessDeniedException("Permission denied: allOf permissions " + allOfPermissions);
+		}
+		if (!anyOfPermissions.isEmpty() && !authorizationService.hasAnyPermission(userId, anyOfPermissions)) {
+			throw new AccessDeniedException("Permission denied: anyOf permissions " + anyOfPermissions);
 		}
 	}
 
@@ -48,7 +61,7 @@ public class AuthorizationAspect {
 		}
 
 		UUID userId = getCurrentUserId();
-		if (!databaseAccessVerifier.hasRole(userId, requireRole.value())) {
+		if (!authorizationService.hasRole(userId, requireRole.value())) {
 			throw new AccessDeniedException("Role denied: " + requireRole.value().code());
 		}
 	}

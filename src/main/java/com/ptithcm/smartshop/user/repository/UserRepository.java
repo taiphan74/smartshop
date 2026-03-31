@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
@@ -39,24 +37,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 		return byEmail.isPresent() ? byEmail : findByPhone(emailOrPhone);
 	}
 
-	@Query("""
-		select count(u) > 0
-		from User u
-		join u.userRoles ur
-		join ur.role r
-		join r.permissions p
-		where u.id = :userId
-		and p.code = :permissionCode
-	""")
-	boolean existsByIdAndPermissionCode(@Param("userId") UUID userId, @Param("permissionCode") String permissionCode);
-
-	@Query("""
-		select count(u) > 0
-		from User u
-		join u.userRoles ur
-		join ur.role r
-		where u.id = :userId
-		and r.code = :roleCode
-	""")
-	boolean existsByIdAndRoleCode(@Param("userId") UUID userId, @Param("roleCode") String roleCode);
 }

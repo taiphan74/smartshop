@@ -1,6 +1,5 @@
-package com.ptithcm.smartshop.auth.annotation;
+package com.ptithcm.smartshop.security.rbac;
 
-import com.ptithcm.smartshop.auth.enums.AuthPermission;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,5 +9,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequirePermission {
 
-	AuthPermission value();
+	Permission[] value() default {};
+
+	Permission[] anyOf() default {};
+
+	Permission[] allOf() default {};
 }

@@ -1,7 +1,7 @@
 package com.ptithcm.smartshop.user.controller;
 
-import com.ptithcm.smartshop.auth.annotation.RequirePermission;
-import com.ptithcm.smartshop.auth.enums.AuthPermission;
+import com.ptithcm.smartshop.security.rbac.Permission;
+import com.ptithcm.smartshop.security.rbac.RequirePermission;
 import com.ptithcm.smartshop.user.dto.UserCreateRequest;
 import com.ptithcm.smartshop.user.dto.UserResponse;
 import com.ptithcm.smartshop.user.dto.UserUpdateRequest;
@@ -32,32 +32,32 @@ public class UserController {
 	}
 
 	@GetMapping
-	@RequirePermission(AuthPermission.USER_READ)
+	@RequirePermission(Permission.USER_READ)
 	public ResponseEntity<List<UserResponse>> findAll() {
 		return ResponseEntity.ok(userService.findAll());
 	}
 
 	@GetMapping("/{id}")
-	@RequirePermission(AuthPermission.USER_READ)
+	@RequirePermission(Permission.USER_READ)
 	public ResponseEntity<UserResponse> findById(@PathVariable UUID id) {
 		return ResponseEntity.ok(userService.findById(id));
 	}
 
 	@PostMapping
-	@RequirePermission(AuthPermission.USER_CREATE)
+	@RequirePermission(Permission.USER_CREATE)
 	public ResponseEntity<UserResponse> create(@Valid @RequestBody UserCreateRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(userService.create(request));
 	}
 
 	@PutMapping("/{id}")
-	@RequirePermission(AuthPermission.USER_UPDATE)
+	@RequirePermission(Permission.USER_UPDATE)
 	public ResponseEntity<UserResponse> update(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request) {
 		return ResponseEntity.ok(userService.update(id, request));
 	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@RequirePermission(AuthPermission.USER_DELETE)
+	@RequirePermission(Permission.USER_DELETE)
 	public void delete(@PathVariable UUID id) {
 		userService.delete(id);
 	}
