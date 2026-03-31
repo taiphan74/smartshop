@@ -1,21 +1,21 @@
 package com.ptithcm.smartshop.service;
 
 import com.ptithcm.smartshop.dto.CategoryDTO;
+import com.ptithcm.smartshop.dto.PageResponse;
 import com.ptithcm.smartshop.dto.request.CategoryRequest;
-import java.util.List;
 import java.util.Optional;
 
 public interface CategoryService {
     
-    List<CategoryDTO> findAll();
+    PageResponse<CategoryDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir);
     
     Optional<CategoryDTO> findById(String id);
     
     Optional<CategoryDTO> findBySlug(String slug);
     
-    List<CategoryDTO> findParentCategories();
+    PageResponse<CategoryDTO> findParentCategories(int pageNo, int pageSize, String sortBy, String sortDir);
     
-    List<CategoryDTO> findChildCategories(String parentId);
+    PageResponse<CategoryDTO> findChildCategories(String parentId, int pageNo, int pageSize, String sortBy, String sortDir);
     
     CategoryDTO save(CategoryRequest request);
     

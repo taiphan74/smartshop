@@ -1,5 +1,6 @@
 package com.ptithcm.smartshop.service.impl;
 
+import com.ptithcm.smartshop.dto.PageResponse;
 import com.ptithcm.smartshop.dto.ProductImageDTO;
 import com.ptithcm.smartshop.dto.request.ProductImageRequest;
 import com.ptithcm.smartshop.entity.Product;
@@ -7,9 +8,13 @@ import com.ptithcm.smartshop.entity.ProductImage;
 import com.ptithcm.smartshop.exception.BadRequestException;
 import com.ptithcm.smartshop.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.mapper.ProductImageMapper;
-import com.ptithcm.smartshop.repository.ProductRepository;
 import com.ptithcm.smartshop.repository.ProductImageRepository;
+import com.ptithcm.smartshop.repository.ProductRepository;
 import com.ptithcm.smartshop.service.ProductImageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -33,8 +38,12 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductImageDTO> findAll() {
-        return productImageMapper.toDTOList(productImageRepository.findAll());
+    public PageResponse<ProductImageDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<ProductImage> productImages = productImageRepository.findAll(pageable);
+        return convertToPageResponse(productImages);
     }
 
     @Override
@@ -45,14 +54,34 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductImageDTO> findByProduct(String productId) {
-        return productImageMapper.toDTOList(productImageRepository.findByProduct_Id(productId));
+    public PageResponse<ProductImageDTO> findByProduct(String productId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<ProductImage> productImages = productImageRepository.findByProduct_Id(productId, pageable);
+        return convertToPageResponse(productImages);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductImageDTO> findMainImage(String productId) {
-        return productImageMapper.toDTOList(productImageRepository.findByProduct_IdAndIsMainTrue(productId));
+    public PageResponse<ProductImageDTO> findMainImage(String productId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<ProductImage> productImages = productImageRepository.findByProduct_IdAndIsMainTrue(productId, pageable);
+        return convertToPageResponse(productImages);
+    }
+
+    private PageResponse<ProductImageDTO> convertToPageResponse(Page<ProductImage> page) {
+        List<ProductImageDTO> content = productImageMapper.toDTOList(page.getContent());
+        return new PageResponse<>(
+                content,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
 
     @Override

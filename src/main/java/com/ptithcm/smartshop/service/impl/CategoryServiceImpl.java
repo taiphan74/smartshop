@@ -1,12 +1,17 @@
 package com.ptithcm.smartshop.service.impl;
 
 import com.ptithcm.smartshop.dto.CategoryDTO;
+import com.ptithcm.smartshop.dto.PageResponse;
 import com.ptithcm.smartshop.dto.request.CategoryRequest;
 import com.ptithcm.smartshop.entity.Category;
 import com.ptithcm.smartshop.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.mapper.CategoryMapper;
 import com.ptithcm.smartshop.repository.CategoryRepository;
 import com.ptithcm.smartshop.service.CategoryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -27,8 +32,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll() {
-        return categoryMapper.toDTOList(categoryRepository.findAll());
+    public PageResponse<CategoryDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Category> categories = categoryRepository.findAll(pageable);
+        return convertToPageResponse(categories);
     }
 
     @Override
@@ -45,16 +54,37 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findParentCategories() {
-        return categoryMapper.toDTOList(categoryRepository.findByParentIsNull());
+    public PageResponse<CategoryDTO> findParentCategories(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Category> categories = categoryRepository.findByParentIsNull(pageable);
+        return convertToPageResponse(categories);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findChildCategories(String parentId) {
+    public PageResponse<CategoryDTO> findChildCategories(String parentId, int pageNo, int pageSize, String sortBy, String sortDir) {
         Category parent = categoryRepository.findById(parentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", parentId));
-        return categoryMapper.toDTOList(categoryRepository.findByParent(parent));
+        
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Category> categories = categoryRepository.findByParent(parent, pageable);
+        return convertToPageResponse(categories);
+    }
+
+    private PageResponse<CategoryDTO> convertToPageResponse(Page<Category> page) {
+        List<CategoryDTO> content = categoryMapper.toDTOList(page.getContent());
+        return new PageResponse<>(
+                content,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
 
     @Override

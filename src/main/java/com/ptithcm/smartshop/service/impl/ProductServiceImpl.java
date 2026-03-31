@@ -1,5 +1,6 @@
 package com.ptithcm.smartshop.service.impl;
 
+import com.ptithcm.smartshop.dto.PageResponse;
 import com.ptithcm.smartshop.dto.ProductDTO;
 import com.ptithcm.smartshop.dto.request.ProductRequest;
 import com.ptithcm.smartshop.entity.Category;
@@ -9,9 +10,13 @@ import com.ptithcm.smartshop.mapper.ProductMapper;
 import com.ptithcm.smartshop.repository.CategoryRepository;
 import com.ptithcm.smartshop.repository.ProductRepository;
 import com.ptithcm.smartshop.service.ProductService;
+import com.ptithcm.smartshop.util.SlugUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.ptithcm.smartshop.util.SlugUtil;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +38,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductDTO> findAll() {
-        return productMapper.toDTOList(productRepository.findAll());
+    public PageResponse<ProductDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> products = productRepository.findAll(pageable);
+        return convertToPageResponse(products);
     }
 
     @Override
@@ -51,8 +60,24 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductDTO> findByCategory(String categoryId) {
-        return productMapper.toDTOList(productRepository.findByCategory_Id(categoryId));
+    public PageResponse<ProductDTO> findByCategory(String categoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> products = productRepository.findByCategory_Id(categoryId, pageable);
+        return convertToPageResponse(products);
+    }
+
+    private PageResponse<ProductDTO> convertToPageResponse(Page<Product> page) {
+        List<ProductDTO> content = productMapper.toDTOList(page.getContent());
+        return new PageResponse<>(
+                content,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isLast()
+        );
     }
 
     @Override

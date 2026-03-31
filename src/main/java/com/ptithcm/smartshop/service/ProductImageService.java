@@ -1,19 +1,19 @@
 package com.ptithcm.smartshop.service;
 
+import com.ptithcm.smartshop.dto.PageResponse;
 import com.ptithcm.smartshop.dto.ProductImageDTO;
 import com.ptithcm.smartshop.dto.request.ProductImageRequest;
-import java.util.List;
 import java.util.Optional;
 
 public interface ProductImageService {
     
-    List<ProductImageDTO> findAll();
+    PageResponse<ProductImageDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir);
     
     Optional<ProductImageDTO> findById(String id);
     
-    List<ProductImageDTO> findByProduct(String productId);
+    PageResponse<ProductImageDTO> findByProduct(String productId, int pageNo, int pageSize, String sortBy, String sortDir);
     
-    List<ProductImageDTO> findMainImage(String productId);
+    PageResponse<ProductImageDTO> findMainImage(String productId, int pageNo, int pageSize, String sortBy, String sortDir);
     
     ProductImageDTO save(ProductImageRequest request);
     
