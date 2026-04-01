@@ -25,6 +25,12 @@ public class Category {
     @Column(unique = true, length = 255)
     private String slug;
 
+    @Column(nullable = false, length = 1000)
+    private String path;
+
+    @Column(nullable = false)
+    private Integer level = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
@@ -57,6 +63,22 @@ public class Category {
 
     public void setSlug(String slug) {
         this.slug = slug;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 
     public Category getParent() {

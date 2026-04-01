@@ -20,6 +20,8 @@ public class CategoryMapper {
         dto.setId(category.getId());
         dto.setName(category.getName());
         dto.setSlug(category.getSlug());
+        dto.setPath(category.getPath());
+        dto.setLevel(category.getLevel());
         
         if (category.getParent() != null) {
             dto.setParentId(category.getParent().getId());

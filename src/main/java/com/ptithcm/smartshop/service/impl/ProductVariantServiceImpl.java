@@ -162,7 +162,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         variant.setCompareAtPrice(request.getCompareAtPrice());
         variant.setStockQuantity(request.getStockQuantity());
         variant.setStatus(request.getStatus() != null ? request.getStatus() : Boolean.TRUE);
-        variant.setWeight(request.getWeight());
         variant.setThumbnailUrl(normalizeNullable(request.getThumbnailUrl()));
         variant.setOptionValues(optionValues);
     }

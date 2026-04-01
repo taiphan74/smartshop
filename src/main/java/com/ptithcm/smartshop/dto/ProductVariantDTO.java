@@ -9,7 +9,6 @@ public class ProductVariantDTO {
     private BigDecimal price;
     private BigDecimal compareAtPrice;
     private Integer stockQuantity;
-    private Double weight;
     private String thumbnailUrl;
     private List<ProductOptionValueDTO> optionValues;
 
@@ -51,14 +50,6 @@ public class ProductVariantDTO {
 
     public void setStockQuantity(Integer stockQuantity) {
         this.stockQuantity = stockQuantity;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
     }
 
     public String getThumbnailUrl() {

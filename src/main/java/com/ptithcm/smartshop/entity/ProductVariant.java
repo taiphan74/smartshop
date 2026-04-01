@@ -41,8 +41,6 @@ public class ProductVariant {
     @Column(nullable = false)
     private Boolean status = true;
 
-    private Double weight;
-
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
@@ -120,14 +118,6 @@ public class ProductVariant {
 
     public void setStatus(Boolean status) {
         this.status = status;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
     }
 
     public String getThumbnailUrl() {

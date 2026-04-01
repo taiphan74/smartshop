@@ -18,7 +18,6 @@ public class ProductVariantRequest {
     private BigDecimal compareAtPrice;
     private Integer stockQuantity;
     private Boolean status;
-    private Double weight;
     private String thumbnailUrl;
 
     @NotEmpty(message = "Danh sách option value không được để trống")
@@ -70,14 +69,6 @@ public class ProductVariantRequest {
 
     public void setStatus(Boolean status) {
         this.status = status;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
     }
 
     public String getThumbnailUrl() {

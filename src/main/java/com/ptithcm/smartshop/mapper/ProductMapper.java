@@ -187,7 +187,6 @@ public class ProductMapper {
         dto.setPrice(variant.getPrice());
         dto.setCompareAtPrice(variant.getCompareAtPrice());
         dto.setStockQuantity(variant.getStockQuantity());
-        dto.setWeight(variant.getWeight());
         dto.setThumbnailUrl(variant.getThumbnailUrl());
         if (variant.getOptionValues() != null) {
             dto.setOptionValues(variant.getOptionValues().stream()

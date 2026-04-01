@@ -89,16 +89,25 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO save(CategoryRequest request) {
-        String baseSlug = SlugUtil.toSlug(request.getName());
-        String slug = generateUniqueSlug(baseSlug);
-        
         Category category = categoryMapper.toEntity(request);
-        category.setSlug(slug);
+        String nameSlug = SlugUtil.toSlug(request.getName());
+        String finalSlug;
         
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
             category.setParent(parent);
+            category.setLevel(parent.getLevel() + 1);
+            
+            // Logic giống Seeder: parentSlug + "-" + currentNameSlug
+            finalSlug = parent.getSlug() + "-" + nameSlug;
+            category.setSlug(finalSlug);
+            category.setPath(parent.getPath() + "/" + finalSlug);
+        } else {
+            category.setLevel(0);
+            finalSlug = nameSlug;
+            category.setSlug(finalSlug);
+            category.setPath("/" + finalSlug);
         }
         
         Category saved = categoryRepository.save(category);
@@ -110,27 +119,44 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
 
-        // Only regenerate slug if name changed and the resulting slug is different
-        if (!java.util.Objects.equals(category.getName(), request.getName())) {
-            String baseSlug = SlugUtil.toSlug(request.getName());
-            if (!baseSlug.equals(category.getSlug())) {
-                String slug = generateUniqueSlug(baseSlug);
-                category.setSlug(slug);
-            }
-        }
-
+        String oldPath = category.getPath();
+        
+        // Cập nhật Slug mới dựa trên tên và phân cấp mới
+        String nameSlug = SlugUtil.toSlug(request.getName());
         categoryMapper.updateEntity(request, category);
 
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
             category.setParent(parent);
+            category.setLevel(parent.getLevel() + 1);
+            category.setSlug(parent.getSlug() + "-" + nameSlug);
+            category.setPath(parent.getPath() + "/" + category.getSlug());
         } else {
             category.setParent(null);
+            category.setLevel(0);
+            category.setSlug(nameSlug);
+            category.setPath("/" + category.getSlug());
         }
 
         Category updated = categoryRepository.save(category);
+        
+        if (!oldPath.equals(updated.getPath())) {
+            updateChildrenPaths(updated, oldPath, updated.getPath());
+        }
+
         return categoryMapper.toDTO(updated);
+    }
+
+    private void updateChildrenPaths(Category parent, String oldParentPath, String newParentPath) {
+        List<Category> children = categoryRepository.findByParent(parent);
+        for (Category child : children) {
+            String oldChildPath = child.getPath();
+            child.setPath(child.getPath().replaceFirst(java.util.regex.Pattern.quote(oldParentPath), newParentPath));
+            child.setLevel(parent.getLevel() + 1);
+            categoryRepository.save(child);
+            updateChildrenPaths(child, oldChildPath, child.getPath());
+        }
     }
 
     @Override
@@ -141,15 +167,4 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(id);
     }
 
-    private String generateUniqueSlug(String baseSlug) {
-        if (!categoryRepository.findBySlug(baseSlug).isPresent()) {
-            return baseSlug;
-        }
-        
-        String slug;
-        do {
-            slug = baseSlug + "-" + SlugUtil.randomSuffix(6);
-        } while (categoryRepository.findBySlug(slug).isPresent());
-        return slug;
-    }
 }
