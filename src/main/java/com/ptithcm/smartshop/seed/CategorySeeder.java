@@ -5,6 +5,8 @@ import com.ptithcm.smartshop.repository.CategoryRepository;
 import com.ptithcm.smartshop.util.SlugUtil;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -189,16 +191,25 @@ public class CategorySeeder implements ApplicationRunner {
     );
 
     private final CategoryRepository categoryRepository;
+    private boolean seeded = false;
 
     public CategorySeeder(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
     @Override
-    @Transactional
     public void run(ApplicationArguments args) {
-        for (CategoryNode root : CATEGORY_TREE) {
-            upsertCategory(root, null, null, 0);
+        // Seed will be triggered by ContextRefreshedEvent instead
+    }
+
+    @EventListener(ContextRefreshedEvent.class)
+    @Transactional
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (!seeded && categoryRepository.count() == 0) {
+            for (CategoryNode root : CATEGORY_TREE) {
+                upsertCategory(root, null, null, 0);
+            }
+            seeded = true;
         }
     }
 

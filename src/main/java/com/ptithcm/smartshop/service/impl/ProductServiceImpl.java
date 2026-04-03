@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,13 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<ProductProjection> projections = productRepository.findAllProjection(pageable);
         return convertToPageResponse(projections);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductListDTO> findAllProducts() {
+        List<ProductProjection> projections = productRepository.findAllProjection();
+        return productMapper.toProjectionDTOList(projections);
     }
 
     @Override

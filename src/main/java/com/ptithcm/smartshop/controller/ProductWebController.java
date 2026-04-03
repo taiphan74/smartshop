@@ -1,19 +1,23 @@
 package com.ptithcm.smartshop.controller;
 
 import com.ptithcm.smartshop.dto.ProductDetailDTO;
+import com.ptithcm.smartshop.dto.ProductListDTO;
 import com.ptithcm.smartshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/")
 public class ProductWebController {
 
     private final ProductService productService;
@@ -21,6 +25,13 @@ public class ProductWebController {
     @Autowired
     public ProductWebController(ProductService productService) {
         this.productService = productService;
+    }
+
+    @GetMapping
+    public String getHome(Model model) {
+        List<ProductListDTO> products = productService.findAllProducts();
+        model.addAttribute("products", products);
+        return "product/home";
     }
 
     @GetMapping("/san-pham/{slug}")
@@ -56,7 +67,7 @@ public class ProductWebController {
             return "product/detail";
         }
 
-        // Nếu không tìm thấy, có thể trả về một trang 404 hoặc chuyển về trang chủ
-        return "redirect:/";
+        // Nếu không tìm thấy, trả về 404
+        return "error/404";
     }
 }
