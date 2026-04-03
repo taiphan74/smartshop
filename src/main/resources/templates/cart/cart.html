@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Giỏ hàng')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="container mx-auto px-4 py-8 max-w-[1200px]">
+        <h1 class="text-2xl font-semibold mb-6">🛒 Giỏ hàng của bạn</h1>
+
+        <div th:if="${cart.items.size()} > 0" class="bg-white rounded-lg shadow-sm p-4">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="border-b py-2">Sản phẩm</th>
+                        <th class="border-b py-2">Đơn giá</th>
+                        <th class="border-b py-2">Số lượng</th>
+                        <th class="border-b py-2">Tạm tính</th>
+                        <th class="border-b py-2">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${cart.items}" class="border-b">
+                        <td class="py-3 flex gap-3 items-center">
+                            <img th:src="${item.imageUrl}" alt="" class="w-16 h-16 rounded object-cover" onerror="this.src='https://via.placeholder.com/80'" />
+                            <div>
+                                <div th:text="${item.name}" class="font-medium"></div>
+                                <div th:text="${item.slug}" class="text-xs text-gray-500"></div>
+                            </div>
+                        </td>
+                        <td class="py-3" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                        <td class="py-3">
+                            <form th:action="@{/cart/update}" method="post" class="flex items-center gap-2">
+                                <input type="hidden" name="slug" th:value="${item.slug}" />
+                                <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="w-16 border border-border-strong rounded text-center" />
+                                <button type="submit" class="px-2 py-1 bg-brand-blue text-white rounded text-xs">Cập nhật</button>
+                            </form>
+                        </td>
+                        <td class="py-3" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                        <td class="py-3">
+                            <form th:action="@{/cart/remove}" method="post">
+                                <input type="hidden" name="slug" th:value="${item.slug}" />
+                                <button type="submit" class="px-2 py-1 text-red-600 hover:text-red-800 text-xs">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="mt-4">
+                <form th:action="@{/cart/clear}" method="post" onsubmit="return confirm('Xóa toàn bộ giỏ hàng?');">
+                    <button type="submit" class="text-sm text-red-600 hover:text-red-800">Xóa toàn bộ giỏ hàng</button>
+                </form>
+            </div>
+
+            <div class="mt-6 flex justify-between items-center">
+                <div class="text-lg font-medium">Tổng số lượng: <span th:text="${cart.totalQuantity}"></span></div>
+                <div class="text-2xl font-semibold">Tổng tiền: <span th:text="${#numbers.formatDecimal(cart.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span></div>
+            </div>
+
+            <div class="mt-6 flex gap-2">
+                <a href="/" class="px-6 py-2 bg-gray-200 rounded-md">Tiếp tục mua hàng</a>
+                <a th:href="@{/checkout}" class="px-6 py-2 bg-brand-blue text-white rounded-md inline-block">
+                    Tiến hành thanh toán
+                </a>
+                </div>
+                </div>
+
+        <div th:if="${cart.items.size()} == 0" class="bg-white rounded-lg shadow-sm p-8 text-center">
+            <p class="text-lg">Giỏ hàng đang trống.</p>
+            <a href="/" class="mt-4 inline-block px-6 py-2 bg-brand-blue text-white rounded-md">Xem sản phẩm</a>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
