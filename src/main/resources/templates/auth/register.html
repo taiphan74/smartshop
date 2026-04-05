@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Dang ky | Smartshop</title>
+	<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+	<section class="auth-card wide">
+		<div class="auth-brand">
+			<p class="eyebrow">Smartshop Marketplace</p>
+			<h1>Tao tai khoan</h1>
+			<p>Dang ky de tro thanh khach hang trong he thong marketplace nhieu shop.</p>
+		</div>
+
+		<div class="alert error" th:if="${formError}" th:text="${formError}"></div>
+
+		<form class="auth-form grid" th:action="@{/auth/register}" th:object="${registerRequest}" method="post">
+			<label>
+				<span>Email</span>
+				<input type="email" th:field="*{email}" placeholder="name@example.com">
+				<small class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+			</label>
+
+			<label>
+				<span>So dien thoai</span>
+				<input type="text" th:field="*{phone}" placeholder="0900000000">
+				<small class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
+			</label>
+
+			<label class="full">
+				<span>Ho va ten</span>
+				<input type="text" th:field="*{fullName}" placeholder="Nguyen Van A">
+				<small class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></small>
+			</label>
+
+			<label class="full">
+				<span>Mat khau</span>
+				<input type="password" th:field="*{password}" placeholder="Toi thieu 6 ky tu">
+				<small class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+			</label>
+
+			<button class="full" type="submit">Dang ky tai khoan</button>
+		</form>
+
+		<p class="auth-switch">
+			Da co tai khoan?
+			<a th:href="@{/auth/login}">Dang nhap</a>
+		</p>
+	</section>
+</main>
+</body>
+</html>

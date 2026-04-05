@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-migrate-permission-codes
+      author: codex
+      changes:
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: user:read }
+            where: code = 'USER_READ'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: user:create }
+            where: code = 'USER_CREATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: user:update }
+            where: code = 'USER_UPDATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: code, value: user:delete }
+            where: code = 'USER_DELETE'
