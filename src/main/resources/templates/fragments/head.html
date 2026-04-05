@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Shop</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                blue: '#0A68FF',
+                'blue-hover': '#0059D6',
+                'blue-soft': '#EAF2FF',
+                red: '#FF424E',
+                'red-hover': '#F92F3B',
+                'red-soft': '#FFF0F1',
+                green: '#00AB56',
+                'green-soft': '#EFFFF4',
+              },
+              primary: {
+                DEFAULT: '#0A68FF',
+                hover: '#0059D6',
+                soft: '#EAF2FF',
+              },
+              warning: '#FFB200',
+              surface: {
+                DEFAULT: '#FFFFFF',
+                soft: '#FAFAFC',
+              },
+              border: {
+                DEFAULT: '#EBEBF0',
+                strong: '#DDDDE3',
+              },
+              text: {
+                primary: '#27272A',
+                secondary: '#808089',
+                muted: '#A6A6B0',
+              },
+              yellow: {
+                DEFAULT: '#ffce3d',
+              }
+            },
+            backgroundColor: {
+              'page-bg': '#F5F5FA',
+            },
+            borderRadius: {
+              'sm': '8px',
+              'md': '12px',
+              'lg': '16px',
+              'pill': '999px',
+            },
+            boxShadow: {
+              'sm': '0 1px 2px rgba(39, 39, 42, 0.04)',
+              'md': '0 4px 14px rgba(39, 39, 42, 0.08)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+</html>
