@@ -11,20 +11,20 @@
 	<header class="dashboard-header">
 		<div>
 			<p class="eyebrow">Smartshop Marketplace</p>
-			<h1 th:text="'Xin chao, ' + ${sessionUser.fullName}">Xin chao</h1>
-			<p class="subtle">Thong tin dang nhap dang duoc luu trong session server-side.</p>
+			<h1 th:text="'Xin chào, ' + ${sessionUser.fullName}">Xin chào</h1>
+			<p class="subtle">Thông tin đăng nhập đang được lưu trong session server-side.</p>
 		</div>
 		<form th:action="@{/auth/logout}" method="post">
-			<button class="secondary" type="submit">Dang xuat</button>
+			<button class="secondary" type="submit">Đăng xuất</button>
 		</form>
 	</header>
 
 	<div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
-	<div class="alert error" th:if="${param.error}">Ban khong co quyen truy cap chuc nang nay.</div>
+	<div class="alert error" th:if="${param.error}">Bạn không có quyền truy cập chức năng này.</div>
 
 	<section class="dashboard-grid">
 		<article class="panel">
-			<h2>Thong tin session</h2>
+			<h2>Thông tin session</h2>
 			<ul class="detail-list">
 				<li><strong>Session ID:</strong> <span th:text="${auth.sessionId}"></span></li>
 				<li><strong>Email:</strong> <span th:text="${sessionUser.email}"></span></li>
@@ -34,7 +34,7 @@
 		</article>
 
 		<article class="panel">
-			<h2>Thong tin user</h2>
+			<h2>Thông tin người dùng</h2>
 			<ul class="detail-list">
 				<li><strong>User ID:</strong> <span th:text="${user.id}"></span></li>
 				<li><strong>Status:</strong> <span th:text="${user.status}"></span></li>

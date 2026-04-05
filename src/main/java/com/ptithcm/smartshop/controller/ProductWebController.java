@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/san-pham")
 public class ProductWebController {
 
     private final ProductService productService;
@@ -34,7 +34,7 @@ public class ProductWebController {
         return "product/home";
     }
 
-    @GetMapping("/san-pham/{slug}")
+    @GetMapping("/{slug}")
     public String getProductDetail(@PathVariable("slug") String slug, Model model) {
         Optional<ProductDetailDTO> productOpt = productService.findBySlug(slug);
 

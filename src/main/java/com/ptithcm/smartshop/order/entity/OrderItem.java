@@ -1,7 +1,7 @@
 package com.ptithcm.smartshop.order.entity;
 
-import com.ptithcm.smartshop.catalog.entity.Product;
 import com.ptithcm.smartshop.common.entity.BaseUuidEntity;
+import com.ptithcm.smartshop.entity.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
