@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- Require Tailwind CDN & Config via Main Layout Head Fragment -->
+<head th:replace="~{fragments/head :: head('Chi tiết sản phẩm')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="container mx-auto px-1 sm:px-4 py-6 max-w-[1200px]">
+        <!-- Breadcrumbs -->
+        <div class="flex items-center gap-2 text-sm text-blue-600 mb-4 px-2">
+            <a href="/" class="hover:underline">SmartShop</a>
+            <span class="text-gray-400">›</span>
+            <span th:if="${product.categoryName != null && !product.categoryName.isBlank()}" class="hover:underline" th:text="${product.categoryName}">Danh mục</span>
+            <span th:if="${product.categoryName != null && !product.categoryName.isBlank()}" class="text-gray-400">›</span>
+            <span class="text-gray-600 truncate max-w-sm" th:text="${product.name}">Tên sản phẩm</span>
+        </div>
+
+        <!-- Product Card -->
+        <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-sm border border-border">
+            <div class="flex flex-col md:flex-row gap-8">
+                
+                <!-- Left Column: Images -->
+                <div class="w-full md:w-[400px] flex-shrink-0 flex flex-col gap-4">
+                    <!-- Main Image -->
+                    <div class="w-full aspect-square overflow-hidden rounded-lg relative bg-surface-soft border border-border">
+                        <img th:src="${product.mainImageUrl}" alt="Main Product Image" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <!-- Thumbnail list -->
+                    <div class="relative flex items-center gap-2 group">
+                        <!-- Navigation Buttons -->
+                        <button class="bg-black/20 hover:bg-black/50 text-white w-6 h-10 flex items-center justify-center absolute left-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                            &lt;
+                        </button>
+                        <!-- Thumbnails Container -->
+                        <div class="flex gap-2 w-full overflow-x-auto snap-x hide-scroll-bar py-1">
+                            <img th:each="image : ${product.images}"
+                                 th:src="${image.imageUrl}"
+                                 class="w-[82px] h-[82px] border-2 border-transparent rounded-md object-cover cursor-pointer hover:border-primary opacity-80 hover:opacity-100 transition snap-start"
+                                 alt="Thumbnail">
+                            <img th:if="${#lists.isEmpty(product.images)}" src="https://via.placeholder.com/82" class="w-[82px] h-[82px] border-2 border-primary rounded-md object-cover cursor-pointer" alt="Thumb">
+                            <img th:if="${#lists.isEmpty(product.images)}" src="https://via.placeholder.com/82" class="w-[82px] h-[82px] border-2 border-transparent object-cover cursor-pointer opacity-70" alt="Thumb">
+                            <img th:if="${#lists.isEmpty(product.images)}" src="https://via.placeholder.com/82" class="w-[82px] h-[82px] border-2 border-transparent object-cover cursor-pointer opacity-70" alt="Thumb">
+                            <img th:if="${#lists.isEmpty(product.images)}" src="https://via.placeholder.com/82" class="w-[82px] h-[82px] border-2 border-transparent object-cover cursor-pointer opacity-70" alt="Thumb">
+                        </div>
+                        <button class="bg-black/20 hover:bg-black/50 text-white w-6 h-10 flex items-center justify-center absolute right-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                            &gt;
+                        </button>
+                    </div>
+                    
+
+                </div>
+
+                <!-- Right Column: Info -->
+                <div class="w-full flex-1 flex flex-col pt-2">
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <h1 class="text-xl font-medium text-text-primary leading-snug" th:text="${product.name}">Tên sản phẩm</h1>
+                    </div>
+
+                    <!-- Price Box -->
+                    <div class="bg-surface-soft flex items-center gap-3 py-4 pl-5 rounded-lg mb-6">
+                        <div class="text-brand-red text-[32px] font-medium leading-none" th:text="'₫' + ${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">₫479.000</div>
+                    </div>
+
+                    <!-- Info Rows -->
+                    <div class="flex flex-col gap-6 text-sm text-text-secondary mb-4">
+
+                        <!-- Quantity -->
+                        <div class="flex items-center">
+                            <div class="w-[110px] flex-shrink-0 text-text-secondary">Số Lượng</div>
+                            <div class="flex items-center">
+                                <button class="w-8 h-8 flex items-center justify-center border border-border-strong text-text-primary hover:bg-surface-soft bg-surface rounded-l outline-none font-medium">-</button>
+                                <input type="text" value="1" class="w-12 h-8 border-y border-border-strong text-center text-text-primary text-base outline-none m-0 focus:z-10 focus:ring-1 focus:ring-primary focus:border-primary transition-colors">
+                                <button class="w-8 h-8 flex items-center justify-center border border-border-strong text-text-primary hover:bg-surface-soft bg-surface rounded-r outline-none font-medium">+</button>
+                            </div>
+                            <div class="ml-4 text-text-secondary text-sm" th:text="${product.stockQuantity} + ' sản phẩm có sẵn'">3441 sản phẩm có sẵn</div>
+                        </div>
+
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-3.5 mt-4">
+                        <button class="bg-brand-red-soft hover:bg-brand-red-soft/80 text-brand-red border border-brand-red font-medium h-12 px-6 flex items-center justify-center gap-2 rounded-md shadow-sm transition-colors cursor-pointer">
+                            <span class="text-xl">🛒</span> Thêm Vào Giỏ Hàng
+                        </button>
+                        <button class="bg-brand-blue hover:bg-brand-blue-hover text-white font-medium h-12 w-[180px] flex items-center justify-center rounded-md shadow-sm transition-colors cursor-pointer">
+                            Mua Ngay
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Description Section -->
+        <div class="bg-surface rounded-lg p-6 shadow-sm border border-border mt-6">
+            <h2 class="text-lg font-medium text-text-primary uppercase mb-6 bg-surface-soft p-4 -mx-6 -mt-6 rounded-t-lg">Mô tả sản phẩm</h2>
+            <div class="text-sm text-text-primary leading-relaxed whitespace-pre-line" th:text="${product.description}">
+                Đây là mô tả chi tiết của sản phẩm...
+            </div>
+            <div th:if="${product.description == null || product.description.isBlank()}" class="text-sm text-text-secondary italic">
+                Chưa có thông tin mô tả chi tiết cho sản phẩm này.
+            </div>
+        </div>
+        
+    </main>
+    
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Biểu mẫu sản phẩm')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-semibold mb-4 text-text-primary">Thêm/Sửa Sản Phẩm</h1>
+        <div class="bg-surface rounded-lg shadow-sm border border-border p-6 max-w-2xl mx-auto">
+            <form action="#" method="post" class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-1">Tên sản phẩm</label>
+                    <input type="text" class="w-full border border-border-strong rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue" placeholder="Nhập tên sản phẩm...">
+                </div>
+                <button type="submit" class="bg-brand-blue hover:bg-brand-blue-hover text-white font-medium py-2 px-4 rounded-md transition-colors mt-4">Lưu sản phẩm</button>
+            </form>
+        </div>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Chi tiết danh mục')}"></head>
+
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-semibold mb-4 text-text-primary">Chi tiết danh mục</h1>
+        <div class="bg-surface rounded-lg shadow-sm border border-border p-6 mb-6">
+            <h2 class="text-xl text-text-primary font-medium mb-2">Thông tin danh mục</h2>
+            <p class="text-text-secondary">Tên danh mục: <span class="text-text-primary font-medium">Tên mẫu</span></p>
+        </div>
+        <h2 class="text-xl font-semibold mb-4 text-text-primary">Sản phẩm trong danh mục</h2>
+        <div class="bg-surface rounded-lg shadow-sm border border-border p-6">
+            <p class="text-text-secondary">Chưa có sản phẩm nào để hiển thị.</p>
+        </div>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>
