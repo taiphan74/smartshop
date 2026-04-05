@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -46,7 +47,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Transactional(readOnly = true)
     public List<ProductVariantDTO> findByProduct(String productId) {
         validateRequired(productId, "productId");
-        return productVariantRepository.findByProduct_IdOrderByCreatedAtAscIdAsc(productId)
+        return productVariantRepository.findByProduct_IdOrderByCreatedAtAscIdAsc(parseUuid(productId, "productId"))
                 .stream()
                 .map(productMapper::toVariantDTO)
                 .toList();
@@ -55,14 +56,14 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductVariantDTO> findById(String id) {
-        return productVariantRepository.findWithOptionValuesById(id).map(productMapper::toVariantDTO);
+        return productVariantRepository.findWithOptionValuesById(parseUuid(id, "id")).map(productMapper::toVariantDTO);
     }
 
     @Override
     public ProductVariantDTO save(ProductVariantRequest request) {
         validateVariantRequest(request);
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(parseUuid(request.getProductId(), "productId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.getProductId()));
 
         if (productVariantRepository.existsBySkuIgnoreCase(normalize(request.getSku()))) {
@@ -83,10 +84,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     public ProductVariantDTO update(String id, ProductVariantRequest request) {
         validateVariantRequest(request);
 
-        ProductVariant variant = productVariantRepository.findWithOptionValuesById(id)
+        ProductVariant variant = productVariantRepository.findWithOptionValuesById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductVariant", id));
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(parseUuid(request.getProductId(), "productId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.getProductId()));
 
         if (!Objects.equals(variant.getProduct().getId(), product.getId())) {
@@ -147,7 +148,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     }
 
     private ProductVariant getVariantOrThrow(String id) {
-        return productVariantRepository.findWithOptionValuesById(id)
+        return productVariantRepository.findWithOptionValuesById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductVariant", id));
     }
 
@@ -166,27 +167,27 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         variant.setOptionValues(optionValues);
     }
 
-    private List<ProductOptionValue> resolveAndValidateOptionValues(String productId, List<String> optionValueIds) {
+    private List<ProductOptionValue> resolveAndValidateOptionValues(UUID productId, List<String> optionValueIds) {
         if (optionValueIds == null || optionValueIds.isEmpty()) {
             throw new BadRequestException("optionValueIds", "must not be empty");
         }
 
-        Set<String> requestedIds = new HashSet<>();
+        Set<UUID> requestedIds = new HashSet<>();
         for (String optionValueId : optionValueIds) {
             validateRequired(optionValueId, "optionValueId");
-            if (!requestedIds.add(optionValueId)) {
+            if (!requestedIds.add(parseUuid(optionValueId, "optionValueId"))) {
                 throw new BadRequestException("optionValueIds", "contains duplicates");
             }
         }
 
-        List<ProductOptionValue> optionValues = productOptionValueRepository.findAllById(optionValueIds);
+        List<ProductOptionValue> optionValues = productOptionValueRepository.findAllById(requestedIds);
         if (optionValues.size() != optionValueIds.size()) {
             throw new BadRequestException("optionValueIds", "contains invalid ids");
         }
 
-        Set<String> optionIds = new HashSet<>();
+        Set<UUID> optionIds = new HashSet<>();
         for (ProductOptionValue optionValue : optionValues) {
-            String ownerProductId = optionValue.getOption().getProduct().getId();
+            UUID ownerProductId = optionValue.getOption().getProduct().getId();
             if (!Objects.equals(ownerProductId, productId)) {
                 throw new BadRequestException("optionValueIds", "must belong to the same product");
             }
@@ -198,8 +199,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return optionValues;
     }
 
-    private void ensureUniqueVariantCombination(String productId, List<ProductOptionValue> optionValues, String currentVariantId) {
-        Set<String> requestedValueIds = optionValues.stream()
+    private void ensureUniqueVariantCombination(UUID productId, List<ProductOptionValue> optionValues, UUID currentVariantId) {
+        Set<UUID> requestedValueIds = optionValues.stream()
                 .map(ProductOptionValue::getId)
                 .collect(java.util.stream.Collectors.toSet());
 
@@ -273,5 +274,13 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
         String normalized = value.trim();
         return normalized.isEmpty() ? null : normalized;
+    }
+
+    private UUID parseUuid(String value, String field) {
+        try {
+            return UUID.fromString(value);
+        } catch (Exception ex) {
+            throw new BadRequestException(field, "must be a valid UUID");
+        }
     }
 }

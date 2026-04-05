@@ -9,11 +9,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    Page<Product> findByCategory_Id(String categoryId, Pageable pageable);
+    Page<Product> findByCategory_Id(UUID categoryId, Pageable pageable);
 
     Optional<Product> findBySlug(String slug);
 
@@ -63,5 +64,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
            ") AS thumbnailUrl " +
            "FROM Product p WHERE p.category.id = :categoryId")
-    Page<ProductProjection> findByCategoryProjection(String categoryId, Pageable pageable);
+    Page<ProductProjection> findByCategoryProjection(UUID categoryId, Pageable pageable);
 }

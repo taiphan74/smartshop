@@ -6,6 +6,7 @@ import com.ptithcm.smartshop.entity.ProductImage;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -17,8 +18,8 @@ public class ProductImageMapper {
         }
         
         ProductImageDTO dto = new ProductImageDTO();
-        dto.setId(productImage.getId());
-        dto.setProductId(productImage.getProduct() != null ? productImage.getProduct().getId() : null);
+        dto.setId(Objects.toString(productImage.getId(), null));
+        dto.setProductId(productImage.getProduct() != null ? Objects.toString(productImage.getProduct().getId(), null) : null);
         dto.setImageUrl(productImage.getImageUrl());
         dto.setIsMain(productImage.getIsMain());
         dto.setSortOrder(productImage.getSortOrder());

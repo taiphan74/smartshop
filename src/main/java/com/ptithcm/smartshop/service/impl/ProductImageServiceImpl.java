@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -49,7 +50,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductImageDTO> findById(String id) {
-        return productImageRepository.findById(id).map(productImageMapper::toDTO);
+        return productImageRepository.findById(parseUuid(id, "id")).map(productImageMapper::toDTO);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<ProductImage> productImages = productImageRepository.findByProduct_Id(productId, pageable);
+        Page<ProductImage> productImages = productImageRepository.findByProduct_Id(parseUuid(productId, "productId"), pageable);
         return convertToPageResponse(productImages);
     }
 
@@ -68,7 +69,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<ProductImage> productImages = productImageRepository.findByProduct_IdAndIsMainTrue(productId, pageable);
+        Page<ProductImage> productImages = productImageRepository.findByProduct_IdAndIsMainTrue(parseUuid(productId, "productId"), pageable);
         return convertToPageResponse(productImages);
     }
 
@@ -92,7 +93,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         
         ProductImage productImage = productImageMapper.toEntity(request);
         
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(parseUuid(request.getProductId(), "productId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.getProductId()));
         productImage.setProduct(product);
         
@@ -102,7 +103,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     public ProductImageDTO update(String id, ProductImageRequest request) {
-        ProductImage productImage = productImageRepository.findById(id)
+        ProductImage productImage = productImageRepository.findById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductImage", id));
         
         if (request.getImageUrl() == null || request.getImageUrl().trim().isEmpty()) {
@@ -111,7 +112,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         
         productImageMapper.updateEntity(request, productImage);
         
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(parseUuid(request.getProductId(), "productId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.getProductId()));
         productImage.setProduct(product);
         
@@ -121,9 +122,18 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     public void deleteById(String id) {
-        if (!productImageRepository.existsById(id)) {
+        UUID imageId = parseUuid(id, "id");
+        if (!productImageRepository.existsById(imageId)) {
             throw new ResourceNotFoundException("ProductImage", id);
         }
-        productImageRepository.deleteById(id);
+        productImageRepository.deleteById(imageId);
+    }
+
+    private UUID parseUuid(String value, String field) {
+        try {
+            return UUID.fromString(value);
+        } catch (Exception ex) {
+            throw new BadRequestException(field, "must be a valid UUID");
+        }
     }
 }

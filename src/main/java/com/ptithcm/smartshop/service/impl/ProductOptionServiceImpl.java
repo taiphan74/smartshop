@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -43,7 +44,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     @Transactional(readOnly = true)
     public List<ProductOptionDTO> findByProduct(String productId) {
         validateRequired(productId, "productId");
-        return productOptionRepository.findByProduct_IdOrderBySortOrderAscIdAsc(productId)
+        return productOptionRepository.findByProduct_IdOrderBySortOrderAscIdAsc(parseUuid(productId, "productId"))
                 .stream()
                 .map(productMapper::toOptionDTO)
                 .toList();
@@ -52,14 +53,14 @@ public class ProductOptionServiceImpl implements ProductOptionService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductOptionDTO> findById(String id) {
-        return productOptionRepository.findById(id).map(productMapper::toOptionDTO);
+        return productOptionRepository.findById(parseUuid(id, "id")).map(productMapper::toOptionDTO);
     }
 
     @Override
     public ProductOptionDTO save(ProductOptionRequest request) {
         validateOptionRequest(request);
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(parseUuid(request.getProductId(), "productId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.getProductId()));
 
         String normalizedName = normalize(request.getName());
@@ -77,7 +78,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
     @Override
     public ProductOptionDTO update(String id, ProductOptionRequest request) {
-        ProductOption option = productOptionRepository.findById(id)
+        ProductOption option = productOptionRepository.findById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductOption", id));
 
         validateRequired(request.getName(), "name");
@@ -103,10 +104,11 @@ public class ProductOptionServiceImpl implements ProductOptionService {
             throw new BadRequestException("sortOrders", "must not be empty");
         }
 
-        List<ProductOption> options = productOptionRepository.findByProduct_IdOrderBySortOrderAscIdAsc(productId);
+        List<ProductOption> options = productOptionRepository.findByProduct_IdOrderBySortOrderAscIdAsc(parseUuid(productId, "productId"));
         for (SortOrderUpdateRequest request : requests) {
+            UUID requestId = parseUuid(request.getId(), "id");
             ProductOption option = options.stream()
-                    .filter(item -> Objects.equals(item.getId(), request.getId()))
+                    .filter(item -> Objects.equals(item.getId(), requestId))
                     .findFirst()
                     .orElseThrow(() -> new BadRequestException("sortOrders", "contains option outside product"));
             option.setSortOrder(defaultSortOrder(request.getSortOrder()));
@@ -119,7 +121,7 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
     @Override
     public void deleteById(String id) {
-        ProductOption option = productOptionRepository.findById(id)
+        ProductOption option = productOptionRepository.findById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductOption", id));
 
         if (productOptionValueRepository.countVariantUsageByOptionId(option.getId()) > 0) {
@@ -149,5 +151,13 @@ public class ProductOptionServiceImpl implements ProductOptionService {
 
     private int defaultSortOrder(Integer sortOrder) {
         return sortOrder != null ? sortOrder : 0;
+    }
+
+    private UUID parseUuid(String value, String field) {
+        try {
+            return UUID.fromString(value);
+        } catch (Exception ex) {
+            throw new BadRequestException(field, "must be a valid UUID");
+        }
     }
 }

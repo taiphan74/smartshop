@@ -10,14 +10,8 @@ import java.util.UUID;
 public class Category {
 
     @Id
-    private String id;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false, length = 255)
     private String name;
@@ -41,11 +35,11 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

@@ -7,19 +7,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface ProductOptionValueRepository extends JpaRepository<ProductOptionValue, String> {
+public interface ProductOptionValueRepository extends JpaRepository<ProductOptionValue, UUID> {
 
-    List<ProductOptionValue> findByOption_IdOrderBySortOrderAscIdAsc(String optionId);
+    List<ProductOptionValue> findByOption_IdOrderBySortOrderAscIdAsc(UUID optionId);
 
-    boolean existsByOption_IdAndValueIgnoreCase(String optionId, String value);
+    boolean existsByOption_IdAndValueIgnoreCase(UUID optionId, String value);
 
-    boolean existsByOption_IdAndValueIgnoreCaseAndIdNot(String optionId, String value, String id);
+    boolean existsByOption_IdAndValueIgnoreCaseAndIdNot(UUID optionId, String value, UUID id);
 
     @Query("select count(v) from ProductVariant v join v.optionValues ov where ov.option.id = :optionId")
-    long countVariantUsageByOptionId(@Param("optionId") String optionId);
+    long countVariantUsageByOptionId(@Param("optionId") UUID optionId);
 
     @Query("select count(v) from ProductVariant v join v.optionValues ov where ov.id = :optionValueId")
-    long countVariantUsageByOptionValueId(@Param("optionValueId") String optionValueId);
+    long countVariantUsageByOptionValueId(@Param("optionValueId") UUID optionValueId);
 }

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,7 +26,7 @@ public class ProductMapper {
         }
 
         ProductListDTO dto = new ProductListDTO();
-        dto.setId(product.getId());
+        dto.setId(Objects.toString(product.getId(), null));
         dto.setName(product.getName());
         dto.setSlug(product.getSlug());
         dto.setPrice(product.getVariants().stream()
@@ -55,7 +56,7 @@ public class ProductMapper {
         }
 
         ProductDetailDTO dto = new ProductDetailDTO();
-        dto.setId(product.getId());
+        dto.setId(Objects.toString(product.getId(), null));
         dto.setName(product.getName());
         dto.setSlug(product.getSlug());
         dto.setDescription(product.getDescription());
@@ -71,7 +72,7 @@ public class ProductMapper {
         dto.setUpdatedAt(product.getUpdatedAt());
 
         if (product.getCategory() != null) {
-            dto.setCategoryId(product.getCategory().getId());
+            dto.setCategoryId(Objects.toString(product.getCategory().getId(), null));
             dto.setCategoryName(product.getCategory().getName());
         }
 
@@ -127,8 +128,8 @@ public class ProductMapper {
         }
         
         ProductImageDTO dto = new ProductImageDTO();
-        dto.setId(image.getId());
-        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
+        dto.setId(Objects.toString(image.getId(), null));
+        dto.setProductId(image.getProduct() != null ? Objects.toString(image.getProduct().getId(), null) : null);
         dto.setImageUrl(image.getImageUrl());
         dto.setIsMain(image.getIsMain());
         dto.setSortOrder(image.getSortOrder());
@@ -182,7 +183,7 @@ public class ProductMapper {
     public ProductVariantDTO toVariantDTO(ProductVariant variant) {
         if (variant == null) return null;
         ProductVariantDTO dto = new ProductVariantDTO();
-        dto.setId(variant.getId());
+        dto.setId(Objects.toString(variant.getId(), null));
         dto.setSku(variant.getSku());
         dto.setPrice(variant.getPrice());
         dto.setCompareAtPrice(variant.getCompareAtPrice());
@@ -199,7 +200,7 @@ public class ProductMapper {
     public ProductOptionDTO toOptionDTO(ProductOption option) {
         if (option == null) return null;
         ProductOptionDTO dto = new ProductOptionDTO();
-        dto.setId(option.getId());
+        dto.setId(Objects.toString(option.getId(), null));
         dto.setName(option.getName());
         dto.setSortOrder(option.getSortOrder());
         if (option.getValues() != null) {
@@ -213,7 +214,7 @@ public class ProductMapper {
     public ProductOptionValueDTO toOptionValueDTO(ProductOptionValue value) {
         if (value == null) return null;
         ProductOptionValueDTO dto = new ProductOptionValueDTO();
-        dto.setId(value.getId());
+        dto.setId(Objects.toString(value.getId(), null));
         dto.setValue(value.getValue());
         dto.setSortOrder(value.getSortOrder());
         return dto;
