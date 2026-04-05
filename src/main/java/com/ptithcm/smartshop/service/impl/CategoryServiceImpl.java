@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import com.ptithcm.smartshop.util.SlugUtil;
 
 @Service
@@ -43,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CategoryDTO> findById(String id) {
-        return categoryRepository.findById(id).map(categoryMapper::toDTO);
+        return categoryRepository.findById(parseUuid(id, "id")).map(categoryMapper::toDTO);
     }
 
     @Override
@@ -65,7 +66,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<CategoryDTO> findChildCategories(String parentId, int pageNo, int pageSize, String sortBy, String sortDir) {
-        Category parent = categoryRepository.findById(parentId)
+        UUID parentUuid = parseUuid(parentId, "parentId");
+        Category parent = categoryRepository.findById(parentUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", parentId));
         
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
@@ -94,7 +96,8 @@ public class CategoryServiceImpl implements CategoryService {
         String finalSlug;
         
         if (request.getParentId() != null) {
-            Category parent = categoryRepository.findById(request.getParentId())
+            UUID parentId = parseUuid(request.getParentId(), "parentId");
+            Category parent = categoryRepository.findById(parentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
             category.setParent(parent);
             category.setLevel(parent.getLevel() + 1);
@@ -116,7 +119,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO update(String id, CategoryRequest request) {
-        Category category = categoryRepository.findById(id)
+        UUID categoryId = parseUuid(id, "id");
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
 
         String oldPath = category.getPath();
@@ -126,7 +130,8 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.updateEntity(request, category);
 
         if (request.getParentId() != null) {
-            Category parent = categoryRepository.findById(request.getParentId())
+            UUID parentId = parseUuid(request.getParentId(), "parentId");
+            Category parent = categoryRepository.findById(parentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
             category.setParent(parent);
             category.setLevel(parent.getLevel() + 1);
@@ -161,10 +166,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteById(String id) {
-        if (!categoryRepository.existsById(id)) {
+        UUID categoryId = parseUuid(id, "id");
+        if (!categoryRepository.existsById(categoryId)) {
             throw new ResourceNotFoundException("Category", id);
         }
-        categoryRepository.deleteById(id);
+        categoryRepository.deleteById(categoryId);
+    }
+
+    private UUID parseUuid(String value, String field) {
+        try {
+            return UUID.fromString(value);
+        } catch (Exception ex) {
+            throw new ResourceNotFoundException("Invalid " + field + ": " + value);
+        }
     }
 
 }

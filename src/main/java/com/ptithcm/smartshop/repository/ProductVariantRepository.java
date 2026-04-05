@@ -7,17 +7,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ProductVariantRepository extends JpaRepository<ProductVariant, String> {
+public interface ProductVariantRepository extends JpaRepository<ProductVariant, UUID> {
 
     @EntityGraph(attributePaths = "optionValues")
-    List<ProductVariant> findByProduct_IdOrderByCreatedAtAscIdAsc(String productId);
+    List<ProductVariant> findByProduct_IdOrderByCreatedAtAscIdAsc(UUID productId);
 
     @EntityGraph(attributePaths = "optionValues")
-    Optional<ProductVariant> findWithOptionValuesById(String id);
+    Optional<ProductVariant> findWithOptionValuesById(UUID id);
 
     boolean existsBySkuIgnoreCase(String sku);
 
-    boolean existsBySkuIgnoreCaseAndIdNot(String sku, String id);
+    boolean existsBySkuIgnoreCaseAndIdNot(String sku, UUID id);
 }

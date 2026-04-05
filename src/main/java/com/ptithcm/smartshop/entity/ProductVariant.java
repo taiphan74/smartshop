@@ -12,13 +12,11 @@ import java.util.UUID;
 public class ProductVariant {
 
     @Id
-    private String id;
+    @GeneratedValue
+    private UUID id;
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
         this.createdAt = LocalDateTime.now();
     }
 
@@ -64,11 +62,11 @@ public class ProductVariant {
     )
     private List<ProductOptionValue> optionValues = new ArrayList<>();
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

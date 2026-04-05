@@ -1,0 +1,101 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-align-product-schema-with-entities
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              ALTER TABLE categories
+                ADD COLUMN IF NOT EXISTS path VARCHAR(1000) NOT NULL DEFAULT '/',
+                ADD COLUMN IF NOT EXISTS level INTEGER NOT NULL DEFAULT 0;
+
+              ALTER TABLE categories
+                ALTER COLUMN name TYPE VARCHAR(255),
+                ALTER COLUMN slug TYPE VARCHAR(255);
+
+              ALTER TABLE products
+                ALTER COLUMN name TYPE VARCHAR(255),
+                ALTER COLUMN slug TYPE VARCHAR(255);
+
+              ALTER TABLE products
+                ALTER COLUMN status DROP DEFAULT;
+
+              ALTER TABLE products
+                ALTER COLUMN status TYPE BOOLEAN
+                USING CASE
+                  WHEN status IN ('ACTIVE', 'true', 'TRUE', '1') THEN TRUE
+                  ELSE FALSE
+                END;
+
+              ALTER TABLE products
+                ALTER COLUMN status SET DEFAULT TRUE;
+
+              CREATE TABLE IF NOT EXISTS product_options (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                product_id UUID NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                sort_order INTEGER DEFAULT 0
+              );
+
+              CREATE TABLE IF NOT EXISTS product_option_values (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                option_id UUID NOT NULL,
+                value VARCHAR(255) NOT NULL,
+                sort_order INTEGER DEFAULT 0
+              );
+
+              CREATE TABLE IF NOT EXISTS product_variants (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                product_id UUID NOT NULL,
+                sku VARCHAR(100) NOT NULL UNIQUE,
+                price DECIMAL(12,2) NOT NULL,
+                compare_at_price DECIMAL(12,2),
+                stock_quantity INTEGER NOT NULL DEFAULT 0,
+                status BOOLEAN NOT NULL DEFAULT TRUE,
+                thumbnail_url VARCHAR(500),
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
+              );
+
+              CREATE TABLE IF NOT EXISTS product_variant_values (
+                variant_id UUID NOT NULL,
+                option_value_id UUID NOT NULL,
+                CONSTRAINT pk_product_variant_values PRIMARY KEY (variant_id, option_value_id)
+              );
+        - addForeignKeyConstraint:
+            baseTableName: product_options
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_product_options_product
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: product_option_values
+            baseColumnNames: option_id
+            referencedTableName: product_options
+            referencedColumnNames: id
+            constraintName: fk_product_option_values_option
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: product_variants
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_product_variants_product
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: product_variant_values
+            baseColumnNames: variant_id
+            referencedTableName: product_variants
+            referencedColumnNames: id
+            constraintName: fk_product_variant_values_variant
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: product_variant_values
+            baseColumnNames: option_value_id
+            referencedTableName: product_option_values
+            referencedColumnNames: id
+            constraintName: fk_product_variant_values_option_value
+            onDelete: CASCADE

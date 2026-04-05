@@ -5,13 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface ProductOptionRepository extends JpaRepository<ProductOption, String> {
+public interface ProductOptionRepository extends JpaRepository<ProductOption, UUID> {
 
-    List<ProductOption> findByProduct_IdOrderBySortOrderAscIdAsc(String productId);
+    List<ProductOption> findByProduct_IdOrderBySortOrderAscIdAsc(UUID productId);
 
-    boolean existsByProduct_IdAndNameIgnoreCase(String productId, String name);
+    boolean existsByProduct_IdAndNameIgnoreCase(UUID productId, String name);
 
-    boolean existsByProduct_IdAndNameIgnoreCaseAndIdNot(String productId, String name, String id);
+    boolean existsByProduct_IdAndNameIgnoreCaseAndIdNot(UUID productId, String name, UUID id);
 }

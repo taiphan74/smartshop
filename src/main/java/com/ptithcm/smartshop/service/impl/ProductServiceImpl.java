@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -59,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductDetailDTO> findById(String id) {
-        return productRepository.findById(id).map(productMapper::toDetailDTO);
+        return productRepository.findById(parseUuid(id, "id")).map(productMapper::toDetailDTO);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<ProductProjection> projections = productRepository.findByCategoryProjection(categoryId, pageable);
+        Page<ProductProjection> projections = productRepository.findByCategoryProjection(parseUuid(categoryId, "categoryId"), pageable);
         return convertToPageResponse(projections);
     }
 
@@ -98,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.toEntity(request);
         product.setSlug(slug);
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(parseUuid(request.getCategoryId(), "categoryId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));
         product.setCategory(category);
 
@@ -108,7 +109,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailDTO update(String id, ProductRequest request) {
-        Product product = productRepository.findById(id)
+        UUID productId = parseUuid(id, "id");
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
 
         // Only regenerate slug if name changed and the resulting slug is different
@@ -122,7 +124,7 @@ public class ProductServiceImpl implements ProductService {
 
         productMapper.updateEntity(request, product);
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(parseUuid(request.getCategoryId(), "categoryId"))
                 .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));
         product.setCategory(category);
 
@@ -132,10 +134,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteById(String id) {
-        if (!productRepository.existsById(id)) {
+        UUID productId = parseUuid(id, "id");
+        if (!productRepository.existsById(productId)) {
             throw new ResourceNotFoundException("Product", id);
         }
-        productRepository.deleteById(id);
+        productRepository.deleteById(productId);
     }
 
     private String generateUniqueSlug(String baseSlug) {
@@ -148,5 +151,13 @@ public class ProductServiceImpl implements ProductService {
             slug = baseSlug + "-" + SlugUtil.randomSuffix(6);
         } while (productRepository.findBySlug(slug).isPresent());
         return slug;
+    }
+
+    private UUID parseUuid(String value, String field) {
+        try {
+            return UUID.fromString(value);
+        } catch (Exception ex) {
+            throw new ResourceNotFoundException("Invalid " + field + ": " + value);
+        }
     }
 }

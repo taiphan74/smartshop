@@ -11,14 +11,8 @@ import java.util.UUID;
 public class Product {
 
     @Id
-    private String id;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false, length = 255)
     private String name;
@@ -51,11 +45,11 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants = new ArrayList<>();
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

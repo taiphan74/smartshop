@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -39,7 +40,7 @@ public class ProductOptionValueServiceImpl implements ProductOptionValueService 
     @Transactional(readOnly = true)
     public List<ProductOptionValueDTO> findByOption(String optionId) {
         validateRequired(optionId, "optionId");
-        return productOptionValueRepository.findByOption_IdOrderBySortOrderAscIdAsc(optionId)
+        return productOptionValueRepository.findByOption_IdOrderBySortOrderAscIdAsc(parseUuid(optionId, "optionId"))
                 .stream()
                 .map(productMapper::toOptionValueDTO)
                 .toList();
@@ -48,14 +49,14 @@ public class ProductOptionValueServiceImpl implements ProductOptionValueService 
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductOptionValueDTO> findById(String id) {
-        return productOptionValueRepository.findById(id).map(productMapper::toOptionValueDTO);
+        return productOptionValueRepository.findById(parseUuid(id, "id")).map(productMapper::toOptionValueDTO);
     }
 
     @Override
     public ProductOptionValueDTO save(ProductOptionValueRequest request) {
         validateRequest(request);
 
-        ProductOption option = productOptionRepository.findById(request.getOptionId())
+        ProductOption option = productOptionRepository.findById(parseUuid(request.getOptionId(), "optionId"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductOption", request.getOptionId()));
 
         String normalizedValue = normalize(request.getValue());
@@ -73,7 +74,7 @@ public class ProductOptionValueServiceImpl implements ProductOptionValueService 
 
     @Override
     public ProductOptionValueDTO update(String id, ProductOptionValueRequest request) {
-        ProductOptionValue value = productOptionValueRepository.findById(id)
+        ProductOptionValue value = productOptionValueRepository.findById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductOptionValue", id));
 
         validateRequired(request.getValue(), "value");
@@ -99,10 +100,11 @@ public class ProductOptionValueServiceImpl implements ProductOptionValueService 
             throw new BadRequestException("sortOrders", "must not be empty");
         }
 
-        List<ProductOptionValue> values = productOptionValueRepository.findByOption_IdOrderBySortOrderAscIdAsc(optionId);
+        List<ProductOptionValue> values = productOptionValueRepository.findByOption_IdOrderBySortOrderAscIdAsc(parseUuid(optionId, "optionId"));
         for (SortOrderUpdateRequest request : requests) {
+            UUID requestId = parseUuid(request.getId(), "id");
             ProductOptionValue value = values.stream()
-                    .filter(item -> Objects.equals(item.getId(), request.getId()))
+                    .filter(item -> Objects.equals(item.getId(), requestId))
                     .findFirst()
                     .orElseThrow(() -> new BadRequestException("sortOrders", "contains value outside option"));
             value.setSortOrder(defaultSortOrder(request.getSortOrder()));
@@ -115,7 +117,7 @@ public class ProductOptionValueServiceImpl implements ProductOptionValueService 
 
     @Override
     public void deleteById(String id) {
-        ProductOptionValue value = productOptionValueRepository.findById(id)
+        ProductOptionValue value = productOptionValueRepository.findById(parseUuid(id, "id"))
                 .orElseThrow(() -> new ResourceNotFoundException("ProductOptionValue", id));
 
         if (productOptionValueRepository.countVariantUsageByOptionValueId(value.getId()) > 0) {
@@ -145,5 +147,13 @@ public class ProductOptionValueServiceImpl implements ProductOptionValueService 
 
     private int defaultSortOrder(Integer sortOrder) {
         return sortOrder != null ? sortOrder : 0;
+    }
+
+    private UUID parseUuid(String value, String field) {
+        try {
+            return UUID.fromString(value);
+        } catch (Exception ex) {
+            throw new BadRequestException(field, "must be a valid UUID");
+        }
     }
 }

@@ -8,14 +8,8 @@ import java.util.UUID;
 public class ProductImage {
 
     @Id
-    private String id;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
+    @GeneratedValue
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
@@ -30,11 +24,11 @@ public class ProductImage {
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

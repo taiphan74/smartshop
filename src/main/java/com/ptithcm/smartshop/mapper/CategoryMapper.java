@@ -6,6 +6,7 @@ import com.ptithcm.smartshop.entity.Category;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -17,14 +18,14 @@ public class CategoryMapper {
         }
         
         CategoryDTO dto = new CategoryDTO();
-        dto.setId(category.getId());
+        dto.setId(Objects.toString(category.getId(), null));
         dto.setName(category.getName());
         dto.setSlug(category.getSlug());
         dto.setPath(category.getPath());
         dto.setLevel(category.getLevel());
         
         if (category.getParent() != null) {
-            dto.setParentId(category.getParent().getId());
+            dto.setParentId(Objects.toString(category.getParent().getId(), null));
         }
         
         if (category.getChildren() != null) {
