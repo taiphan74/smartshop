@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.user.entity;
 
-import com.ptithcm.smartshop.common.entity.AuditableEntity;
+import com.ptithcm.smartshop.shared.entity.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -68,3 +68,4 @@ public class UserProfile extends AuditableEntity {
 		this.birthday = birthday;
 	}
 }
+

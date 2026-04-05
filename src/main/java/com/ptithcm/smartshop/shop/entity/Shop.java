@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.shop.entity;
 
-import com.ptithcm.smartshop.common.entity.AuditableEntity;
+import com.ptithcm.smartshop.shared.entity.AuditableEntity;
 import com.ptithcm.smartshop.shop.enums.ShopStatus;
 import com.ptithcm.smartshop.user.entity.User;
 import jakarta.persistence.CascadeType;
@@ -128,3 +128,4 @@ public class Shop extends AuditableEntity {
 		return shopUsers;
 	}
 }
+

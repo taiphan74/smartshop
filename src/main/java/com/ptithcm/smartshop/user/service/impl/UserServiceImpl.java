@@ -1,7 +1,7 @@
 package com.ptithcm.smartshop.user.service.impl;
 
-import com.ptithcm.smartshop.common.exception.ConflictException;
-import com.ptithcm.smartshop.common.exception.ResourceNotFoundException;
+import com.ptithcm.smartshop.shared.exception.ConflictException;
+import com.ptithcm.smartshop.shared.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.security.rbac.repository.RoleRepository;
 import com.ptithcm.smartshop.user.dto.UserCreateRequest;
 import com.ptithcm.smartshop.user.dto.UserResponse;
@@ -117,3 +117,4 @@ public class UserServiceImpl implements UserService {
 		return new HashSet<>(roles);
 	}
 }
+

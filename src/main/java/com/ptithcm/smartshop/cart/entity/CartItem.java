@@ -1,7 +1,7 @@
 package com.ptithcm.smartshop.cart.entity;
 
-import com.ptithcm.smartshop.common.entity.AuditableEntity;
-import com.ptithcm.smartshop.entity.Product;
+import com.ptithcm.smartshop.shared.entity.AuditableEntity;
+import com.ptithcm.smartshop.product.entity.Product;
 import com.ptithcm.smartshop.shop.entity.Shop;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -77,3 +77,5 @@ public class CartItem extends AuditableEntity {
 		this.price = price;
 	}
 }
+
+

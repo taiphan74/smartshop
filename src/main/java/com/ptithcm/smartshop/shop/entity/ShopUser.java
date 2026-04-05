@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.shop.entity;
 
-import com.ptithcm.smartshop.common.entity.AuditableEntity;
+import com.ptithcm.smartshop.shared.entity.AuditableEntity;
 import com.ptithcm.smartshop.shop.enums.ShopUserRole;
 import com.ptithcm.smartshop.shop.enums.ShopUserStatus;
 import com.ptithcm.smartshop.user.entity.User;
@@ -79,3 +79,4 @@ public class ShopUser extends AuditableEntity {
 		return joinedAt;
 	}
 }
+
