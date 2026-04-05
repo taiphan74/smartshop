@@ -1,8 +1,8 @@
 package com.ptithcm.smartshop.seed;
 
-import com.ptithcm.smartshop.entity.Category;
-import com.ptithcm.smartshop.repository.CategoryRepository;
-import com.ptithcm.smartshop.util.SlugUtil;
+import com.ptithcm.smartshop.product.entity.Category;
+import com.ptithcm.smartshop.product.repository.CategoryRepository;
+import com.ptithcm.smartshop.shared.util.SlugUtil;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -253,3 +253,5 @@ public class CategorySeeder implements ApplicationRunner {
     private record CategoryNode(String name, List<CategoryNode> children) {
     }
 }
+
+

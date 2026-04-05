@@ -1,8 +1,8 @@
 package com.ptithcm.smartshop.security.rbac;
 
 import com.ptithcm.smartshop.auth.annotation.RequireRole;
-import com.ptithcm.smartshop.common.exception.UnauthorizedException;
-import com.ptithcm.smartshop.security.CustomUserDetails;
+import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
+import com.ptithcm.smartshop.security.principal.CustomUserDetails;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -78,3 +78,5 @@ public class AuthorizationAspect {
 		return customUserDetails.getId();
 	}
 }
+
+

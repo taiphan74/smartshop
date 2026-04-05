@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-add-created-updated-by-columns
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              ALTER TABLE roles
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE user_profiles
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE shops
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE shop_users
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE carts
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE cart_items
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE addresses
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE orders
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);
+
+              ALTER TABLE payments
+                ADD COLUMN IF NOT EXISTS created_by VARCHAR(100),
+                ADD COLUMN IF NOT EXISTS updated_by VARCHAR(100);

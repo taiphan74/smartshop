@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.cart.entity;
 
-import com.ptithcm.smartshop.common.entity.AuditableEntity;
+import com.ptithcm.smartshop.shared.entity.AuditableEntity;
 import com.ptithcm.smartshop.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -35,3 +35,4 @@ public class Cart extends AuditableEntity {
 		return items;
 	}
 }
+

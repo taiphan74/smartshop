@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.address.entity;
 
-import com.ptithcm.smartshop.common.entity.AuditableEntity;
+import com.ptithcm.smartshop.shared.entity.AuditableEntity;
 import com.ptithcm.smartshop.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -102,3 +102,4 @@ public class Address extends AuditableEntity {
 		isDefault = aDefault;
 	}
 }
+

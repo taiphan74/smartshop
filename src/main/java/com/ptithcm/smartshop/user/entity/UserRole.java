@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.user.entity;
 
-import com.ptithcm.smartshop.common.entity.BaseUuidEntity;
+import com.ptithcm.smartshop.shared.entity.BaseUuidEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -50,3 +50,4 @@ public class UserRole extends BaseUuidEntity {
 		return createdAt;
 	}
 }
+
