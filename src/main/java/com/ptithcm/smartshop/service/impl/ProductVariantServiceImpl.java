@@ -34,9 +34,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     private final ProductMapper productMapper;
 
     public ProductVariantServiceImpl(ProductVariantRepository productVariantRepository,
-                                     ProductOptionValueRepository productOptionValueRepository,
-                                     ProductRepository productRepository,
-                                     ProductMapper productMapper) {
+            ProductOptionValueRepository productOptionValueRepository,
+            ProductRepository productRepository,
+            ProductMapper productMapper) {
         this.productVariantRepository = productVariantRepository;
         this.productOptionValueRepository = productOptionValueRepository;
         this.productRepository = productRepository;
@@ -70,7 +70,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             throw new ConflictException("ProductVariant", "sku");
         }
 
-        List<ProductOptionValue> optionValues = resolveAndValidateOptionValues(product.getId(), request.getOptionValueIds());
+        List<ProductOptionValue> optionValues = resolveAndValidateOptionValues(product.getId(),
+                request.getOptionValueIds());
         ensureUniqueVariantCombination(product.getId(), optionValues, null);
 
         ProductVariant variant = new ProductVariant();
@@ -99,7 +100,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
             throw new ConflictException("ProductVariant", "sku");
         }
 
-        List<ProductOptionValue> optionValues = resolveAndValidateOptionValues(product.getId(), request.getOptionValueIds());
+        List<ProductOptionValue> optionValues = resolveAndValidateOptionValues(product.getId(),
+                request.getOptionValueIds());
         ensureUniqueVariantCombination(product.getId(), optionValues, variant.getId());
 
         applyVariantData(variant, request, optionValues);
@@ -152,7 +154,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
                 .orElseThrow(() -> new ResourceNotFoundException("ProductVariant", id));
     }
 
-    private void applyVariantData(ProductVariant variant, ProductVariantRequest request, List<ProductOptionValue> optionValues) {
+    private void applyVariantData(ProductVariant variant, ProductVariantRequest request,
+            List<ProductOptionValue> optionValues) {
         String normalizedSku = normalize(request.getSku());
         validatePrice(request.getPrice());
         validateCompareAtPrice(request.getPrice(), request.getCompareAtPrice());
@@ -199,7 +202,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return optionValues;
     }
 
-    private void ensureUniqueVariantCombination(UUID productId, List<ProductOptionValue> optionValues, UUID currentVariantId) {
+    private void ensureUniqueVariantCombination(UUID productId, List<ProductOptionValue> optionValues,
+            UUID currentVariantId) {
         Set<UUID> requestedValueIds = optionValues.stream()
                 .map(ProductOptionValue::getId)
                 .collect(java.util.stream.Collectors.toSet());
@@ -207,7 +211,8 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         boolean duplicate = productVariantRepository.findByProduct_IdOrderByCreatedAtAscIdAsc(productId).stream()
                 .filter(variant -> !Objects.equals(variant.getId(), currentVariantId))
                 .anyMatch(variant -> variant.getOptionValues().size() == requestedValueIds.size()
-                        && variant.getOptionValues().stream().map(ProductOptionValue::getId).collect(java.util.stream.Collectors.toSet()).equals(requestedValueIds));
+                        && variant.getOptionValues().stream().map(ProductOptionValue::getId)
+                                .collect(java.util.stream.Collectors.toSet()).equals(requestedValueIds));
 
         if (duplicate) {
             throw new ConflictException("ProductVariant", "optionValues");
