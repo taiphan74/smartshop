@@ -82,7 +82,7 @@
             <div class="max-w-7xl mx-auto px-6">
                 <div class="flex items-center h-12 gap-1 overflow-x-auto scrollbar-hide text-sm font-medium">
                     
-                    <a th:each="cat : ${rootCategories}"
+                    <a th:each="cat : ${headerCategories}"
                        th:href="@{/products(category=${cat.slug})}" 
                        class="px-6 py-2.5 text-gray-700 hover:text-[#0A68FF] hover:bg-blue-50 rounded-2xl transition-all whitespace-nowrap"
                        th:text="${cat.name}">
@@ -90,7 +90,7 @@
                     </a>
                     
                     <!-- Fallback if no categories -->
-                    <span th:if="${rootCategories == null or #lists.isEmpty(rootCategories)}" class="px-6 py-2.5 text-gray-400 italic">
+                    <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="px-6 py-2.5 text-gray-400 italic text-xs">
                         Đang tải danh mục...
                     </span>
                 </div>

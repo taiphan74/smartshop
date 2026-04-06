@@ -53,9 +53,13 @@ public class HomeController {
 			model.addAttribute("user", authResponse.user());
 		}
 
-		// Lấy danh mục gốc (parent is null) cho menu header, giới hạn 8 mục
-		PageResponse<CategoryDTO> categoryPage = categoryService.findParentCategories(0, 8, "name", "asc");
-		model.addAttribute("rootCategories", categoryPage.getContent());
+		// Lấy tất cả danh mục gốc (parent is null) cho section Danh mục ở trang chủ
+		PageResponse<CategoryDTO> categoryPage = categoryService.findParentCategories(0, 50, "name", "asc"); 
+		List<CategoryDTO> rootCategories = categoryPage.getContent();
+		model.addAttribute("rootCategories", rootCategories);
+
+		// Tạo danh sách thu gọn (tối đa 8 mục) dành riêng cho thanh menu Header để tránh tràn
+		model.addAttribute("headerCategories", rootCategories.stream().limit(8).toList());
 
 		// Lấy danh sách sản phẩm để hiển thị trên trang chủ
 		List<ProductListDTO> products = productService.findAllProducts();
