@@ -58,7 +58,7 @@ public class SecurityConfig {
 				// BƯỚC 4: Định nghĩa whitelist và yêu cầu xác thực cho endpoint còn lại.
 				// Mở public cho auth/static, các endpoint còn lại bắt buộc đăng nhập.
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/auth/**", "/css/**", "/error").permitAll()
+						.requestMatchers("/auth/**", "/css/**", "/js/**", "/images/**", "/favicon.ico", "/error").permitAll()
 						.anyRequest().authenticated())
 				// BƯỚC 5: Chọn chính sách session cho web MVC.
 				// Dùng session cho luồng web MVC (không stateless JWT).
