@@ -12,6 +12,35 @@
 		<div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
 		<div class="alert error" th:if="${param.error}">Bạn không có quyền truy cập chức năng này.</div>
 
+		<!-- Product List Section -->
+		<section class="product-section">
+			<h2 class="section-title">🛍️ Sản phẩm nổi bật</h2>
+			
+			<div class="product-grid" th:if="${products != null and !products.isEmpty()}">
+				<a th:each="product : ${products}"
+				   th:href="@{/products/{slug}(slug=${product.slug})}"
+				   class="product-link">
+					<div class="product-card">
+						<img th:src="${product.thumbnailUrl}" 
+						     th:alt="${product.name}" 
+						     onerror="this.src='https://via.placeholder.com/300'">
+						<div class="product-info">
+							<div class="product-name" th:text="${product.name}">Tên sản phẩm</div>
+							<div class="product-category" th:text="${product.categoryName}">Danh mục</div>
+							<div class="product-price">
+								<span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+
+			<div class="empty-message" th:if="${products == null or products.isEmpty()}">
+				<p>Chưa có sản phẩm nào.</p>
+			</div>
+		</section>
+
+		<!-- User Info Section (only for logged-in users) -->
 		<section class="dashboard-grid" th:if="${sessionUser != null}">
 			<article class="panel">
 				<h2>Thông tin session</h2>

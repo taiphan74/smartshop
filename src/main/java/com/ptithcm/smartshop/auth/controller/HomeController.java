@@ -2,11 +2,15 @@ package com.ptithcm.smartshop.auth.controller;
 
 import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
+import com.ptithcm.smartshop.product.dto.ProductListDTO;
+import com.ptithcm.smartshop.product.service.ProductService;
 import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 /**
  * Controller trang chủ.
@@ -20,9 +24,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
 	private final AuthService authService;
+	private final ProductService productService;
 
-	public HomeController(AuthService authService) {
+	public HomeController(AuthService authService, ProductService productService) {
 		this.authService = authService;
+		this.productService = productService;
 	}
 
 	/**
@@ -45,6 +51,11 @@ public class HomeController {
 			// Guest chưa đăng nhập → vẫn hiển thị trang Home bình thường.
 			// Không đưa thông tin user vào model, template tự xử lý trường hợp null.
 		}
+
+		// Lấy danh sách sản phẩm để hiển thị trên trang chủ
+		List<ProductListDTO> products = productService.findAllProducts();
+		model.addAttribute("products", products);
+
 		return "home";
 	}
 }
