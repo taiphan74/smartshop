@@ -26,8 +26,8 @@
         <h1>🛍️ SmartShop - Danh sách sản phẩm</h1>
         
         <div class="product-grid" th:if="${products != null and !products.isEmpty()}">
-            <a th:each="product : ${products}" 
-               th:href="@{/san-pham/{slug}(slug=${product.slug})}" 
+            <a th:each="product : ${products}"
+               th:href="@{/products/{slug}(slug=${product.slug})}"
                class="product-link">
                 <div class="product-card">
                     <img th:src="${product.thumbnailUrl}" th:alt="${product.name}" onerror="this.src='https://via.placeholder.com/300'">
