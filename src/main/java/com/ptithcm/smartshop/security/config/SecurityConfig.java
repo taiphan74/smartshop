@@ -12,7 +12,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,26 +45,29 @@ public class SecurityConfig {
 			HttpSecurity http,
 			RestAuthenticationEntryPoint restAuthenticationEntryPoint,
 			RestAccessDeniedHandler restAccessDeniedHandler) throws Exception {
-		// BƯỚC 1: Khởi tạo rule bảo mật cho toàn bộ request.
-		// Thiết lập rule bảo mật cho toàn bộ request.
 		http
-				// BƯỚC 2: Tắt CSRF cho luồng hiện tại (đang dùng session + custom flow).
 				.csrf(csrf -> csrf.disable())
-				// BƯỚC 3: Gắn handler tùy biến cho lỗi chưa đăng nhập/không đủ quyền.
-				// Dùng handler tùy biến để trả response rõ ràng cho 401/403.
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint(restAuthenticationEntryPoint)
 						.accessDeniedHandler(restAccessDeniedHandler))
-				// BƯỚC 4: Định nghĩa whitelist và yêu cầu xác thực cho endpoint còn lại.
-				// Mở public cho auth/static, các endpoint còn lại bắt buộc đăng nhập.
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/auth/**", "/css/**", "/error").permitAll()
+						.requestMatchers(
+								"/",
+								"/products/**",
+								"/auth/login",
+								"/auth/register",
+								"/css/**",
+								"/js/**",
+								"/images/**",
+								"/webjars/**"
+						).permitAll()
 						.anyRequest().authenticated())
-				// BƯỚC 5: Chọn chính sách session cho web MVC.
-				// Dùng session cho luồng web MVC (không stateless JWT).
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+				.formLogin(form -> form
+						.defaultSuccessUrl("/", true)
+						.permitAll())
+				.logout(logout -> logout
+						.permitAll());
 
-		// BƯỚC 6: Build và trả về filter chain hoàn chỉnh.
 		return http.build();
 	}
 

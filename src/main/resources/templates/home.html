@@ -1,48 +1,38 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Smartshop</title>
-	<link rel="stylesheet" th:href="@{/css/app.css}">
-</head>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('SmartShop - Trang chủ')}"></head>
 <body class="home-page">
-<main class="dashboard-shell">
-	<header class="dashboard-header">
-		<div>
-			<p class="eyebrow">Smartshop Marketplace</p>
-			<h1 th:text="'Xin chào, ' + ${sessionUser.fullName}">Xin chào</h1>
-			<p class="subtle">Thông tin đăng nhập đang được lưu trong session server-side.</p>
-		</div>
-		<form th:action="@{/auth/logout}" method="post">
-			<button class="secondary" type="submit">Đăng xuất</button>
-		</form>
-	</header>
 
-	<div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
-	<div class="alert error" th:if="${param.error}">Bạn không có quyền truy cập chức năng này.</div>
+	<!-- Header chung (giống Tiki) -->
+	<div th:replace="~{fragments/header :: header}"></div>
 
-	<section class="dashboard-grid">
-		<article class="panel">
-			<h2>Thông tin session</h2>
-			<ul class="detail-list">
-				<li><strong>Session ID:</strong> <span th:text="${auth.sessionId}"></span></li>
-				<li><strong>Email:</strong> <span th:text="${sessionUser.email}"></span></li>
-				<li><strong>Phone:</strong> <span th:text="${sessionUser.phone}"></span></li>
-				<li><strong>Roles:</strong> <span th:text="${#strings.listJoin(sessionUser.roles, ', ')}"></span></li>
-			</ul>
-		</article>
+	<!-- Nội dung chính -->
+	<main class="dashboard-shell">
 
-		<article class="panel">
-			<h2>Thông tin người dùng</h2>
-			<ul class="detail-list">
-				<li><strong>User ID:</strong> <span th:text="${user.id}"></span></li>
-				<li><strong>Status:</strong> <span th:text="${user.status}"></span></li>
-				<li><strong>Permissions:</strong> <span th:text="${#strings.listJoin(user.permissions, ', ')}"></span></li>
-				<li><strong>Updated:</strong> <span th:text="${user.updatedAt}"></span></li>
-			</ul>
-		</article>
-	</section>
-</main>
+		<div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+		<div class="alert error" th:if="${param.error}">Bạn không có quyền truy cập chức năng này.</div>
+
+		<section class="dashboard-grid" th:if="${sessionUser != null}">
+			<article class="panel">
+				<h2>Thông tin session</h2>
+				<ul class="detail-list">
+					<li><strong>Session ID:</strong> <span th:text="${auth.sessionId}"></span></li>
+					<li><strong>Email:</strong> <span th:text="${sessionUser.email}"></span></li>
+					<li><strong>Phone:</strong> <span th:text="${sessionUser.phone}"></span></li>
+					<li><strong>Roles:</strong> <span th:text="${#strings.listJoin(sessionUser.roles, ', ')}"></span></li>
+				</ul>
+			</article>
+
+			<article class="panel">
+				<h2>Thông tin người dùng</h2>
+				<ul class="detail-list">
+					<li><strong>User ID:</strong> <span th:text="${user.id}"></span></li>
+					<li><strong>Status:</strong> <span th:text="${user.status}"></span></li>
+					<li><strong>Permissions:</strong> <span th:text="${#strings.listJoin(user.permissions, ', ')}"></span></li>
+					<li><strong>Updated:</strong> <span th:text="${user.updatedAt}"></span></li>
+				</ul>
+			</article>
+		</section>
+	</main>
 </body>
 </html>

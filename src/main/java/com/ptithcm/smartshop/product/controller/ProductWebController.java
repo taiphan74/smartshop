@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/san-pham")
+@RequestMapping("/products")
 public class ProductWebController {
 
     private final ProductService productService;
