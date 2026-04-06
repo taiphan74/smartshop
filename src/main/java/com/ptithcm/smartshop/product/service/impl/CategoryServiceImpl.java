@@ -4,20 +4,23 @@ import com.ptithcm.smartshop.product.dto.CategoryDTO;
 import com.ptithcm.smartshop.product.dto.PageResponse;
 import com.ptithcm.smartshop.product.dto.request.CategoryRequest;
 import com.ptithcm.smartshop.product.entity.Category;
-import com.ptithcm.smartshop.shared.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.product.mapper.CategoryMapper;
 import com.ptithcm.smartshop.product.repository.CategoryRepository;
 import com.ptithcm.smartshop.product.service.CategoryService;
+import com.ptithcm.smartshop.shared.exception.BadRequestException;
+import com.ptithcm.smartshop.shared.exception.ConflictException;
+import com.ptithcm.smartshop.shared.exception.ResourceNotFoundException;
+import com.ptithcm.smartshop.shared.util.SlugUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import com.ptithcm.smartshop.shared.util.SlugUtil;
 
 @Service
 @Transactional
@@ -69,7 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
         UUID parentUuid = parseUuid(parentId, "parentId");
         Category parent = categoryRepository.findById(parentUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", parentId));
-        
+
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
@@ -91,76 +94,40 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO save(CategoryRequest request) {
+        validateRequest(request);
+
         Category category = categoryMapper.toEntity(request);
-        String nameSlug = SlugUtil.toSlug(request.getName());
-        String finalSlug;
-        
-        if (request.getParentId() != null) {
-            UUID parentId = parseUuid(request.getParentId(), "parentId");
-            Category parent = categoryRepository.findById(parentId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
-            category.setParent(parent);
-            category.setLevel(parent.getLevel() + 1);
-            
-            // Logic giống Seeder: parentSlug + "-" + currentNameSlug
-            finalSlug = parent.getSlug() + "-" + nameSlug;
-            category.setSlug(finalSlug);
-            category.setPath(parent.getPath() + "/" + finalSlug);
-        } else {
-            category.setLevel(0);
-            finalSlug = nameSlug;
-            category.setSlug(finalSlug);
-            category.setPath("/" + finalSlug);
-        }
-        
+        applyHierarchy(category, request.getName(), resolveParent(request.getParentId()));
+        ensureUniqueSlug(category.getSlug(), null);
+
         Category saved = categoryRepository.save(category);
         return categoryMapper.toDTO(saved);
     }
 
     @Override
     public CategoryDTO update(String id, CategoryRequest request) {
+        validateRequest(request);
+
         UUID categoryId = parseUuid(id, "id");
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", id));
 
-        String oldPath = category.getPath();
-        
-        // Cập nhật Slug mới dựa trên tên và phân cấp mới
-        String nameSlug = SlugUtil.toSlug(request.getName());
         categoryMapper.updateEntity(request, category);
-
-        if (request.getParentId() != null) {
-            UUID parentId = parseUuid(request.getParentId(), "parentId");
-            Category parent = categoryRepository.findById(parentId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category", request.getParentId()));
-            category.setParent(parent);
-            category.setLevel(parent.getLevel() + 1);
-            category.setSlug(parent.getSlug() + "-" + nameSlug);
-            category.setPath(parent.getPath() + "/" + category.getSlug());
-        } else {
-            category.setParent(null);
-            category.setLevel(0);
-            category.setSlug(nameSlug);
-            category.setPath("/" + category.getSlug());
-        }
+        applyHierarchy(category, request.getName(), resolveParentForUpdate(category, request.getParentId()));
+        ensureUniqueSlug(category.getSlug(), category.getId());
 
         Category updated = categoryRepository.save(category);
-        
-        if (!oldPath.equals(updated.getPath())) {
-            updateChildrenPaths(updated, oldPath, updated.getPath());
-        }
-
+        syncDescendants(updated);
         return categoryMapper.toDTO(updated);
     }
 
-    private void updateChildrenPaths(Category parent, String oldParentPath, String newParentPath) {
+    private void syncDescendants(Category parent) {
         List<Category> children = categoryRepository.findByParent(parent);
         for (Category child : children) {
-            String oldChildPath = child.getPath();
-            child.setPath(child.getPath().replaceFirst(java.util.regex.Pattern.quote(oldParentPath), newParentPath));
-            child.setLevel(parent.getLevel() + 1);
+            applyHierarchy(child, child.getName(), parent);
+            ensureUniqueSlug(child.getSlug(), child.getId());
             categoryRepository.save(child);
-            updateChildrenPaths(child, oldChildPath, child.getPath());
+            syncDescendants(child);
         }
     }
 
@@ -181,6 +148,70 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
+    private void validateRequest(CategoryRequest request) {
+        if (request == null) {
+            throw new BadRequestException("request", "must not be null");
+        }
+    }
+
+    private Category resolveParent(String parentId) {
+        if (parentId == null || parentId.isBlank()) {
+            return null;
+        }
+
+        UUID parentUuid = parseUuid(parentId, "parentId");
+        return categoryRepository.findById(parentUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", parentId));
+    }
+
+    private Category resolveParentForUpdate(Category category, String parentId) {
+        Category parent = resolveParent(parentId);
+        if (parent == null) {
+            return null;
+        }
+
+        if (parent.getId().equals(category.getId())) {
+            throw new BadRequestException("parentId", "cannot be the same as the category id");
+        }
+
+        Category current = parent;
+        while (current != null) {
+            if (current.getId().equals(category.getId())) {
+                throw new BadRequestException("parentId", "cannot be a descendant of the category");
+            }
+            current = current.getParent();
+        }
+
+        return parent;
+    }
+
+    private void applyHierarchy(Category category, String name, Category parent) {
+        String ownNameSlug = SlugUtil.toSlug(name);
+        if (ownNameSlug.isBlank()) {
+            throw new BadRequestException("name", "must contain at least one valid character");
+        }
+
+        category.setParent(parent);
+        if (parent == null) {
+            category.setLevel(0);
+            category.setSlug(ownNameSlug);
+            category.setPath("/" + ownNameSlug);
+            return;
+        }
+
+        String slug = parent.getSlug() + "-" + ownNameSlug;
+        category.setLevel(parent.getLevel() + 1);
+        category.setSlug(slug);
+        category.setPath(parent.getPath() + "/" + slug);
+    }
+
+    private void ensureUniqueSlug(String slug, UUID categoryId) {
+        boolean exists = categoryId == null
+                ? categoryRepository.existsBySlug(slug)
+                : categoryRepository.existsBySlugAndIdNot(slug, categoryId);
+
+        if (exists) {
+            throw new ConflictException("Category", "slug");
+        }
+    }
 }
-
-
