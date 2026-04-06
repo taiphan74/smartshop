@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Triển khai nghiệp vụ xác thực người dùng.
@@ -80,12 +81,14 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public AuthResponse register(AuthRegisterRequest request) {
+		String normalizedPhone = normalizePhone(request.phone());
+
 		// Bước 1: kiểm tra trùng email để đảm bảo tính duy nhất.
 		if (userRepository.existsByEmail(request.email())) {
 			throw new ConflictException("Email already exists");
 		}
 		// Bước 2: kiểm tra trùng số điện thoại để đảm bảo tính duy nhất.
-		if (userRepository.existsByPhone(request.phone())) {
+		if (StringUtils.hasText(normalizedPhone) && userRepository.existsByPhone(normalizedPhone)) {
 			throw new ConflictException("Phone already exists");
 		}
 
@@ -96,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
 		// Bước 4: dựng entity User mới từ dữ liệu request.
 		User user = new User();
 		user.setEmail(request.email());
-		user.setPhone(request.phone());
+		user.setPhone(normalizedPhone);
 		// Bước 5: mã hóa mật khẩu trước khi lưu để bảo mật thông tin xác thực.
 		user.setPassword(passwordEncoder.encode(request.password()));
 		user.setFullName(request.fullName());
@@ -175,5 +178,12 @@ public class AuthServiceImpl implements AuthService {
 
 		// Bước 4: trả thông tin phiên hiện tại cho client/UI.
 		return new AuthResponse("Current session", session.getId(), sessionUser, UserResponse.from(user));
+	}
+
+	private String normalizePhone(String phone) {
+		if (!StringUtils.hasText(phone)) {
+			return null;
+		}
+		return phone.trim();
 	}
 }

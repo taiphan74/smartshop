@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-make-user-phone-optional
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE users
+              ALTER COLUMN phone DROP NOT NULL;
