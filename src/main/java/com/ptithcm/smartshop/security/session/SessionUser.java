@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.security.session;
 
-import com.ptithcm.smartshop.user.entity.Role;
+import com.ptithcm.smartshop.security.rbac.entity.Role;
 import com.ptithcm.smartshop.user.entity.User;
 import java.io.Serializable;
 import java.util.Set;

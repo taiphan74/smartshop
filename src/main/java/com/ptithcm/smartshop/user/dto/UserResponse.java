@@ -1,7 +1,7 @@
 package com.ptithcm.smartshop.user.dto;
 
-import com.ptithcm.smartshop.user.entity.Permission;
-import com.ptithcm.smartshop.user.entity.Role;
+import com.ptithcm.smartshop.security.rbac.entity.Permission;
+import com.ptithcm.smartshop.security.rbac.entity.Role;
 import com.ptithcm.smartshop.user.entity.User;
 import com.ptithcm.smartshop.user.enums.UserStatus;
 import java.time.Instant;

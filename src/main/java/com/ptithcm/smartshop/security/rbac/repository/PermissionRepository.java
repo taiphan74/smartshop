@@ -1,6 +1,6 @@
 package com.ptithcm.smartshop.security.rbac.repository;
 
-import com.ptithcm.smartshop.user.entity.Permission;
+import com.ptithcm.smartshop.security.rbac.entity.Permission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

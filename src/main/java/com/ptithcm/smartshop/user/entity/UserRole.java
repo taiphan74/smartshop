@@ -1,5 +1,6 @@
 package com.ptithcm.smartshop.user.entity;
 
+import com.ptithcm.smartshop.security.rbac.entity.Role;
 import com.ptithcm.smartshop.shared.entity.BaseUuidEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

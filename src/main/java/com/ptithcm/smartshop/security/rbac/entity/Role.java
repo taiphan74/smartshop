@@ -1,6 +1,8 @@
-package com.ptithcm.smartshop.user.entity;
+package com.ptithcm.smartshop.security.rbac.entity;
 
 import com.ptithcm.smartshop.shared.entity.AuditableEntity;
+import com.ptithcm.smartshop.user.entity.User;
+import com.ptithcm.smartshop.user.entity.UserRole;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -80,4 +82,3 @@ public class Role extends AuditableEntity {
 			.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 }
-

@@ -1,4 +1,4 @@
-package com.ptithcm.smartshop.user.entity;
+package com.ptithcm.smartshop.security.rbac.entity;
 
 import com.ptithcm.smartshop.shared.entity.BaseUuidEntity;
 import jakarta.persistence.Column;
@@ -41,4 +41,3 @@ public class Permission extends BaseUuidEntity {
 		return roles;
 	}
 }
-

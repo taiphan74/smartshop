@@ -1,5 +1,6 @@
 package com.ptithcm.smartshop.user.entity;
 
+import com.ptithcm.smartshop.security.rbac.entity.Role;
 import com.ptithcm.smartshop.shared.entity.AuditableEntity;
 import com.ptithcm.smartshop.shop.entity.Shop;
 import com.ptithcm.smartshop.shop.entity.ShopUser;
