@@ -4,7 +4,6 @@ import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
 import com.ptithcm.smartshop.product.dto.ProductListDTO;
 import com.ptithcm.smartshop.product.service.ProductService;
-import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,14 +41,11 @@ public class HomeController {
 	 */
 	@GetMapping("/")
 	public String home(HttpServletRequest request, Model model) {
-		try {
-			AuthResponse authResponse = authService.me(request);
+		AuthResponse authResponse = authService.me(request);
+		if (authResponse != null) {
 			model.addAttribute("auth", authResponse);
 			model.addAttribute("sessionUser", authResponse.sessionUser());
 			model.addAttribute("user", authResponse.user());
-		} catch (UnauthorizedException e) {
-			// Guest chưa đăng nhập → vẫn hiển thị trang Home bình thường.
-			// Không đưa thông tin user vào model, template tự xử lý trường hợp null.
 		}
 
 		// Lấy danh sách sản phẩm để hiển thị trên trang chủ
