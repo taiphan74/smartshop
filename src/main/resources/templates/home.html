@@ -40,28 +40,7 @@
 			</div>
 		</section>
 
-		<!-- User Info Section (only for logged-in users) -->
-		<section class="dashboard-grid" th:if="${sessionUser != null}">
-			<article class="panel">
-				<h2>Thông tin session</h2>
-				<ul class="detail-list">
-					<li><strong>Session ID:</strong> <span th:text="${auth.sessionId}"></span></li>
-					<li><strong>Email:</strong> <span th:text="${sessionUser.email}"></span></li>
-					<li><strong>Phone:</strong> <span th:text="${sessionUser.phone}"></span></li>
-					<li><strong>Roles:</strong> <span th:text="${#strings.listJoin(sessionUser.roles, ', ')}"></span></li>
-				</ul>
-			</article>
-
-			<article class="panel">
-				<h2>Thông tin người dùng</h2>
-				<ul class="detail-list">
-					<li><strong>User ID:</strong> <span th:text="${user.id}"></span></li>
-					<li><strong>Status:</strong> <span th:text="${user.status}"></span></li>
-					<li><strong>Permissions:</strong> <span th:text="${#strings.listJoin(user.permissions, ', ')}"></span></li>
-					<li><strong>Updated:</strong> <span th:text="${user.updatedAt}"></span></li>
-				</ul>
-			</article>
-		</section>
+		<!-- Nội dung khác dọn dẹp hoặc để trống nếu cần -->
 	</main>
 </body>
 </html>

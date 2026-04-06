@@ -3,7 +3,10 @@ package com.ptithcm.smartshop.auth.controller;
 import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
 import com.ptithcm.smartshop.product.dto.ProductListDTO;
+import com.ptithcm.smartshop.product.dto.CategoryDTO;
+import com.ptithcm.smartshop.product.dto.PageResponse;
 import com.ptithcm.smartshop.product.service.ProductService;
+import com.ptithcm.smartshop.product.service.CategoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,10 +27,12 @@ public class HomeController {
 
 	private final AuthService authService;
 	private final ProductService productService;
+	private final CategoryService categoryService;
 
-	public HomeController(AuthService authService, ProductService productService) {
+	public HomeController(AuthService authService, ProductService productService, CategoryService categoryService) {
 		this.authService = authService;
 		this.productService = productService;
+		this.categoryService = categoryService;
 	}
 
 	/**
@@ -47,6 +52,10 @@ public class HomeController {
 			model.addAttribute("sessionUser", authResponse.sessionUser());
 			model.addAttribute("user", authResponse.user());
 		}
+
+		// Lấy danh mục gốc (parent is null) cho menu header, giới hạn 8 mục
+		PageResponse<CategoryDTO> categoryPage = categoryService.findParentCategories(0, 8, "name", "asc");
+		model.addAttribute("rootCategories", categoryPage.getContent());
 
 		// Lấy danh sách sản phẩm để hiển thị trên trang chủ
 		List<ProductListDTO> products = productService.findAllProducts();
