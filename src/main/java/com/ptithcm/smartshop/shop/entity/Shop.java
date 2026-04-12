@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import com.ptithcm.smartshop.product.entity.Product;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -51,6 +52,9 @@ public class Shop extends AuditableEntity {
 
 	@OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ShopUser> shopUsers = new LinkedHashSet<>();
+
+	@OneToMany(mappedBy = "shop")
+	private Set<Product> products = new LinkedHashSet<>();
 
 	public User getOwner() {
 		return owner;
@@ -126,6 +130,10 @@ public class Shop extends AuditableEntity {
 
 	public Set<ShopUser> getShopUsers() {
 		return shopUsers;
+	}
+
+	public Set<Product> getProducts() {
+		return products;
 	}
 }
 

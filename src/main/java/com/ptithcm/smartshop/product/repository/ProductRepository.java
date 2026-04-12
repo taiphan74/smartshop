@@ -23,6 +23,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "p.slug AS slug, " +
            "p.status AS status, " +
            "p.category.name AS categoryName, " +
+           "CAST(p.shop.id AS string) AS shopId, " +
+           "p.shop.slug AS shopSlug, " +
+           "p.shop.name AS shopName, " +
            "COALESCE(" +
            "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
            "  0.0" +
@@ -39,6 +42,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "p.slug AS slug, " +
            "p.status AS status, " +
            "p.category.name AS categoryName, " +
+           "CAST(p.shop.id AS string) AS shopId, " +
+           "p.shop.slug AS shopSlug, " +
+           "p.shop.name AS shopName, " +
            "COALESCE(" +
            "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
            "  0.0" +
@@ -55,6 +61,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "p.slug AS slug, " +
            "p.status AS status, " +
            "p.category.name AS categoryName, " +
+           "CAST(p.shop.id AS string) AS shopId, " +
+           "p.shop.slug AS shopSlug, " +
+           "p.shop.name AS shopName, " +
            "COALESCE(" +
            "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
            "  0.0" +

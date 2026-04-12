@@ -9,6 +9,9 @@ import java.util.Optional;
 
 public interface ProductService {
 
+    /**
+     * Lấy danh sách sản phẩm phân trang cho các luồng quản trị/tra cứu.
+     */
     PageResponse<ProductListDTO> findAll(int pageNo, int pageSize, String sortBy, String sortDir);
 
     List<ProductListDTO> findAllProducts();
@@ -19,10 +22,19 @@ public interface ProductService {
 
     PageResponse<ProductListDTO> findByCategory(String categoryId, int pageNo, int pageSize, String sortBy, String sortDir);
 
+    /**
+     * Tạo mới sản phẩm cho một shop mà user hiện tại có quyền quản lý.
+     */
     ProductDetailDTO save(ProductRequest request);
 
+    /**
+     * Cập nhật sản phẩm hiện có và xác thực quyền trên shop được gắn.
+     */
     ProductDetailDTO update(String id, ProductRequest request);
 
+    /**
+     * Xóa sản phẩm khi user hiện tại có quyền thao tác trên shop của sản phẩm.
+     */
     void deleteById(String id);
 }
 

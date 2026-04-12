@@ -11,16 +11,20 @@ public class ProductRequest {
     
     private Boolean status;
     
+    @NotBlank(message = "Mã shop không được để trống")
+    private String shopId;
+
     @NotBlank(message = "Mã danh mục không được để trống")
     private String categoryId;
 
     public ProductRequest() {
     }
 
-    public ProductRequest(String name, String description, Boolean status, String categoryId) {
+    public ProductRequest(String name, String description, Boolean status, String shopId, String categoryId) {
         this.name = name;
         this.description = description;
         this.status = status;
+        this.shopId = shopId;
         this.categoryId = categoryId;
     }
 
@@ -46,6 +50,14 @@ public class ProductRequest {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
     }
 
     public String getCategoryId() {

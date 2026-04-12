@@ -39,6 +39,12 @@ public class ProductMapper {
             dto.setCategoryName(product.getCategory().getName());
         }
 
+        if (product.getShop() != null) {
+            dto.setShopId(Objects.toString(product.getShop().getId(), null));
+            dto.setShopSlug(product.getShop().getSlug());
+            dto.setShopName(product.getShop().getName());
+        }
+
         if (product.getImages() != null && !product.getImages().isEmpty()) {
             dto.setThumbnailUrl(product.getImages().stream()
                     .filter(ProductImage::getIsMain)
@@ -74,6 +80,12 @@ public class ProductMapper {
         if (product.getCategory() != null) {
             dto.setCategoryId(Objects.toString(product.getCategory().getId(), null));
             dto.setCategoryName(product.getCategory().getName());
+        }
+
+        if (product.getShop() != null) {
+            dto.setShopId(Objects.toString(product.getShop().getId(), null));
+            dto.setShopSlug(product.getShop().getSlug());
+            dto.setShopName(product.getShop().getName());
         }
 
         if (product.getImages() != null) {
@@ -167,6 +179,9 @@ public class ProductMapper {
         dto.setPrice(projection.getPrice());
         dto.setStatus(projection.getStatus());
         dto.setCategoryName(projection.getCategoryName());
+        dto.setShopId(projection.getShopId());
+        dto.setShopSlug(projection.getShopSlug());
+        dto.setShopName(projection.getShopName());
         dto.setThumbnailUrl(projection.getThumbnailUrl());
         return dto;
     }

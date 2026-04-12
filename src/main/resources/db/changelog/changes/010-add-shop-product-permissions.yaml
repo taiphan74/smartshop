@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-add-shop-product-permissions
+      author: claude
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              INSERT INTO permissions (id, code, description)
+              SELECT gen_random_uuid(), 'shop:read', 'View shops'
+              WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE code = 'shop:read');
+
+              INSERT INTO permissions (id, code, description)
+              SELECT gen_random_uuid(), 'shop:create', 'Create shops'
+              WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE code = 'shop:create');
+
+              INSERT INTO permissions (id, code, description)
+              SELECT gen_random_uuid(), 'shop:update', 'Update shops'
+              WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE code = 'shop:update');
+
+              INSERT INTO permissions (id, code, description)
+              SELECT gen_random_uuid(), 'product:create', 'Create products'
+              WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE code = 'product:create');
+
+              INSERT INTO permissions (id, code, description)
+              SELECT gen_random_uuid(), 'product:update', 'Update products'
+              WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE code = 'product:update');
+
+              INSERT INTO permissions (id, code, description)
+              SELECT gen_random_uuid(), 'product:delete', 'Delete products'
+              WHERE NOT EXISTS (SELECT 1 FROM permissions WHERE code = 'product:delete');
+
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id
+              FROM roles r
+              JOIN permissions p ON p.code IN (
+                'shop:read',
+                'shop:create',
+                'shop:update',
+                'product:create',
+                'product:update',
+                'product:delete'
+              )
+              WHERE r.code IN ('ADMIN', 'SELLER')
+                AND NOT EXISTS (
+                  SELECT 1
+                  FROM role_permissions rp
+                  WHERE rp.role_id = r.id AND rp.permission_id = p.id
+                );
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              DO $$
+              BEGIN
+                IF NOT EXISTS (
+                  SELECT 1
+                  FROM information_schema.table_constraints
+                  WHERE constraint_name = 'fk_products_shop'
+                    AND table_name = 'products'
+                ) THEN
+                  ALTER TABLE products
+                    ADD CONSTRAINT fk_products_shop
+                    FOREIGN KEY (shop_id) REFERENCES shops(id);
+                END IF;
+              END $$;
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              CREATE INDEX IF NOT EXISTS idx_products_shop_id ON products(shop_id);

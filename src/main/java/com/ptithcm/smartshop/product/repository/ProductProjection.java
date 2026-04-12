@@ -9,6 +9,9 @@ public interface ProductProjection {
     BigDecimal getPrice();
     Boolean getStatus();
     String getCategoryName();
+    String getShopId();
+    String getShopSlug();
+    String getShopName();
     String getThumbnailUrl();
 }
 
