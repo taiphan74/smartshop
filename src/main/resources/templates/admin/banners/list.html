@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Quản lý Banner')}"></head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container mx-auto py-8 px-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Quản lý Banner</h1>
+
+    <!-- Banner List -->
+    <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-4">Danh sách Banner</h2>
+        <div class="space-y-4">
+            <div th:each="banner : ${banners}" class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
+                <img th:src="${banner.imageUrl}" alt="Banner" class="w-48 h-24 object-cover rounded"/>
+                <div class="flex-1">
+                    <h3 class="font-medium" th:text="${banner.title} ?: 'Không tiêu đề'">Banner Title</h3>
+                    <p class="text-sm text-gray-500" th:text="'Thứ tự: ' + ${banner.displayOrder}"></p>
+                    <span th:if="${banner.isActive}" class="text-xs text-green-600">Đang hiển thị</span>
+                    <span th:unless="${banner.isActive}" class="text-xs text-red-600">Đã ẩn</span>
+                </div>
+                <form th:action="@{'/admin/banners/delete/' + ${banner.id}}" method="post"
+                      onsubmit="return confirm('Bạn có chắc muốn xóa banner này?');">
+                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Xóa</button>
+                </form>
+            </div>
+            <p th:if="${banners == null or #lists.isEmpty(banners)}" class="text-gray-500">Chưa có banner nào.</p>
+        </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4">Thêm Banner mới</h2>
+        <form th:action="@{/admin/banners/create}" method="post" enctype="multipart/form-data"
+              th:object="${bannerForm}" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tiêu đề</label>
+                    <input type="text" th:field="*{title}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">URL đích</label>
+                    <input type="text" th:field="*{linkUrl}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Thứ tự</label>
+                    <input type="number" th:field="*{displayOrder}" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+                </div>
+                <div class="flex items-center mt-6">
+                    <input type="checkbox" th:field="*{isActive}" checked class="mr-2"/>
+                    <label class="text-sm text-gray-700">Hiển thị</label>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Hình ảnh</label>
+                    <input type="file" name="imageFile" accept="image/*" class="mt-1 block w-full"/>
+                </div>
+            </div>
+            <button type="submit" class="bg-[#0A68FF] text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                Thêm banner
+            </button>
+        </form>
+    </div>
+
+    <a href="/" class="mt-6 inline-block text-[#0A68FF] hover:underline">&larr; Quay lại trang chủ</a>
+</main>
+
+</body>
+</html>

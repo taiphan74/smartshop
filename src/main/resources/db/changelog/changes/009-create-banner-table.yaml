@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-banner-table
+      author: claude
+      changes:
+        - createTable:
+            tableName: banners
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+              - column:
+                  name: image_url
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: link_url
+                  type: varchar(500)
+              - column:
+                  name: display_order
+                  type: int
+                  defaultValue: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValue: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: varchar(100)
+              - column:
+                  name: updated_by
+                  type: varchar(100)

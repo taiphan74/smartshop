@@ -8,12 +8,12 @@
 
 	<!-- Nội dung chính: Container rộng rãi, flex layout -->
 	<main class="max-w-[1280px] mx-auto px-4 md:px-6 py-6 flex flex-col md:flex-row items-start gap-6">
-		
-		<!-- BARE LEFT: SIDEBAR DANH MỤC (Desktop Only) -->
+
+		<!-- BÊN TRÁI: SIDEBAR DANH MỤC (Desktop Only) -->
 		<aside class="w-[240px] shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 p-4 hidden md:block sticky top-24">
 			<h2 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-5 px-2">Danh mục</h2>
 			<nav class="flex flex-col space-y-1">
-				<a th:each="cat : ${rootCategories}" 
+				<a th:each="cat : ${rootCategories}"
 				   th:href="@{/products(category=${cat.slug})}"
 				   class="flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-brand-blue-soft group transition-all duration-300">
 					<!-- Icon Container -->
@@ -21,27 +21,60 @@
 						<span class="text-lg group-hover:scale-125 transition-transform duration-300">📁</span>
 					</div>
 					<!-- Tên danh mục -->
-					<span class="text-sm font-medium text-gray-700 group-hover:text-brand-blue transition-colors" 
+					<span class="text-sm font-medium text-gray-700 group-hover:text-brand-blue transition-colors"
 					      th:text="${cat.name}">Hàng gia dụng</span>
 				</a>
 
 				<!-- Hiển thị khi không có dữ liệu -->
-				<div th:if="${rootCategories == null or #lists.isEmpty(rootCategories)}" 
+				<div th:if="${rootCategories == null or #lists.isEmpty(rootCategories)}"
 				     class="py-4 px-2 text-xs text-gray-400 italic">
 					Đang cập nhật danh mục...
 				</div>
 			</nav>
 		</aside>
 
-		<!-- BÊN PHẢI: NỘI DUNG CHÍNH (Banner + Mobie Categories + Products) -->
+		<!-- BÊN PHẢI: NỘI DUNG CHÍNH (Banner + Mobile Categories + Products) -->
 		<div class="flex-1 w-full min-w-0">
-			
+
+			<!-- Banner Carousel -->
+			<div th:if="${banners != null and !#lists.isEmpty(banners)}" class="mb-6">
+				<div class="swiper banner-swiper rounded-xl overflow-hidden shadow-md">
+					<div class="swiper-wrapper">
+						<div th:each="banner : ${banners}" class="swiper-slide relative"
+							 th:if="${banner.isActive}">
+							<a th:if="${banner.linkUrl != null and !#strings.isEmpty(banner.linkUrl)}"
+							   th:href="${banner.linkUrl}">
+								<img th:src="${banner.imageUrl}"
+									 th:alt="${banner.title}"
+									 class="w-full h-[300px] md:h-[400px] object-cover"/>
+							</a>
+							<img th:unless="${banner.linkUrl != null and !#strings.isEmpty(banner.linkUrl)}"
+								 th:src="${banner.imageUrl}"
+								 th:alt="${banner.title}"
+								 class="w-full h-[300px] md:h-[400px] object-cover"/>
+						</div>
+					</div>
+					<div class="swiper-pagination"></div>
+					<div class="swiper-button-prev"></div>
+					<div class="swiper-button-next"></div>
+				</div>
+
+				<!-- Admin Inline Controls -->
+				<div th:if="${sessionUser != null and #lists.contains(sessionUser.roles, 'ADMIN')}"
+					 class="absolute top-2 right-2 z-10 flex gap-2">
+					<a href="/admin/banners"
+					   class="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-medium shadow hover:bg-white">
+						Quản lý Banner
+					</a>
+				</div>
+			</div>
+
 			<!-- DANH MỤC MOBILE (Grid 2 cột) -->
 			<section class="md:hidden mb-6">
 				<div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
 					<h2 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Danh mục</h2>
 					<div class="grid grid-cols-2 gap-3">
-						<a th:each="cat : ${rootCategories}" 
+						<a th:each="cat : ${rootCategories}"
 						   th:href="@{/products(category=${cat.slug})}"
 						   class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent active:scale-95 transition-all text-center">
 							<div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
@@ -61,32 +94,32 @@
 					</h2>
 					<a href="/products" class="text-brand-blue text-sm font-bold hover:underline">Xem tất cả</a>
 				</div>
-				
+
 				<div class="p-4 md:p-6 bg-gray-50/30">
 					<!-- Alert message -->
-					<div class="mb-4 bg-green-50 text-green-700 p-3 rounded-lg text-sm font-medium border border-green-100 shadow-sm" 
+					<div class="mb-4 bg-green-50 text-green-700 p-3 rounded-lg text-sm font-medium border border-green-100 shadow-sm"
 					     th:if="${successMessage}" th:text="${successMessage}"></div>
-					
+
 					<!-- Product Grid -->
 					<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5" th:if="${products != null and !products.isEmpty()}">
 						<a th:each="product : ${products}"
 						   th:href="@{/products/{slug}(slug=${product.slug})}"
 						   class="bg-white rounded-xl border border-gray-100 hover:border-brand-blue/30 hover:shadow-lg transition-all duration-300 group flex flex-col h-full">
 							<div class="relative pt-[100%] overflow-hidden rounded-t-xl bg-gray-50">
-								<img th:src="${product.thumbnailUrl}" 
-								     th:alt="${product.name}" 
+								<img th:src="${product.thumbnailUrl}"
+								     th:alt="${product.name}"
 								     class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 								     onerror="this.src='https://via.placeholder.com/300'">
 							</div>
 							<div class="p-3 md:p-4 flex flex-col flex-1">
-								<h3 class="text-gray-800 text-sm md:text-base font-medium line-clamp-2 mb-2 group-hover:text-brand-blue transition-colors" 
+								<h3 class="text-gray-800 text-sm md:text-base font-medium line-clamp-2 mb-2 group-hover:text-brand-blue transition-colors"
 								    th:text="${product.name}">Tên sản phẩm</h3>
 								<div class="product-rating flex items-center gap-1 mb-2 text-[#ffce3d] text-[10px] md:text-xs">
 									<span>★★★★★</span>
 									<span class="text-gray-400 font-normal"> (0)</span>
 								</div>
 								<div class="mt-auto">
-									<p class="text-brand-red text-base md:text-lg font-bold" 
+									<p class="text-brand-red text-base md:text-lg font-bold"
 									   th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</p>
 								</div>
 							</div>
@@ -104,5 +137,30 @@
 			</section>
 		</div>
 	</main>
+
+	<!-- Swiper Init -->
+	<script th:inline="javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+		if (document.querySelector('.banner-swiper')) {
+			new Swiper('.banner-swiper', {
+				loop: true,
+				effect: 'slide',
+				speed: 600,
+				autoplay: {
+					delay: 4000,
+					disableOnInteraction: false,
+				},
+				pagination: {
+					el: '.swiper-pagination',
+					clickable: true,
+				},
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+			});
+		}
+	});
+	</script>
 </body>
 </html>

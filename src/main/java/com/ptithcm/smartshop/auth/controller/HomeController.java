@@ -2,11 +2,13 @@ package com.ptithcm.smartshop.auth.controller;
 
 import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
-import com.ptithcm.smartshop.product.dto.ProductListDTO;
+import com.ptithcm.smartshop.banner.service.BannerService;
 import com.ptithcm.smartshop.product.dto.CategoryDTO;
 import com.ptithcm.smartshop.product.dto.PageResponse;
-import com.ptithcm.smartshop.product.service.ProductService;
+import com.ptithcm.smartshop.product.dto.ProductListDTO;
 import com.ptithcm.smartshop.product.service.CategoryService;
+import com.ptithcm.smartshop.product.service.ProductService;
+import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,11 +28,16 @@ import java.util.List;
 public class HomeController {
 
 	private final AuthService authService;
+	private final BannerService bannerService;
 	private final ProductService productService;
 	private final CategoryService categoryService;
 
-	public HomeController(AuthService authService, ProductService productService, CategoryService categoryService) {
+	public HomeController(AuthService authService,
+						  BannerService bannerService,
+						  ProductService productService,
+						  CategoryService categoryService) {
 		this.authService = authService;
+		this.bannerService = bannerService;
 		this.productService = productService;
 		this.categoryService = categoryService;
 	}
@@ -46,15 +53,18 @@ public class HomeController {
 	 */
 	@GetMapping("/")
 	public String home(HttpServletRequest request, Model model) {
-		AuthResponse authResponse = authService.me(request);
-		if (authResponse != null) {
+		try {
+			AuthResponse authResponse = authService.me(request);
 			model.addAttribute("auth", authResponse);
 			model.addAttribute("sessionUser", authResponse.sessionUser());
 			model.addAttribute("user", authResponse.user());
+		} catch (UnauthorizedException e) {
+			// Guest chưa đăng nhập → vẫn hiển thị trang Home bình thường.
+			// Không đưa thông tin user vào model, template tự xử lý trường hợp null.
 		}
 
-		// Lấy tất cả danh mục gốc (parent is null) cho section Danh mục ở trang chủ
-		PageResponse<CategoryDTO> categoryPage = categoryService.findParentCategories(0, 50, "name", "asc"); 
+		// Lấy danh mục và sản phẩm cho trang chủ
+		PageResponse<CategoryDTO> categoryPage = categoryService.findParentCategories(0, 50, "name", "asc");
 		List<CategoryDTO> rootCategories = categoryPage.getContent();
 		model.addAttribute("rootCategories", rootCategories);
 
@@ -65,6 +75,8 @@ public class HomeController {
 		List<ProductListDTO> products = productService.findAllProducts();
 		model.addAttribute("products", products);
 
+		// Lấy banner đang active cho homepage carousel
+		model.addAttribute("banners", bannerService.findAllActive());
 		return "home";
 	}
 }
