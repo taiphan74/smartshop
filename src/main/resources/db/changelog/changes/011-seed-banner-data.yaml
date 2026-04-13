@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-seed-banner-data
+      author: claude
+      changes:
+        - insert:
+            tableName: banners
+            columns:
+              - column: { name: title, value: "Khuyến mãi đặc biệt" }
+              - column: { name: image_url, value: "/uploads/banners/banner-1.jpeg" }
+              - column: { name: link_url, value: "/products" }
+              - column: { name: display_order, value: 0 }
+              - column: { name: is_active, value: true }
+              - column: { name: created_at, valueComputed: now() }
+              - column: { name: updated_at, valueComputed: now() }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: banners
+            columns:
+              - column: { name: title, value: "Sản phẩm mới" }
+              - column: { name: image_url, value: "/uploads/banners/banner-2.jpeg" }
+              - column: { name: link_url, value: "/products" }
+              - column: { name: display_order, value: 1 }
+              - column: { name: is_active, value: true }
+              - column: { name: created_at, valueComputed: now() }
+              - column: { name: updated_at, valueComputed: now() }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: banners
+            columns:
+              - column: { name: title, value: "Freeship toàn quốc" }
+              - column: { name: image_url, value: "/uploads/banners/banner-3.jpeg" }
+              - column: { name: link_url, value: "/products" }
+              - column: { name: display_order, value: 2 }
+              - column: { name: is_active, value: true }
+              - column: { name: created_at, valueComputed: now() }
+              - column: { name: updated_at, valueComputed: now() }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: banners
+            columns:
+              - column: { name: title, value: "Ưu đãi thành viên" }
+              - column: { name: image_url, value: "/uploads/banners/banner-4.jpeg" }
+              - column: { name: link_url, value: "/products" }
+              - column: { name: display_order, value: 3 }
+              - column: { name: is_active, value: true }
+              - column: { name: created_at, valueComputed: now() }
+              - column: { name: updated_at, valueComputed: now() }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }

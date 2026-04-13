@@ -10,8 +10,8 @@
 	<main class="dashboard-shell">
 
 		<!-- Banner Carousel -->
-		<div th:if="${banners != null and !#lists.isEmpty(banners)}" class="relative w-full">
-			<div class="swiper banner-swiper">
+		<div th:if="${banners != null and !#lists.isEmpty(banners)}" class="max-w-7xl mx-auto px-6 py-8">
+			<div class="swiper banner-swiper rounded-xl overflow-hidden shadow-md">
 				<div class="swiper-wrapper">
 					<div th:each="banner : ${banners}" class="swiper-slide relative"
 						 th:if="${banner.isActive}">
