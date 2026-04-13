@@ -2,6 +2,7 @@ package com.ptithcm.smartshop.auth.controller;
 
 import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
+import com.ptithcm.smartshop.banner.service.BannerService;
 import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
 	private final AuthService authService;
+	private final BannerService bannerService;
 
-	public HomeController(AuthService authService) {
+	public HomeController(AuthService authService, BannerService bannerService) {
 		this.authService = authService;
+		this.bannerService = bannerService;
 	}
 
 	/**
@@ -45,6 +48,7 @@ public class HomeController {
 			// Guest chưa đăng nhập → vẫn hiển thị trang Home bình thường.
 			// Không đưa thông tin user vào model, template tự xử lý trường hợp null.
 		}
+		model.addAttribute("banners", bannerService.findAllActive());
 		return "home";
 	}
 }

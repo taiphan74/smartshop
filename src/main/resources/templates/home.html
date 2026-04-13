@@ -9,6 +9,40 @@
 	<!-- Nội dung chính -->
 	<main class="dashboard-shell">
 
+		<!-- Banner Carousel -->
+		<div th:if="${banners != null and !#lists.isEmpty(banners)}" class="relative w-full">
+			<div class="swiper banner-swiper">
+				<div class="swiper-wrapper">
+					<div th:each="banner : ${banners}" class="swiper-slide relative"
+						 th:if="${banner.isActive}">
+						<a th:if="${banner.linkUrl != null and !#strings.isEmpty(banner.linkUrl)}"
+						   th:href="${banner.linkUrl}">
+							<img th:src="${banner.imageUrl}"
+								 th:alt="${banner.title}"
+								 class="w-full h-[300px] md:h-[400px] object-cover"/>
+						</a>
+						<img th:unless="${banner.linkUrl != null and !#strings.isEmpty(banner.linkUrl)}"
+							 th:src="${banner.imageUrl}"
+							 th:alt="${banner.title}"
+							 class="w-full h-[300px] md:h-[400px] object-cover"/>
+					</div>
+				</div>
+				<div class="swiper-pagination"></div>
+				<div class="swiper-button-prev"></div>
+				<div class="swiper-button-next"></div>
+			</div>
+
+			<!-- Admin Inline Controls -->
+			<div th:if="${sessionUser != null and #lists.contains(sessionUser.roles, 'ADMIN')}"
+				 class="absolute top-2 right-2 z-10 flex gap-2">
+				<a href="/admin/banners"
+				   class="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-medium shadow hover:bg-white">
+					Quản lý Banner
+				</a>
+			</div>
+		</div>
+
+		<!-- Thông báo -->
 		<div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
 		<div class="alert error" th:if="${param.error}">Bạn không có quyền truy cập chức năng này.</div>
 
@@ -34,5 +68,30 @@
 			</article>
 		</section>
 	</main>
+
+	<!-- Swiper Init -->
+	<script th:inline="javascript">
+	document.addEventListener('DOMContentLoaded', function() {
+		if (document.querySelector('.banner-swiper')) {
+			new Swiper('.banner-swiper', {
+				loop: true,
+				effect: 'slide',
+				speed: 600,
+				autoplay: {
+					delay: 4000,
+					disableOnInteraction: false,
+				},
+				pagination: {
+					el: '.swiper-pagination',
+					clickable: true,
+				},
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+			});
+		}
+	});
+	</script>
 </body>
 </html>

@@ -33,3 +33,11 @@ build/
 .vscode/
 repomix-output.xml
 .env
+CLAUDE.md
+.claude/
+.mcp.json
+# Added by code-review-graph
+.code-review-graph/
+
+# Banner uploads
+src/main/resources/static/uploads/
