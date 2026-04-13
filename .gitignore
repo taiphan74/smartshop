@@ -33,3 +33,5 @@ build/
 .vscode/
 repomix-output.xml
 .env
+# Added by code-review-graph
+.code-review-graph/
