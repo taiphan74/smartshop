@@ -1,0 +1,224 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-seed-product-data
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            sql: |
+              -- 1. Create Seller User
+              INSERT INTO users (id, email, phone, password_hash, status)
+              VALUES (gen_random_uuid(), 'seller@smartshop.local', '0911223344', '$2a$10$OHI.d1Ts5/wxS6/uQRtdI.WVM.uDZ/FJGswnabD7AsrBlxDVo.DPy', 'ACTIVE')
+              ON CONFLICT (email) DO NOTHING;
+
+              -- 2. Create User Profile
+              INSERT INTO user_profiles (id, user_id, full_name)
+              SELECT gen_random_uuid(), id, 'SmartShop Seller'
+              FROM users WHERE email = 'seller@smartshop.local'
+              AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = (SELECT id FROM users WHERE email = 'seller@smartshop.local'));
+
+              -- 3. Assign Seller Role
+              INSERT INTO user_roles (id, user_id, role_id)
+              SELECT gen_random_uuid(), (SELECT id FROM users WHERE email = 'seller@smartshop.local'), (SELECT id FROM roles WHERE code = 'SELLER')
+              WHERE NOT EXISTS (
+                SELECT 1 FROM user_roles ur
+                JOIN users u ON ur.user_id = u.id
+                JOIN roles r ON ur.role_id = r.id
+                WHERE u.email = 'seller@smartshop.local' AND r.code = 'SELLER'
+              );
+
+              -- 4. Create Shop
+              INSERT INTO shops (id, owner_user_id, name, slug, status)
+              SELECT gen_random_uuid(), id, 'SmartShop Official Store', 'smartshop-official', 'ACTIVE'
+              FROM users WHERE email = 'seller@smartshop.local'
+              AND NOT EXISTS (SELECT 1 FROM shops WHERE slug = 'smartshop-official');
+
+              -- 5. Create Categories
+              INSERT INTO categories (id, name, slug, level, path)
+              SELECT gen_random_uuid(), 'Điện tử', 'dien-tu', 0, '/'
+              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE slug = 'dien-tu');
+
+              INSERT INTO categories (id, name, slug, level, path, parent_id)
+              SELECT gen_random_uuid(), 'Điện thoại', 'dien-thoai', 1, '/dien-tu/', id
+              FROM categories WHERE slug = 'dien-tu'
+              AND NOT EXISTS (SELECT 1 FROM categories WHERE slug = 'dien-thoai');
+
+              INSERT INTO categories (id, name, slug, level, path, parent_id)
+              SELECT gen_random_uuid(), 'Laptop', 'laptop', 1, '/dien-tu/', id
+              FROM categories WHERE slug = 'dien-tu'
+              AND NOT EXISTS (SELECT 1 FROM categories WHERE slug = 'laptop');
+
+              -- 6. Create Product: iPhone 15 Pro
+              INSERT INTO products (id, shop_id, category_id, name, slug, description, price, stock_quantity, status)
+              SELECT gen_random_uuid(),
+                     (SELECT id FROM shops WHERE slug = 'smartshop-official'),
+                     (SELECT id FROM categories WHERE slug = 'dien-thoai'),
+                     'iPhone 15 Pro', 'iphone-15-pro', 'Mẫu iPhone mới nhất từ Apple với chip A17 Pro mạnh mẽ, camera cải tiến và khung titan siêu bền.', 28990000.00, 50, TRUE
+              WHERE NOT EXISTS (SELECT 1 FROM products WHERE slug = 'iphone-15-pro');
+
+              -- Options for iPhone 15 Pro
+              INSERT INTO product_options (id, product_id, name, sort_order)
+              SELECT gen_random_uuid(), id, 'Màu sắc', 1
+              FROM products WHERE slug = 'iphone-15-pro'
+              AND NOT EXISTS (SELECT 1 FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro') AND name = 'Màu sắc');
+
+              INSERT INTO product_options (id, product_id, name, sort_order)
+              SELECT gen_random_uuid(), id, 'Dung lượng', 2
+              FROM products WHERE slug = 'iphone-15-pro'
+              AND NOT EXISTS (SELECT 1 FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro') AND name = 'Dung lượng');
+
+              -- Option Values for iPhone 15 Pro
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, 'Titan Tự nhiên', 1
+              FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')) AND value = 'Titan Tự nhiên');
+
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, 'Titan Xanh', 2
+              FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')) AND value = 'Titan Xanh');
+
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, '128GB', 1
+              FROM product_options WHERE name = 'Dung lượng' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'Dung lượng' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')) AND value = '128GB');
+
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, '256GB', 2
+              FROM product_options WHERE name = 'Dung lượng' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'Dung lượng' AND product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro')) AND value = '256GB');
+
+              -- Variants for iPhone 15 Pro
+              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status)
+              SELECT gen_random_uuid(), id, 'IP15P-TITAN-128', 28990000.00, 50, TRUE
+              FROM products WHERE slug = 'iphone-15-pro'
+              AND NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = 'IP15P-TITAN-128');
+
+              INSERT INTO product_variant_values (variant_id, option_value_id)
+              SELECT (SELECT id FROM product_variants WHERE sku = 'IP15P-TITAN-128'), id
+              FROM product_option_values 
+              WHERE value IN ('Titan Tự nhiên', '128GB') 
+              AND option_id IN (SELECT id FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro'))
+              AND NOT EXISTS (SELECT 1 FROM product_variant_values WHERE variant_id = (SELECT id FROM product_variants WHERE sku = 'IP15P-TITAN-128'));
+
+              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status)
+              SELECT gen_random_uuid(), id, 'IP15P-BLUE-256', 31990000.00, 30, TRUE
+              FROM products WHERE slug = 'iphone-15-pro'
+              AND NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = 'IP15P-BLUE-256');
+
+              INSERT INTO product_variant_values (variant_id, option_value_id)
+              SELECT (SELECT id FROM product_variants WHERE sku = 'IP15P-BLUE-256'), id
+              FROM product_option_values 
+              WHERE value IN ('Titan Xanh', '256GB')
+              AND option_id IN (SELECT id FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro'))
+              AND NOT EXISTS (SELECT 1 FROM product_variant_values WHERE variant_id = (SELECT id FROM product_variants WHERE sku = 'IP15P-BLUE-256'));
+
+              -- 7. Create Product: MacBook Air M2
+              INSERT INTO products (id, shop_id, category_id, name, slug, description, price, stock_quantity, status)
+              SELECT gen_random_uuid(),
+                     (SELECT id FROM shops WHERE slug = 'smartshop-official'),
+                     (SELECT id FROM categories WHERE slug = 'laptop'),
+                     'MacBook Air M2', 'macbook-air-m2', 'MacBook Air với chip M2 mới, thiết kế mỏng nhẹ, màn hình Liquid Retina tuyệt đẹp.', 26990000.00, 20, TRUE
+              WHERE NOT EXISTS (SELECT 1 FROM products WHERE slug = 'macbook-air-m2');
+
+              INSERT INTO product_options (id, product_id, name, sort_order)
+              SELECT gen_random_uuid(), id, 'Màu sắc', 1
+              FROM products WHERE slug = 'macbook-air-m2'
+              AND NOT EXISTS (SELECT 1 FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2') AND name = 'Màu sắc');
+
+              INSERT INTO product_options (id, product_id, name, sort_order)
+              SELECT gen_random_uuid(), id, 'RAM', 2
+              FROM products WHERE slug = 'macbook-air-m2'
+              AND NOT EXISTS (SELECT 1 FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2') AND name = 'RAM');
+
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, 'Midnight', 1
+              FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2')) AND value = 'Midnight');
+
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, '8GB', 1
+              FROM product_options WHERE name = 'RAM' AND product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'RAM' AND product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2')) AND value = '8GB');
+
+              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status)
+              SELECT gen_random_uuid(), id, 'MBA-M2-MID-8', 26990000.00, 20, TRUE
+              FROM products WHERE slug = 'macbook-air-m2'
+              AND NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = 'MBA-M2-MID-8');
+
+              INSERT INTO product_variant_values (variant_id, option_value_id)
+              SELECT (SELECT id FROM product_variants WHERE sku = 'MBA-M2-MID-8'), id
+              FROM product_option_values 
+              WHERE value IN ('Midnight', '8GB')
+              AND option_id IN (SELECT id FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2'))
+              AND NOT EXISTS (SELECT 1 FROM product_variant_values WHERE variant_id = (SELECT id FROM product_variants WHERE sku = 'MBA-M2-MID-8'));
+
+              -- 8. Create Product: Samsung Galaxy S24 Ultra
+              INSERT INTO products (id, shop_id, category_id, name, slug, description, price, stock_quantity, status)
+              SELECT gen_random_uuid(),
+                     (SELECT id FROM shops WHERE slug = 'smartshop-official'),
+                     (SELECT id FROM categories WHERE slug = 'dien-thoai'),
+                     'Samsung Galaxy S24 Ultra', 'samsung-galaxy-s24-ultra', 'Siêu phẩm mới nhất từ Samsung với bút S Pen tích hợp và camera 200MP.', 29990000.00, 40, TRUE
+              WHERE NOT EXISTS (SELECT 1 FROM products WHERE slug = 'samsung-galaxy-s24-ultra');
+
+              INSERT INTO product_options (id, product_id, name, sort_order)
+              SELECT gen_random_uuid(), id, 'Màu sắc', 1
+              FROM products WHERE slug = 'samsung-galaxy-s24-ultra'
+              AND NOT EXISTS (SELECT 1 FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'samsung-galaxy-s24-ultra') AND name = 'Màu sắc');
+
+              INSERT INTO product_option_values (id, option_id, value, sort_order)
+              SELECT gen_random_uuid(), id, 'Xám Titanium', 1
+              FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'samsung-galaxy-s24-ultra')
+              AND NOT EXISTS (SELECT 1 FROM product_option_values WHERE option_id = (SELECT id FROM product_options WHERE name = 'Màu sắc' AND product_id = (SELECT id FROM products WHERE slug = 'samsung-galaxy-s24-ultra')) AND value = 'Xám Titanium');
+
+              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status)
+              SELECT gen_random_uuid(), id, 'SS-S24U-GREY', 29990000.00, 40, TRUE
+              FROM products WHERE slug = 'samsung-galaxy-s24-ultra'
+              AND NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = 'SS-S24U-GREY');
+
+              INSERT INTO product_variant_values (variant_id, option_value_id)
+              SELECT (SELECT id FROM product_variants WHERE sku = 'SS-S24U-GREY'), id
+              FROM product_option_values 
+              WHERE value IN ('Xám Titanium')
+              AND option_id IN (SELECT id FROM product_options WHERE product_id = (SELECT id FROM products WHERE slug = 'samsung-galaxy-s24-ultra'))
+              AND NOT EXISTS (SELECT 1 FROM product_variant_values WHERE variant_id = (SELECT id FROM product_variants WHERE sku = 'SS-S24U-GREY'));
+
+              -- 9. Create Product: Sony WH-1000XM5
+              INSERT INTO categories (id, name, slug, level, path, parent_id)
+              SELECT gen_random_uuid(), 'Tai nghe', 'tai-nghe', 1, '/dien-tu/', id
+              FROM categories WHERE slug = 'dien-tu'
+              AND NOT EXISTS (SELECT 1 FROM categories WHERE slug = 'tai-nghe');
+
+              INSERT INTO products (id, shop_id, category_id, name, slug, description, price, stock_quantity, status)
+              SELECT gen_random_uuid(),
+                     (SELECT id FROM shops WHERE slug = 'smartshop-official'),
+                     (SELECT id FROM categories WHERE slug = 'tai-nghe'),
+                     'Sony WH-1000XM5', 'sony-wh-1000xm5', 'Tai nghe chống ồn hàng đầu thế giới với âm thanh chất lượng cao.', 8490000.00, 100, TRUE
+              WHERE NOT EXISTS (SELECT 1 FROM products WHERE slug = 'sony-wh-1000xm5');
+
+              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status)
+              SELECT gen_random_uuid(), id, 'SONY-XM5-BLACK', 8490000.00, 100, TRUE
+              FROM products WHERE slug = 'sony-wh-1000xm5'
+              AND NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = 'SONY-XM5-BLACK');
+
+              -- 10. Add Product Images
+              INSERT INTO product_images (id, product_id, image_url, is_main, sort_order)
+              SELECT gen_random_uuid(), id, 'https://images.unsplash.com/photo-1696446701796-da61225697cc?auto=format&fit=crop&q=80&w=800', TRUE, 1
+              FROM products WHERE slug = 'iphone-15-pro'
+              AND NOT EXISTS (SELECT 1 FROM product_images WHERE product_id = (SELECT id FROM products WHERE slug = 'iphone-15-pro'));
+
+              INSERT INTO product_images (id, product_id, image_url, is_main, sort_order)
+              SELECT gen_random_uuid(), id, 'https://images.unsplash.com/photo-1661961111184-11317b40adb2?auto=format&fit=crop&q=80&w=800', TRUE, 1
+              FROM products WHERE slug = 'macbook-air-m2'
+              AND NOT EXISTS (SELECT 1 FROM product_images WHERE product_id = (SELECT id FROM products WHERE slug = 'macbook-air-m2'));
+
+              INSERT INTO product_images (id, product_id, image_url, is_main, sort_order)
+              SELECT gen_random_uuid(), id, 'https://images.unsplash.com/photo-1707204533036-791834907153?auto=format&fit=crop&q=80&w=800', TRUE, 1
+              FROM products WHERE slug = 'samsung-galaxy-s24-ultra'
+              AND NOT EXISTS (SELECT 1 FROM product_images WHERE product_id = (SELECT id FROM products WHERE slug = 'samsung-galaxy-s24-ultra'));
+
+              INSERT INTO product_images (id, product_id, image_url, is_main, sort_order)
+              SELECT gen_random_uuid(), id, 'https://images.unsplash.com/photo-1675240215039-38290234af34?auto=format&fit=crop&q=80&w=800', TRUE, 1
+              FROM products WHERE slug = 'sony-wh-1000xm5'
+              AND NOT EXISTS (SELECT 1 FROM product_images WHERE product_id = (SELECT id FROM products WHERE slug = 'sony-wh-1000xm5'));

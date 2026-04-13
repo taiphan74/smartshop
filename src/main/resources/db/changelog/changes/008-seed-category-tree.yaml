@@ -1,0 +1,196 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-seed-category-tree
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            stripComments: true
+            sql: |
+              INSERT INTO categories (name, slug, path, level, parent_id, created_at, updated_at)
+              SELECT seed.name, seed.slug, seed.path, seed.level, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM (
+                VALUES
+                  ('Thời trang', 'thoi-trang', '/thoi-trang', 0),
+                  ('Điện tử', 'dien-tu', '/dien-tu', 0),
+                  ('Nhà cửa', 'nha-cua', '/nha-cua', 0),
+                  ('Làm đẹp', 'lam-dep', '/lam-dep', 0),
+                  ('Mẹ & Bé', 'me-be', '/me-be', 0),
+                  ('Thực phẩm', 'thuc-pham', '/thuc-pham', 0),
+                  ('Thể thao', 'the-thao', '/the-thao', 0),
+                  ('Sách', 'sach', '/sach', 0),
+                  ('Ô tô - Xe máy', 'o-to-xe-may', '/o-to-xe-may', 0),
+                  ('Tiêu dùng', 'tieu-dung', '/tieu-dung', 0)
+              ) AS seed(name, slug, path, level)
+              ON CONFLICT (slug) DO UPDATE
+              SET name = EXCLUDED.name,
+                  path = EXCLUDED.path,
+                  level = EXCLUDED.level,
+                  parent_id = EXCLUDED.parent_id,
+                  updated_at = CURRENT_TIMESTAMP;
+
+              INSERT INTO categories (name, slug, path, level, parent_id, created_at, updated_at)
+              SELECT seed.name, seed.slug, seed.path, seed.level, parent.id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM (
+                VALUES
+                  ('Nam', 'thoi-trang', 'thoi-trang-nam', '/thoi-trang/thoi-trang-nam', 1),
+                  ('Nữ', 'thoi-trang', 'thoi-trang-nu', '/thoi-trang/thoi-trang-nu', 1),
+                  ('Trẻ em', 'thoi-trang', 'thoi-trang-tre-em', '/thoi-trang/thoi-trang-tre-em', 1),
+                  ('Điện thoại', 'dien-tu', 'dien-tu-dien-thoai', '/dien-tu/dien-tu-dien-thoai', 1),
+                  ('Laptop', 'dien-tu', 'dien-tu-laptop', '/dien-tu/dien-tu-laptop', 1),
+                  ('Máy tính bảng', 'dien-tu', 'dien-tu-may-tinh-bang', '/dien-tu/dien-tu-may-tinh-bang', 1),
+                  ('Thiết bị âm thanh', 'dien-tu', 'dien-tu-thiet-bi-am-thanh', '/dien-tu/dien-tu-thiet-bi-am-thanh', 1),
+                  ('Smart home', 'dien-tu', 'dien-tu-smart-home', '/dien-tu/dien-tu-smart-home', 1),
+                  ('Nội thất', 'nha-cua', 'nha-cua-noi-that', '/nha-cua/nha-cua-noi-that', 1),
+                  ('Nhà bếp', 'nha-cua', 'nha-cua-nha-bep', '/nha-cua/nha-cua-nha-bep', 1),
+                  ('Gia dụng', 'nha-cua', 'nha-cua-gia-dung', '/nha-cua/nha-cua-gia-dung', 1),
+                  ('Trang trí', 'nha-cua', 'nha-cua-trang-tri', '/nha-cua/nha-cua-trang-tri', 1),
+                  ('Dụng cụ sửa chữa', 'nha-cua', 'nha-cua-dung-cu-sua-chua', '/nha-cua/nha-cua-dung-cu-sua-chua', 1),
+                  ('Skincare', 'lam-dep', 'lam-dep-skincare', '/lam-dep/lam-dep-skincare', 1),
+                  ('Makeup', 'lam-dep', 'lam-dep-makeup', '/lam-dep/lam-dep-makeup', 1),
+                  ('Chăm sóc tóc', 'lam-dep', 'lam-dep-cham-soc-toc', '/lam-dep/lam-dep-cham-soc-toc', 1),
+                  ('Nước hoa', 'lam-dep', 'lam-dep-nuoc-hoa', '/lam-dep/lam-dep-nuoc-hoa', 1),
+                  ('Dụng cụ làm đẹp', 'lam-dep', 'lam-dep-dung-cu-lam-dep', '/lam-dep/lam-dep-dung-cu-lam-dep', 1),
+                  ('Sữa', 'me-be', 'me-be-sua', '/me-be/me-be-sua', 1),
+                  ('Tã bỉm', 'me-be', 'me-be-ta-bim', '/me-be/me-be-ta-bim', 1),
+                  ('Đồ chơi', 'me-be', 'me-be-do-choi', '/me-be/me-be-do-choi', 1),
+                  ('Quần áo trẻ em', 'me-be', 'me-be-quan-ao-tre-em', '/me-be/me-be-quan-ao-tre-em', 1),
+                  ('Đồ dùng cho bé', 'me-be', 'me-be-do-dung-cho-be', '/me-be/me-be-do-dung-cho-be', 1),
+                  ('Đồ ăn nhanh', 'thuc-pham', 'thuc-pham-do-an-nhanh', '/thuc-pham/thuc-pham-do-an-nhanh', 1),
+                  ('Đồ khô', 'thuc-pham', 'thuc-pham-do-kho', '/thuc-pham/thuc-pham-do-kho', 1),
+                  ('Đồ uống', 'thuc-pham', 'thuc-pham-do-uong', '/thuc-pham/thuc-pham-do-uong', 1),
+                  ('Thực phẩm tươi', 'thuc-pham', 'thuc-pham-thuc-pham-tuoi', '/thuc-pham/thuc-pham-thuc-pham-tuoi', 1),
+                  ('Đặc sản vùng miền', 'thuc-pham', 'thuc-pham-dac-san-vung-mien', '/thuc-pham/thuc-pham-dac-san-vung-mien', 1),
+                  ('Gym & Fitness', 'the-thao', 'the-thao-gym-fitness', '/the-thao/the-thao-gym-fitness', 1),
+                  ('Thể thao ngoài trời', 'the-thao', 'the-thao-the-thao-ngoai-troi', '/the-thao/the-thao-the-thao-ngoai-troi', 1),
+                  ('Du lịch', 'the-thao', 'the-thao-du-lich', '/the-thao/the-thao-du-lich', 1),
+                  ('Sách giáo khoa', 'sach', 'sach-sach-giao-khoa', '/sach/sach-sach-giao-khoa', 1),
+                  ('Sách kỹ năng', 'sach', 'sach-sach-ky-nang', '/sach/sach-sach-ky-nang', 1),
+                  ('Tiểu thuyết', 'sach', 'sach-tieu-thuyet', '/sach/sach-tieu-thuyet', 1),
+                  ('Văn phòng phẩm', 'sach', 'sach-van-phong-pham', '/sach/sach-van-phong-pham', 1),
+                  ('Dụng cụ học tập', 'sach', 'sach-dung-cu-hoc-tap', '/sach/sach-dung-cu-hoc-tap', 1),
+                  ('Phụ kiện ô tô', 'o-to-xe-may', 'o-to-xe-may-phu-kien-o-to', '/o-to-xe-may/o-to-xe-may-phu-kien-o-to', 1),
+                  ('Phụ kiện xe máy', 'o-to-xe-may', 'o-to-xe-may-phu-kien-xe-may', '/o-to-xe-may/o-to-xe-may-phu-kien-xe-may', 1),
+                  ('Đồ bảo hộ', 'o-to-xe-may', 'o-to-xe-may-do-bao-ho', '/o-to-xe-may/o-to-xe-may-do-bao-ho', 1),
+                  ('Dầu nhớt', 'o-to-xe-may', 'o-to-xe-may-dau-nhot', '/o-to-xe-may/o-to-xe-may-dau-nhot', 1),
+                  ('Đồ vệ sinh', 'tieu-dung', 'tieu-dung-do-ve-sinh', '/tieu-dung/tieu-dung-do-ve-sinh', 1),
+                  ('Giặt giũ', 'tieu-dung', 'tieu-dung-giat-giu', '/tieu-dung/tieu-dung-giat-giu', 1),
+                  ('Chăm sóc cá nhân', 'tieu-dung', 'tieu-dung-cham-soc-ca-nhan', '/tieu-dung/tieu-dung-cham-soc-ca-nhan', 1),
+                  ('Giấy & khăn', 'tieu-dung', 'tieu-dung-giay-khan', '/tieu-dung/tieu-dung-giay-khan', 1)
+              ) AS seed(name, parent_slug, slug, path, level)
+              JOIN categories parent ON parent.slug = seed.parent_slug
+              ON CONFLICT (slug) DO UPDATE
+              SET name = EXCLUDED.name,
+                  path = EXCLUDED.path,
+                  level = EXCLUDED.level,
+                  parent_id = EXCLUDED.parent_id,
+                  updated_at = CURRENT_TIMESTAMP;
+
+              INSERT INTO categories (name, slug, path, level, parent_id, created_at, updated_at)
+              SELECT seed.name, seed.slug, seed.path, seed.level, parent.id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM (
+                VALUES
+                  ('Áo', 'thoi-trang-nam', 'thoi-trang-nam-ao', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-ao', 2),
+                  ('Quần', 'thoi-trang-nam', 'thoi-trang-nam-quan', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-quan', 2),
+                  ('Giày dép', 'thoi-trang-nam', 'thoi-trang-nam-giay-dep', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-giay-dep', 2),
+                  ('Phụ kiện', 'thoi-trang-nam', 'thoi-trang-nam-phu-kien', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-phu-kien', 2),
+                  ('Áo', 'thoi-trang-nu', 'thoi-trang-nu-ao', '/thoi-trang/thoi-trang-nu/thoi-trang-nu-ao', 2),
+                  ('Váy', 'thoi-trang-nu', 'thoi-trang-nu-vay', '/thoi-trang/thoi-trang-nu/thoi-trang-nu-vay', 2),
+                  ('Quần', 'thoi-trang-nu', 'thoi-trang-nu-quan', '/thoi-trang/thoi-trang-nu/thoi-trang-nu-quan', 2),
+                  ('Giày dép', 'thoi-trang-nu', 'thoi-trang-nu-giay-dep', '/thoi-trang/thoi-trang-nu/thoi-trang-nu-giay-dep', 2),
+                  ('Túi xách', 'thoi-trang-nu', 'thoi-trang-nu-tui-xach', '/thoi-trang/thoi-trang-nu/thoi-trang-nu-tui-xach', 2),
+                  ('Smartphone', 'dien-tu-dien-thoai', 'dien-tu-dien-thoai-smartphone', '/dien-tu/dien-tu-dien-thoai/dien-tu-dien-thoai-smartphone', 2),
+                  ('Feature phone', 'dien-tu-dien-thoai', 'dien-tu-dien-thoai-feature-phone', '/dien-tu/dien-tu-dien-thoai/dien-tu-dien-thoai-feature-phone', 2),
+                  ('Phụ kiện', 'dien-tu-dien-thoai', 'dien-tu-dien-thoai-phu-kien', '/dien-tu/dien-tu-dien-thoai/dien-tu-dien-thoai-phu-kien', 2),
+                  ('Laptop gaming', 'dien-tu-laptop', 'dien-tu-laptop-laptop-gaming', '/dien-tu/dien-tu-laptop/dien-tu-laptop-laptop-gaming', 2),
+                  ('Laptop văn phòng', 'dien-tu-laptop', 'dien-tu-laptop-laptop-van-phong', '/dien-tu/dien-tu-laptop/dien-tu-laptop-laptop-van-phong', 2),
+                  ('Phụ kiện', 'dien-tu-laptop', 'dien-tu-laptop-phu-kien', '/dien-tu/dien-tu-laptop/dien-tu-laptop-phu-kien', 2),
+                  ('Loa', 'dien-tu-thiet-bi-am-thanh', 'dien-tu-thiet-bi-am-thanh-loa', '/dien-tu/dien-tu-thiet-bi-am-thanh/dien-tu-thiet-bi-am-thanh-loa', 2),
+                  ('Tai nghe', 'dien-tu-thiet-bi-am-thanh', 'dien-tu-thiet-bi-am-thanh-tai-nghe', '/dien-tu/dien-tu-thiet-bi-am-thanh/dien-tu-thiet-bi-am-thanh-tai-nghe', 2),
+                  ('Micro', 'dien-tu-thiet-bi-am-thanh', 'dien-tu-thiet-bi-am-thanh-micro', '/dien-tu/dien-tu-thiet-bi-am-thanh/dien-tu-thiet-bi-am-thanh-micro', 2),
+                  ('Bàn', 'nha-cua-noi-that', 'nha-cua-noi-that-ban', '/nha-cua/nha-cua-noi-that/nha-cua-noi-that-ban', 2),
+                  ('Ghế', 'nha-cua-noi-that', 'nha-cua-noi-that-ghe', '/nha-cua/nha-cua-noi-that/nha-cua-noi-that-ghe', 2),
+                  ('Tủ', 'nha-cua-noi-that', 'nha-cua-noi-that-tu', '/nha-cua/nha-cua-noi-that/nha-cua-noi-that-tu', 2),
+                  ('Nồi', 'nha-cua-nha-bep', 'nha-cua-nha-bep-noi', '/nha-cua/nha-cua-nha-bep/nha-cua-nha-bep-noi', 2),
+                  ('Chảo', 'nha-cua-nha-bep', 'nha-cua-nha-bep-chao', '/nha-cua/nha-cua-nha-bep/nha-cua-nha-bep-chao', 2),
+                  ('Dụng cụ nấu ăn', 'nha-cua-nha-bep', 'nha-cua-nha-bep-dung-cu-nau-an', '/nha-cua/nha-cua-nha-bep/nha-cua-nha-bep-dung-cu-nau-an', 2),
+                  ('Máy giặt', 'nha-cua-gia-dung', 'nha-cua-gia-dung-may-giat', '/nha-cua/nha-cua-gia-dung/nha-cua-gia-dung-may-giat', 2),
+                  ('Máy hút bụi', 'nha-cua-gia-dung', 'nha-cua-gia-dung-may-hut-bui', '/nha-cua/nha-cua-gia-dung/nha-cua-gia-dung-may-hut-bui', 2),
+                  ('Quạt', 'nha-cua-gia-dung', 'nha-cua-gia-dung-quat', '/nha-cua/nha-cua-gia-dung/nha-cua-gia-dung-quat', 2),
+                  ('Tranh', 'nha-cua-trang-tri', 'nha-cua-trang-tri-tranh', '/nha-cua/nha-cua-trang-tri/nha-cua-trang-tri-tranh', 2),
+                  ('Đèn', 'nha-cua-trang-tri', 'nha-cua-trang-tri-den', '/nha-cua/nha-cua-trang-tri/nha-cua-trang-tri-den', 2),
+                  ('Cây cảnh', 'nha-cua-trang-tri', 'nha-cua-trang-tri-cay-canh', '/nha-cua/nha-cua-trang-tri/nha-cua-trang-tri-cay-canh', 2),
+                  ('Sữa rửa mặt', 'lam-dep-skincare', 'lam-dep-skincare-sua-rua-mat', '/lam-dep/lam-dep-skincare/lam-dep-skincare-sua-rua-mat', 2),
+                  ('Toner', 'lam-dep-skincare', 'lam-dep-skincare-toner', '/lam-dep/lam-dep-skincare/lam-dep-skincare-toner', 2),
+                  ('Serum', 'lam-dep-skincare', 'lam-dep-skincare-serum', '/lam-dep/lam-dep-skincare/lam-dep-skincare-serum', 2),
+                  ('Kem dưỡng', 'lam-dep-skincare', 'lam-dep-skincare-kem-duong', '/lam-dep/lam-dep-skincare/lam-dep-skincare-kem-duong', 2),
+                  ('Son', 'lam-dep-makeup', 'lam-dep-makeup-son', '/lam-dep/lam-dep-makeup/lam-dep-makeup-son', 2),
+                  ('Kem nền', 'lam-dep-makeup', 'lam-dep-makeup-kem-nen', '/lam-dep/lam-dep-makeup/lam-dep-makeup-kem-nen', 2),
+                  ('Phấn', 'lam-dep-makeup', 'lam-dep-makeup-phan', '/lam-dep/lam-dep-makeup/lam-dep-makeup-phan', 2),
+                  ('Dầu gội', 'lam-dep-cham-soc-toc', 'lam-dep-cham-soc-toc-dau-goi', '/lam-dep/lam-dep-cham-soc-toc/lam-dep-cham-soc-toc-dau-goi', 2),
+                  ('Dầu xả', 'lam-dep-cham-soc-toc', 'lam-dep-cham-soc-toc-dau-xa', '/lam-dep/lam-dep-cham-soc-toc/lam-dep-cham-soc-toc-dau-xa', 2),
+                  ('Serum tóc', 'lam-dep-cham-soc-toc', 'lam-dep-cham-soc-toc-serum-toc', '/lam-dep/lam-dep-cham-soc-toc/lam-dep-cham-soc-toc-serum-toc', 2),
+                  ('Bình sữa', 'me-be-do-dung-cho-be', 'me-be-do-dung-cho-be-binh-sua', '/me-be/me-be-do-dung-cho-be/me-be-do-dung-cho-be-binh-sua', 2),
+                  ('Xe đẩy', 'me-be-do-dung-cho-be', 'me-be-do-dung-cho-be-xe-day', '/me-be/me-be-do-dung-cho-be/me-be-do-dung-cho-be-xe-day', 2),
+                  ('Ghế ăn', 'me-be-do-dung-cho-be', 'me-be-do-dung-cho-be-ghe-an', '/me-be/me-be-do-dung-cho-be/me-be-do-dung-cho-be-ghe-an', 2),
+                  ('Mì', 'thuc-pham-do-kho', 'thuc-pham-do-kho-mi', '/thuc-pham/thuc-pham-do-kho/thuc-pham-do-kho-mi', 2),
+                  ('Gạo', 'thuc-pham-do-kho', 'thuc-pham-do-kho-gao', '/thuc-pham/thuc-pham-do-kho/thuc-pham-do-kho-gao', 2),
+                  ('Gia vị', 'thuc-pham-do-kho', 'thuc-pham-do-kho-gia-vi', '/thuc-pham/thuc-pham-do-kho/thuc-pham-do-kho-gia-vi', 2),
+                  ('Nước ngọt', 'thuc-pham-do-uong', 'thuc-pham-do-uong-nuoc-ngot', '/thuc-pham/thuc-pham-do-uong/thuc-pham-do-uong-nuoc-ngot', 2),
+                  ('Cà phê', 'thuc-pham-do-uong', 'thuc-pham-do-uong-ca-phe', '/thuc-pham/thuc-pham-do-uong/thuc-pham-do-uong-ca-phe', 2),
+                  ('Trà', 'thuc-pham-do-uong', 'thuc-pham-do-uong-tra', '/thuc-pham/thuc-pham-do-uong/thuc-pham-do-uong-tra', 2),
+                  ('Rau', 'thuc-pham-thuc-pham-tuoi', 'thuc-pham-thuc-pham-tuoi-rau', '/thuc-pham/thuc-pham-thuc-pham-tuoi/thuc-pham-thuc-pham-tuoi-rau', 2),
+                  ('Thịt', 'thuc-pham-thuc-pham-tuoi', 'thuc-pham-thuc-pham-tuoi-thit', '/thuc-pham/thuc-pham-thuc-pham-tuoi/thuc-pham-thuc-pham-tuoi-thit', 2),
+                  ('Hải sản', 'thuc-pham-thuc-pham-tuoi', 'thuc-pham-thuc-pham-tuoi-hai-san', '/thuc-pham/thuc-pham-thuc-pham-tuoi/thuc-pham-thuc-pham-tuoi-hai-san', 2),
+                  ('Tạ', 'the-thao-gym-fitness', 'the-thao-gym-fitness-ta', '/the-thao/the-thao-gym-fitness/the-thao-gym-fitness-ta', 2),
+                  ('Máy tập', 'the-thao-gym-fitness', 'the-thao-gym-fitness-may-tap', '/the-thao/the-thao-gym-fitness/the-thao-gym-fitness-may-tap', 2),
+                  ('Dây kháng lực', 'the-thao-gym-fitness', 'the-thao-gym-fitness-day-khang-luc', '/the-thao/the-thao-gym-fitness/the-thao-gym-fitness-day-khang-luc', 2),
+                  ('Balo', 'the-thao-du-lich', 'the-thao-du-lich-balo', '/the-thao/the-thao-du-lich/the-thao-du-lich-balo', 2),
+                  ('Vali', 'the-thao-du-lich', 'the-thao-du-lich-vali', '/the-thao/the-thao-du-lich/the-thao-du-lich-vali', 2),
+                  ('Phụ kiện du lịch', 'the-thao-du-lich', 'the-thao-du-lich-phu-kien-du-lich', '/the-thao/the-thao-du-lich/the-thao-du-lich-phu-kien-du-lich', 2),
+                  ('Bút', 'sach-van-phong-pham', 'sach-van-phong-pham-but', '/sach/sach-van-phong-pham/sach-van-phong-pham-but', 2),
+                  ('Sổ', 'sach-van-phong-pham', 'sach-van-phong-pham-so', '/sach/sach-van-phong-pham/sach-van-phong-pham-so', 2),
+                  ('Giấy', 'sach-van-phong-pham', 'sach-van-phong-pham-giay', '/sach/sach-van-phong-pham/sach-van-phong-pham-giay', 2),
+                  ('Mũ bảo hiểm', 'o-to-xe-may-do-bao-ho', 'o-to-xe-may-do-bao-ho-mu-bao-hiem', '/o-to-xe-may/o-to-xe-may-do-bao-ho/o-to-xe-may-do-bao-ho-mu-bao-hiem', 2),
+                  ('Áo giáp', 'o-to-xe-may-do-bao-ho', 'o-to-xe-may-do-bao-ho-ao-giap', '/o-to-xe-may/o-to-xe-may-do-bao-ho/o-to-xe-may-do-bao-ho-ao-giap', 2),
+                  ('Kem đánh răng', 'tieu-dung-cham-soc-ca-nhan', 'tieu-dung-cham-soc-ca-nhan-kem-danh-rang', '/tieu-dung/tieu-dung-cham-soc-ca-nhan/tieu-dung-cham-soc-ca-nhan-kem-danh-rang', 2),
+                  ('Sữa tắm', 'tieu-dung-cham-soc-ca-nhan', 'tieu-dung-cham-soc-ca-nhan-sua-tam', '/tieu-dung/tieu-dung-cham-soc-ca-nhan/tieu-dung-cham-soc-ca-nhan-sua-tam', 2),
+                  ('Dầu gội', 'tieu-dung-cham-soc-ca-nhan', 'tieu-dung-cham-soc-ca-nhan-dau-goi', '/tieu-dung/tieu-dung-cham-soc-ca-nhan/tieu-dung-cham-soc-ca-nhan-dau-goi', 2)
+              ) AS seed(name, parent_slug, slug, path, level)
+              JOIN categories parent ON parent.slug = seed.parent_slug
+              ON CONFLICT (slug) DO UPDATE
+              SET name = EXCLUDED.name,
+                  path = EXCLUDED.path,
+                  level = EXCLUDED.level,
+                  parent_id = EXCLUDED.parent_id,
+                  updated_at = CURRENT_TIMESTAMP;
+
+              INSERT INTO categories (name, slug, path, level, parent_id, created_at, updated_at)
+              SELECT seed.name, seed.slug, seed.path, seed.level, parent.id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM (
+                VALUES
+                  ('Áo thun', 'thoi-trang-nam-ao', 'thoi-trang-nam-ao-ao-thun', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-ao/thoi-trang-nam-ao-ao-thun', 3),
+                  ('Áo sơ mi', 'thoi-trang-nam-ao', 'thoi-trang-nam-ao-ao-so-mi', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-ao/thoi-trang-nam-ao-ao-so-mi', 3),
+                  ('Áo hoodie', 'thoi-trang-nam-ao', 'thoi-trang-nam-ao-ao-hoodie', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-ao/thoi-trang-nam-ao-ao-hoodie', 3),
+                  ('Áo khoác', 'thoi-trang-nam-ao', 'thoi-trang-nam-ao-ao-khoac', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-ao/thoi-trang-nam-ao-ao-khoac', 3),
+                  ('Quần jeans', 'thoi-trang-nam-quan', 'thoi-trang-nam-quan-quan-jeans', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-quan/thoi-trang-nam-quan-quan-jeans', 3),
+                  ('Quần short', 'thoi-trang-nam-quan', 'thoi-trang-nam-quan-quan-short', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-quan/thoi-trang-nam-quan-quan-short', 3),
+                  ('Quần tây', 'thoi-trang-nam-quan', 'thoi-trang-nam-quan-quan-tay', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-quan/thoi-trang-nam-quan-quan-tay', 3),
+                  ('Sneaker', 'thoi-trang-nam-giay-dep', 'thoi-trang-nam-giay-dep-sneaker', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-giay-dep/thoi-trang-nam-giay-dep-sneaker', 3),
+                  ('Sandal', 'thoi-trang-nam-giay-dep', 'thoi-trang-nam-giay-dep-sandal', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-giay-dep/thoi-trang-nam-giay-dep-sandal', 3),
+                  ('Dép', 'thoi-trang-nam-giay-dep', 'thoi-trang-nam-giay-dep-dep', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-giay-dep/thoi-trang-nam-giay-dep-dep', 3),
+                  ('Nón', 'thoi-trang-nam-phu-kien', 'thoi-trang-nam-phu-kien-non', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-phu-kien/thoi-trang-nam-phu-kien-non', 3),
+                  ('Thắt lưng', 'thoi-trang-nam-phu-kien', 'thoi-trang-nam-phu-kien-that-lung', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-phu-kien/thoi-trang-nam-phu-kien-that-lung', 3),
+                  ('Đồng hồ', 'thoi-trang-nam-phu-kien', 'thoi-trang-nam-phu-kien-dong-ho', '/thoi-trang/thoi-trang-nam/thoi-trang-nam-phu-kien/thoi-trang-nam-phu-kien-dong-ho', 3),
+                  ('Ốp lưng', 'dien-tu-dien-thoai-phu-kien', 'dien-tu-dien-thoai-phu-kien-op-lung', '/dien-tu/dien-tu-dien-thoai/dien-tu-dien-thoai-phu-kien/dien-tu-dien-thoai-phu-kien-op-lung', 3),
+                  ('Sạc', 'dien-tu-dien-thoai-phu-kien', 'dien-tu-dien-thoai-phu-kien-sac', '/dien-tu/dien-tu-dien-thoai/dien-tu-dien-thoai-phu-kien/dien-tu-dien-thoai-phu-kien-sac', 3),
+                  ('Tai nghe', 'dien-tu-dien-thoai-phu-kien', 'dien-tu-dien-thoai-phu-kien-tai-nghe', '/dien-tu/dien-tu-dien-thoai/dien-tu-dien-thoai-phu-kien/dien-tu-dien-thoai-phu-kien-tai-nghe', 3)
+              ) AS seed(name, parent_slug, slug, path, level)
+              JOIN categories parent ON parent.slug = seed.parent_slug
+              ON CONFLICT (slug) DO UPDATE
+              SET name = EXCLUDED.name,
+                  path = EXCLUDED.path,
+                  level = EXCLUDED.level,
+                  parent_id = EXCLUDED.parent_id,
+                  updated_at = CURRENT_TIMESTAMP;
