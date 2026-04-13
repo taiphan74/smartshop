@@ -6,7 +6,6 @@ import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
 import com.ptithcm.smartshop.shared.exception.ConflictException;
 import com.ptithcm.smartshop.shared.exception.ResourceNotFoundException;
-import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
 import com.ptithcm.smartshop.security.principal.CustomUserDetails;
 import com.ptithcm.smartshop.security.session.SessionConstants;
 import com.ptithcm.smartshop.security.session.SessionUser;
@@ -163,13 +162,13 @@ public class AuthServiceImpl implements AuthService {
 		// Bước 1: lấy session hiện hữu; nếu không có thì coi như chưa đăng nhập.
 		HttpSession session = httpServletRequest.getSession(false);
 		if (session == null) {
-			throw new UnauthorizedException("No active session");
+			return null;
 		}
 
 		// Bước 2: đọc SessionUser từ session để xác thực trạng thái đăng nhập.
 		SessionUser sessionUser = (SessionUser) session.getAttribute(SessionConstants.CURRENT_USER);
 		if (sessionUser == null) {
-			throw new UnauthorizedException("No active session");
+			return null;
 		}
 
 		// Bước 3: nạp user mới nhất từ DB để đảm bảo dữ liệu trả về cập nhật.
