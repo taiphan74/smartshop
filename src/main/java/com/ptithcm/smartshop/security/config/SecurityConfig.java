@@ -59,7 +59,8 @@ public class SecurityConfig {
 								"/css/**",
 								"/js/**",
 								"/images/**",
-								"/webjars/**"
+								"/webjars/**",
+								"/uploads/**"
 						).permitAll()
 						.anyRequest().authenticated())
 				.formLogin(form -> form
