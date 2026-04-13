@@ -6,20 +6,25 @@ import com.ptithcm.smartshop.banner.entity.Banner;
 import com.ptithcm.smartshop.banner.repository.BannerRepository;
 import com.ptithcm.smartshop.banner.service.BannerService;
 import com.ptithcm.smartshop.shared.exception.ResourceNotFoundException;
+import com.ptithcm.smartshop.shared.util.FileUploadUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class BannerServiceImpl implements BannerService {
 
+    private static final String URL_PREFIX = "/uploads/banners";
+
     private final BannerRepository bannerRepository;
     private final BannerUploadConfig uploadConfig;
+
+    @Value("${banner.upload.dir:src/main/resources/static/uploads/banners}")
+    private String uploadDir;
 
     public BannerServiceImpl(BannerRepository bannerRepository, BannerUploadConfig uploadConfig) {
         this.bannerRepository = bannerRepository;
@@ -55,7 +60,7 @@ public class BannerServiceImpl implements BannerService {
         banner.setIsActive(form.isActive());
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            String imageUrl = saveImage(imageFile);
+            String imageUrl = FileUploadUtil.saveFile(imageFile, uploadConfig.getUploadPath(), URL_PREFIX);
             banner.setImageUrl(imageUrl);
         } else {
             banner.setImageUrl(form.imageUrl());
@@ -75,8 +80,8 @@ public class BannerServiceImpl implements BannerService {
         banner.setIsActive(form.isActive());
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            deleteImage(banner.getImageUrl());
-            String imageUrl = saveImage(imageFile);
+            FileUploadUtil.deleteFile(banner.getImageUrl(), uploadConfig.getUploadPath(), URL_PREFIX);
+            String imageUrl = FileUploadUtil.saveFile(imageFile, uploadConfig.getUploadPath(), URL_PREFIX);
             banner.setImageUrl(imageUrl);
         } else if (form.imageUrl() != null && !form.imageUrl().isBlank()) {
             banner.setImageUrl(form.imageUrl());
@@ -89,39 +94,7 @@ public class BannerServiceImpl implements BannerService {
     @Transactional
     public void delete(UUID id) {
         Banner banner = findById(id);
-        deleteImage(banner.getImageUrl());
+        FileUploadUtil.deleteFile(banner.getImageUrl(), uploadConfig.getUploadPath(), URL_PREFIX);
         bannerRepository.delete(banner);
-    }
-
-    private String saveImage(MultipartFile file) {
-        String extension = getFileExtension(file.getOriginalFilename());
-        String fileName = UUID.randomUUID() + extension;
-
-        try {
-            Files.copy(file.getInputStream(), uploadConfig.getUploadPath().resolve(fileName));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save image: " + fileName, e);
-        }
-
-        return "/uploads/banners/" + fileName;
-    }
-
-    private void deleteImage(String imageUrl) {
-        if (imageUrl == null || !imageUrl.startsWith("/uploads/banners/")) {
-            return;
-        }
-        String fileName = imageUrl.substring("/uploads/banners/".length());
-        try {
-            Files.deleteIfExists(uploadConfig.getUploadPath().resolve(fileName));
-        } catch (IOException e) {
-            // Log but don't fail the delete operation
-        }
-    }
-
-    private String getFileExtension(String originalFilename) {
-        if (originalFilename == null || !originalFilename.contains(".")) {
-            return ".jpg";
-        }
-        return originalFilename.substring(originalFilename.lastIndexOf("."));
     }
 }

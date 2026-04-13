@@ -6,9 +6,10 @@ import jakarta.validation.constraints.NotNull;
 public record BannerForm(
         String title,
 
-        @NotBlank(message = "Image is required")
+        @NotBlank(message = "Image URL is required")
         String imageUrl,
 
+        @NotBlank(message = "Destination URL is required")
         String linkUrl,
 
         @NotNull(message = "Display order is required")
