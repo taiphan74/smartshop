@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Đặt Hàng Thành Công</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 max-w-md w-full text-center">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Đặt Hàng Thành Công!</h1>
+        <p class="text-gray-600 mb-6">Cảm ơn bạn đã mua sắm tại SmartShop. Đơn hàng của bạn sẽ được giao trong thời gian sớm nhất.</p>
+        
+        <div class="bg-gray-50 p-4 rounded-lg mb-6 text-sm" th:if="${orderCode != null}">
+            Mã đơn hàng: <span class="font-bold text-blue-600" th:text="${orderCode}">ORD-123456</span>
+        </div>
+        
+        <a href="/" class="inline-block w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Tiếp tục mua sắm</a>
+    </div>
+</body>
+</html>

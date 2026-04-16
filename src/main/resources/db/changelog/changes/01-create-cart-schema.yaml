@@ -1,0 +1,166 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1-create-cart-and-order
+      author: antigravity
+      changes:
+        - createTable:
+            tableName: carts
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: session_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+              - column:
+                  name: updated_at
+                  type: timestamp
+
+        - createTable:
+            tableName: cart_items
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: cart_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cart_item_cart
+                    references: carts(id)
+              - column:
+                  name: product_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: variant_id
+                  type: varchar(255)
+              - column:
+                  name: product_name
+                  type: varchar(255)
+              - column:
+                  name: image_url
+                  type: varchar(500)
+              - column:
+                  name: price
+                  type: decimal(15,2)
+              - column:
+                  name: quantity
+                  type: integer
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: session_id
+                  type: varchar(255)
+              - column:
+                  name: customer_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_phone
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_address
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shipping_fee
+                  type: decimal(15,2)
+              - column:
+                  name: sub_total
+                  type: decimal(15,2)
+              - column:
+                  name: total_amount
+                  type: decimal(15,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payment_method
+                  type: varchar(50)
+              - column:
+                  name: created_at
+                  type: timestamp
+              - column:
+                  name: updated_at
+                  type: timestamp
+
+        - createTable:
+            tableName: order_items
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_item_order
+                    references: orders(id)
+              - column:
+                  name: product_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: variant_id
+                  type: varchar(255)
+              - column:
+                  name: product_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: image_url
+                  type: varchar(500)
+              - column:
+                  name: price
+                  type: decimal(15,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: integer
+                  constraints:
+                    nullable: false

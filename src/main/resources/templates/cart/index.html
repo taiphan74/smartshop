@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartShop - Shopping Cart</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0A68FF",
+                        "on-primary": "#ffffff",
+                        "surface": "#f6f6fb",
+                        "on-surface": "#2d2f33",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f0f0f6",
+                        "surface-container": "#e7e8ee",
+                        "on-surface-variant": "#5a5b60",
+                        "outline-variant": "#acadb1",
+                        "error": "#b31b25",
+                        "primary-container": "#799dff",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "8px",
+                        "lg": "12px",
+                        "xl": "16px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col antialiased">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f6f6fb]/80 dark:bg-[#0c0e12]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-200 transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<span class="text-xl font-bold tracking-tighter text-on-surface font-headline">SmartShop</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<button class="material-symbols-outlined text-primary hover:opacity-80 transition-all active:scale-90">shopping_bag</button>
+<span class="absolute -top-1 -right-1 bg-error text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-surface" th:text="${cart != null ? cart.totalQuantity : 0}">3</span>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow pt-24 px-6 pb-32 max-w-md mx-auto w-full">
+<header class="mb-8">
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1 font-headline">Giỏ hàng</h1>
+<p class="text-on-surface-variant text-sm font-medium">Bạn có <span th:text="${cart != null ? cart.totalQuantity : 0}">3</span> sản phẩm trong giỏ</p>
+</header>
+<!-- Product List -->
+<div class="flex flex-col gap-4 mb-10" th:if="${cart != null and cart.items != null and !cart.items.empty}">
+<!-- Item -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10 shadow-sm flex gap-4 items-center group" th:each="item : ${cart.items}">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-low">
+<img th:alt="${item.productName}" class="w-full h-full object-cover" th:src="${item.imageUrl}"/>
+</div>
+<div class="flex-grow flex flex-col justify-between h-20">
+<div class="flex justify-between items-start">
+<h3 class="text-on-surface font-bold text-sm leading-tight line-clamp-1" th:text="${item.productName}">Tên sản phẩm</h3>
+<form th:action="@{/cart/remove}" method="post">
+<input type="hidden" name="productId" th:value="${item.productId}" />
+<input type="hidden" name="variantId" th:value="${item.variantId}" />
+<button type="submit" class="text-error/60 hover:text-error transition-colors ml-2 cursor-pointer">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</form>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<p class="text-primary font-extrabold text-base" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</p>
+<div class="flex items-center bg-surface-container-low p-0.5 rounded-lg">
+<form th:action="@{/cart/update}" method="post" class="flex items-center">
+<input type="hidden" name="productId" th:value="${item.productId}" />
+<input type="hidden" name="variantId" th:value="${item.variantId}" />
+<input type="hidden" name="quantity" th:value="${item.quantity - 1}" />
+<button type="submit" class="w-7 h-7 flex items-center justify-center hover:opacity-60 transition-opacity"><span class="material-symbols-outlined text-base">remove</span></button>
+</form>
+<span class="w-8 text-center font-bold text-sm" th:text="${item.quantity}">1</span>
+<form th:action="@{/cart/update}" method="post" class="flex items-center">
+<input type="hidden" name="productId" th:value="${item.productId}" />
+<input type="hidden" name="variantId" th:value="${item.variantId}" />
+<input type="hidden" name="quantity" th:value="${item.quantity + 1}" />
+<button type="submit" class="w-7 h-7 flex items-center justify-center hover:opacity-60 transition-opacity"><span class="material-symbols-outlined text-base">add</span></button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 mb-10 items-center justify-center p-10 bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm" th:if="${cart == null or cart.items == null or cart.items.empty}">
+    <span class="material-symbols-outlined text-6xl text-on-surface-variant/50">shopping_cart</span>
+    <p class="text-on-surface-variant font-medium mt-2">Giỏ hàng của bạn đang trống</p>
+    <a href="/" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-bold text-sm shadow-sm hover:opacity-90 active:scale-95 transition-all">Tiếp tục mua sắm</a>
+</div>
+<!-- Order Summary Section -->
+<section class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm mb-10">
+<h2 class="text-lg font-bold text-on-surface mb-6 font-headline">Order Summary</h2>
+<div class="space-y-4 mb-6">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant font-medium">Tạm tính</span>
+<span class="text-on-surface font-semibold" th:text="${cart != null ? #numbers.formatDecimal(cart.subTotal, 0, 'COMMA', 0, 'POINT') + 'đ' : '0đ'}">0đ</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant font-medium">Phí vận chuyển</span>
+<span class="text-on-surface font-semibold" th:text="${cart != null ? #numbers.formatDecimal(cart.shippingFee, 0, 'COMMA', 0, 'POINT') + 'đ' : '0đ'}">0đ</span>
+</div>
+<div class="h-[1px] bg-surface-container-low"></div>
+<div class="flex justify-between items-end">
+<span class="text-on-surface font-bold">Tổng cộng</span>
+<span class="text-primary font-black text-2xl font-headline" th:text="${cart != null ? #numbers.formatDecimal(cart.total, 0, 'COMMA', 0, 'POINT') + 'đ' : '0đ'}">0đ</span>
+</div>
+</div>
+<a href="/checkout" class="w-full h-14 bg-primary text-white py-4 rounded-xl font-bold tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/25 flex items-center justify-center">Proceed to Checkout</a>
+<p class="mt-4 text-[10px] text-center text-on-surface-variant leading-relaxed">By clicking checkout, you agree to SmartShop's <br/> <a class="underline" href="#">Terms &amp; Conditions</a>.</p>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center pt-3 pb-8 px-4 bg-[#ffffff]/80 dark:bg-[#0c0e12]/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0_-20px_40px_-10px_rgba(45,47,51,0.06)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[11px] font-medium leading-[1.6]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[11px] font-medium leading-[1.6]">Shop</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary scale-110 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="text-[11px] font-bold leading-[1.6]">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[11px] font-medium leading-[1.6]">Account</span>
+</a>
+</nav>
+</body></html>
