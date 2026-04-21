@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-add-user-id-to-session-carts
+      author: github-copilot
+      changes:
+        - addColumn:
+            tableName: session_carts
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+        - addForeignKeyConstraint:
+            baseTableName: session_carts
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_session_carts_user_id
+            onDelete: SET NULL
+        - addUniqueConstraint:
+            tableName: session_carts
+            columnNames: user_id
+            constraintName: uk_session_carts_user_id

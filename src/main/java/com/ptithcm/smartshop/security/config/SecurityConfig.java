@@ -1,9 +1,5 @@
 package com.ptithcm.smartshop.security.config;
 
-import com.ptithcm.smartshop.security.principal.CustomUserDetails;
-import com.ptithcm.smartshop.security.web.RestAccessDeniedHandler;
-import com.ptithcm.smartshop.security.web.RestAuthenticationEntryPoint;
-import com.ptithcm.smartshop.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -12,11 +8,15 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.ptithcm.smartshop.security.principal.CustomUserDetails;
+import com.ptithcm.smartshop.security.web.RestAccessDeniedHandler;
+import com.ptithcm.smartshop.security.web.RestAuthenticationEntryPoint;
+import com.ptithcm.smartshop.user.repository.UserRepository;
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -54,8 +54,11 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/",
 								"/products/**",
+								"/cart/**",
+								"/checkout/**",
 								"/auth/login",
 								"/auth/register",
+								"/login",
 								"/css/**",
 								"/js/**",
 								"/images/**",
@@ -63,7 +66,8 @@ public class SecurityConfig {
 						).permitAll()
 						.anyRequest().authenticated())
 				.formLogin(form -> form
-						.defaultSuccessUrl("/", true)
+						.loginPage("/auth/login")
+						.loginProcessingUrl("/auth/_spring_process_unused")
 						.permitAll())
 				.logout(logout -> logout
 						.permitAll());

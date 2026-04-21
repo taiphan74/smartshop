@@ -1,18 +1,20 @@
 package com.ptithcm.smartshop.auth.controller;
 
-import com.ptithcm.smartshop.auth.dto.AuthResponse;
-import com.ptithcm.smartshop.auth.service.AuthService;
-import com.ptithcm.smartshop.product.dto.ProductListDTO;
-import com.ptithcm.smartshop.product.dto.CategoryDTO;
-import com.ptithcm.smartshop.product.dto.PageResponse;
-import com.ptithcm.smartshop.product.service.ProductService;
-import com.ptithcm.smartshop.product.service.CategoryService;
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
+import com.ptithcm.smartshop.auth.dto.AuthResponse;
+import com.ptithcm.smartshop.auth.service.AuthService;
+import com.ptithcm.smartshop.product.dto.CategoryDTO;
+import com.ptithcm.smartshop.product.dto.PageResponse;
+import com.ptithcm.smartshop.product.dto.ProductListDTO;
+import com.ptithcm.smartshop.product.service.CategoryService;
+import com.ptithcm.smartshop.product.service.ProductService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Controller trang chủ.
@@ -33,6 +35,11 @@ public class HomeController {
 		this.authService = authService;
 		this.productService = productService;
 		this.categoryService = categoryService;
+	}
+
+	@GetMapping("/login")
+	public String loginRedirect() {
+		return "redirect:/auth/login";
 	}
 
 	/**

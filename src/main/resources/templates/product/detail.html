@@ -103,15 +103,26 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex items-center gap-3.5 mt-4">
-                        <button
-                            class="bg-brand-red-soft hover:bg-brand-red-soft/80 text-brand-red border border-brand-red font-medium h-12 px-6 flex items-center justify-center gap-2 rounded-md shadow-sm transition-colors cursor-pointer">
-                            <span class="text-xl">🛒</span> Thêm Vào Giỏ Hàng
-                        </button>
-                        <button
-                            class="bg-brand-blue hover:bg-brand-blue-hover text-white font-medium h-12 w-[180px] flex items-center justify-center rounded-md shadow-sm transition-colors cursor-pointer">
-                            Mua Ngay
-                        </button>
+                    <div class="flex flex-wrap items-center gap-3.5 mt-4">
+                        <form th:action="@{/cart/add}" method="post" class="flex-1 min-w-[260px]">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <input type="hidden" name="quantity" value="1">
+                            <input type="hidden" name="redirectUrl" th:value="@{'/products/' + ${product.slug}}">
+                            <button type="submit"
+                                class="w-full bg-brand-red-soft hover:bg-brand-red-soft/80 text-brand-red border border-brand-red font-medium h-12 px-6 flex items-center justify-center gap-2 rounded-md shadow-sm transition-colors cursor-pointer">
+                                <span class="text-xl">🛒</span> Thêm Vào Giỏ Hàng
+                            </button>
+                        </form>
+
+                        <form th:action="@{/cart/add}" method="post" class="w-[180px]">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <input type="hidden" name="quantity" value="1">
+                            <input type="hidden" name="redirectUrl" value="/checkout">
+                            <button type="submit"
+                                class="w-full bg-brand-blue hover:bg-brand-blue-hover text-white font-medium h-12 flex items-center justify-center rounded-md shadow-sm transition-colors cursor-pointer">
+                                Mua Ngay
+                            </button>
+                        </form>
                     </div>
 
 

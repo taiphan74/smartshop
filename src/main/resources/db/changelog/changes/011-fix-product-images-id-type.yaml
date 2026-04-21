@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-fix-product-images-id-type
+      author: github-copilot
+      preConditions:
+        - sqlCheck:
+            onFail: MARK_RAN
+            onError: HALT
+            expectedResult: 1
+            sql: |
+              SELECT CASE
+                       WHEN EXISTS (
+                         SELECT 1
+                         FROM information_schema.columns
+                         WHERE table_schema = 'public'
+                           AND table_name = 'product_images'
+                           AND column_name = 'id'
+                           AND udt_name = 'varchar'
+                       ) THEN 1
+                       ELSE 0
+                     END
+      changes:
+        - sql:
+            sql: |
+              ALTER TABLE product_images
+              ALTER COLUMN id TYPE UUID
+              USING NULLIF(id, '')::uuid;

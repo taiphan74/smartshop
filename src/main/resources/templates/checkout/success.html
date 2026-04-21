@@ -1,24 +1,39 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Đặt Hàng Thành Công</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 max-w-md w-full text-center">
-        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+<head th:replace="~{fragments/head :: head('Đặt hàng thành công - SmartShop')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="max-w-[960px] mx-auto px-4 md:px-6 py-10">
+        <div class="bg-surface rounded-2xl border border-border shadow-sm p-8 md:p-12 text-center">
+            <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-11 w-11 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <p class="text-sm font-bold uppercase tracking-[0.18em] text-brand-blue mb-3">Đơn hàng đã được ghi nhận</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-text-primary">Đặt hàng thành công</h1>
+            <p class="mt-4 text-base text-text-secondary max-w-2xl mx-auto">
+                SmartShop đã xác nhận đơn hàng của bạn. Đơn đang được chuẩn bị và sẽ sớm bàn giao cho đơn vị vận chuyển để giao đến bạn.
+            </p>
+
+            <div th:if="${orderCode != null}" class="mt-8 inline-flex items-center gap-3 rounded-xl bg-primary-soft px-5 py-4 text-left">
+                <span class="text-sm font-medium text-text-secondary">Mã đơn hàng</span>
+                <span class="text-lg font-bold text-brand-blue" th:text="${orderCode}">ORD-123456</span>
+            </div>
+
+            <div class="mt-10 grid gap-3 sm:grid-cols-2 max-w-xl mx-auto">
+                <a href="/products" class="inline-flex items-center justify-center rounded-md border border-border bg-white px-5 py-3 text-sm font-semibold text-text-primary hover:bg-surface-soft transition-colors">
+                    Tiếp tục mua sắm
+                </a>
+                <a href="/cart" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-5 py-3 text-sm font-semibold text-white hover:bg-brand-blue-hover transition-colors">
+                    Quay về giỏ hàng
+                </a>
+            </div>
         </div>
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Đặt Hàng Thành Công!</h1>
-        <p class="text-gray-600 mb-6">Cảm ơn bạn đã mua sắm tại SmartShop. Đơn hàng của bạn sẽ được giao trong thời gian sớm nhất.</p>
-        
-        <div class="bg-gray-50 p-4 rounded-lg mb-6 text-sm" th:if="${orderCode != null}">
-            Mã đơn hàng: <span class="font-bold text-blue-600" th:text="${orderCode}">ORD-123456</span>
-        </div>
-        
-        <a href="/" class="inline-block w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Tiếp tục mua sắm</a>
-    </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

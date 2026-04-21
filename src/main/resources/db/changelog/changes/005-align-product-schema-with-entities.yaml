@@ -32,6 +32,62 @@ databaseChangeLog:
               ALTER TABLE products
                 ALTER COLUMN status SET DEFAULT TRUE;
 
+              DELETE FROM product_variant_values
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM product_variants
+                WHERE product_variants.id = product_variant_values.variant_id
+              )
+              OR NOT EXISTS (
+                SELECT 1
+                FROM product_option_values
+                WHERE product_option_values.id = product_variant_values.option_value_id
+              );
+
+              DELETE FROM product_option_values
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM product_options
+                WHERE product_options.id = product_option_values.option_id
+              );
+
+              DELETE FROM product_variants
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM products
+                WHERE products.id::text = product_variants.product_id
+              );
+
+              DELETE FROM product_options
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM products
+                WHERE products.id::text = product_options.product_id
+              );
+
+              ALTER TABLE product_variant_values
+                DROP CONSTRAINT IF EXISTS fk70gqh3qpx3ni5mgt3ax93a35p,
+                DROP CONSTRAINT IF EXISTS fkpbp54igkobql1af2fpow658fu;
+
+              ALTER TABLE product_option_values
+                DROP CONSTRAINT IF EXISTS fkmre6ippw97evhwrbl15ushuw;
+
+              ALTER TABLE product_options
+                ALTER COLUMN id TYPE UUID USING id::uuid,
+                ALTER COLUMN product_id TYPE UUID USING product_id::uuid;
+
+              ALTER TABLE product_option_values
+                ALTER COLUMN id TYPE UUID USING id::uuid,
+                ALTER COLUMN option_id TYPE UUID USING option_id::uuid;
+
+              ALTER TABLE product_variants
+                ALTER COLUMN id TYPE UUID USING id::uuid,
+                ALTER COLUMN product_id TYPE UUID USING product_id::uuid;
+
+              ALTER TABLE product_variant_values
+                ALTER COLUMN variant_id TYPE UUID USING variant_id::uuid,
+                ALTER COLUMN option_value_id TYPE UUID USING option_value_id::uuid;
+
               CREATE TABLE IF NOT EXISTS product_options (
                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                 product_id UUID NOT NULL,

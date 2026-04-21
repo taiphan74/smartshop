@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-fix-product-images-id-type-safe
+      author: github-copilot
+      preConditions:
+        - sqlCheck:
+            onFail: MARK_RAN
+            onError: HALT
+            expectedResult: 1
+            sql: |
+              SELECT CASE
+                       WHEN EXISTS (
+                         SELECT 1
+                         FROM information_schema.columns
+                         WHERE table_schema = 'public'
+                           AND table_name = 'product_images'
+                           AND column_name = 'id'
+                           AND udt_name <> 'uuid'
+                       ) THEN 1
+                       ELSE 0
+                     END
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE product_images
+              ALTER COLUMN id TYPE UUID
+              USING CASE
+                WHEN id IS NULL OR btrim(id) = '' THEN gen_random_uuid()
+                WHEN id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' THEN id::uuid
+                ELSE gen_random_uuid()
+              END;

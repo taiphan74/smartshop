@@ -1,8 +1,7 @@
 databaseChangeLog:
   - changeSet:
-      id: 1-create-cart-and-order
-      author: antigravity
-      validCheckSum: 9:5af8d4b4094a09e138a6f19efbbf5c9b
+      id: 012-create-session-cart-schema
+      author: github-copilot
       changes:
         - createTable:
             ifNotExists: true
@@ -25,7 +24,6 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   type: timestamp
-
         - createTable:
             ifNotExists: true
             tableName: session_cart_items
@@ -41,7 +39,7 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_cart_item_cart
+                    foreignKeyName: fk_session_cart_items_cart
                     references: session_carts(id)
               - column:
                   name: product_id
@@ -65,7 +63,6 @@ databaseChangeLog:
                   type: integer
                   constraints:
                     nullable: false
-
         - createTable:
             ifNotExists: true
             tableName: session_orders
@@ -125,7 +122,6 @@ databaseChangeLog:
               - column:
                   name: updated_at
                   type: timestamp
-
         - createTable:
             ifNotExists: true
             tableName: session_order_items
@@ -141,7 +137,7 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_order_item_order
+                    foreignKeyName: fk_session_order_items_order
                     references: session_orders(id)
               - column:
                   name: product_id

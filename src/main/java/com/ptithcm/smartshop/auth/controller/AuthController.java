@@ -1,13 +1,5 @@
 package com.ptithcm.smartshop.auth.controller;
 
-import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
-import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
-import com.ptithcm.smartshop.auth.service.AuthService;
-import com.ptithcm.smartshop.shared.exception.ConflictException;
-import com.ptithcm.smartshop.security.session.SessionConstants;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +9,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
+import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
+import com.ptithcm.smartshop.auth.service.AuthService;
+import com.ptithcm.smartshop.security.session.SessionConstants;
+import com.ptithcm.smartshop.shared.exception.ConflictException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 /**
  * Controller xử lý luồng xác thực phía giao diện web (Thymeleaf):

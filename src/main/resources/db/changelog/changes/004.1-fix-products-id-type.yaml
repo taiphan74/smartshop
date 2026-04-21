@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-1-fix-product-id-type
+      author: antigravity
+      validCheckSum:
+        - 9:ec7f123c206b0cc7cefcc723cc6b879e
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              DROP TABLE IF EXISTS product_variant_values CASCADE;
+              DROP TABLE IF EXISTS product_variants CASCADE;
+              DROP TABLE IF EXISTS product_option_values CASCADE;
+              DROP TABLE IF EXISTS product_options CASCADE;
