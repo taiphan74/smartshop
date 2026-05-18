@@ -1,114 +1,103 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-    <header th:fragment="header" class="sticky top-0 z-50 bg-[#0A68FF] shadow-lg">
-
-        <!-- ===== TẦNG 1: Logo + Search + Icons ===== -->
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="h-16 flex items-center gap-8">
-
-                <!-- Logo + Slogan -->
-                <a href="/" class="flex flex-col shrink-0 leading-none items-center">
-                    <img src="/images/smartshop-logo.png" alt="SmartShop Logo" class="h-10 w-auto" />
-                    <span class="text-white/80 text-xs font-medium">Mua sắm thông minh</span>
+    <header th:fragment="header" class="site-header sticky top-0 z-50">
+        <div class="site-header__main">
+            <div class="site-shell site-header__row">
+                <a href="/" class="site-logo" aria-label="SmartShop home">
+                    <img src="/images/smartshop-logo.png" alt="SmartShop Logo" class="site-logo__image" />
+                    <span class="site-logo__tagline">Mua sắm thông minh</span>
                 </a>
 
-                <!-- Thanh tìm kiếm lớn & đẹp -->
-                <form action="/products" method="get" class="flex-1 max-w-2xl">
-                    <div class="relative group">
-                        <input type="text" 
-                               name="q"
-                               placeholder="Bạn muốn tìm gì hôm nay?"
-                               class="w-full bg-white text-gray-700 placeholder-gray-400 rounded-3xl py-3.5 px-6 pl-14 text-base 
-                                      focus:outline-none focus:ring-4 focus:ring-white/30 shadow-sm transition-all">
-                        <div class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" 
-                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                <circle cx="11" cy="11" r="8"/>
-                                <path stroke-linecap="round" d="m21 21-4.35-4.35"/>
-                            </svg>
-                        </div>
-                    </div>
+                <form action="/products" method="get" class="site-search">
+                    <label class="sr-only" for="site-search-input">Tìm kiếm sản phẩm</label>
+                    <input id="site-search-input"
+                           type="text"
+                           name="q"
+                           placeholder="Bạn muốn tìm gì hôm nay?"
+                           class="site-search__input">
+                    <span class="site-search__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </span>
                 </form>
 
-                <!-- Icons bên phải -->
-                <nav class="flex items-center gap-8 text-white">
-
-                    <!-- Trang chủ -->
-                    <a href="/" 
-                       class="flex flex-col items-center hover:opacity-80 transition-all hover:scale-105">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" 
-                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-                            <path stroke-linecap="round" stroke-linejoin="round" 
-                                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1v-5m10-10l2 2m-2-2v10a1 1 0 01-1 1v-5m-6 0a1 1 0 001-1v5"/>
+                <nav class="site-actions" aria-label="Tác vụ chính">
+                    <a href="/" class="site-action">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/>
                         </svg>
-                        <span class="text-xs mt-1 font-medium">Trang chủ</span>
+                        <span>Trang chủ</span>
                     </a>
-
-                    <!-- Tài khoản -->
-                    <a th:if="${sessionUser == null}"
-                       href="/auth/login"
-                       class="flex flex-col items-center hover:opacity-80 transition-all hover:scale-105">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    <a th:if="${sessionUser == null}" href="/auth/login" class="site-action">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
-                        <span class="text-xs mt-1 font-medium">Đăng nhập</span>
+                        <span>Đăng nhập</span>
                     </a>
-
                     <form th:if="${sessionUser != null}" th:action="@{/auth/logout}" method="post" class="m-0">
-                        <button type="submit" class="flex flex-col items-center hover:opacity-80 transition-all hover:scale-105">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15"/>
+                        <button type="submit" class="site-action">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H9.75m8.25 0l-3-3m3 3l-3 3"/>
                             </svg>
-                            <span class="text-xs mt-1 font-medium">Đăng xuất</span>
+                            <span>Đăng xuất</span>
                         </button>
                     </form>
-
-                    <!-- Giỏ hàng -->
-                    <a href="/cart" 
-                       class="relative flex flex-col items-center hover:opacity-80 transition-all hover:scale-105">
-                        <span class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold 
-                                     rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
+                    <a href="/cart" class="site-action site-cart">
+                        <span class="site-cart__badge"
                               th:if="${cartCount != null and cartCount > 0}"
                               th:text="${cartCount}">0</span>
-                        
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" 
-                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-                            <path stroke-linecap="round" stroke-linejoin="round" 
-                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" 
-                                  d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/>
                         </svg>
-                        <span class="text-xs mt-1 font-medium">Giỏ hàng</span>
+                        <span>Giỏ hàng</span>
                     </a>
+                    <button type="button" class="theme-toggle" aria-label="Đổi giao diện sáng tối" data-theme-toggle>
+                        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+                        <span class="theme-toggle__text">Dark</span>
+                    </button>
                 </nav>
             </div>
         </div>
 
-        <!-- ===== TẦNG 2: Menu danh mục ===== -->
-        <nav class="bg-white border-t border-white/10 shadow-sm">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="flex items-center h-12 gap-1 overflow-x-auto scrollbar-hide text-sm font-medium">
-                    
-                    <a th:each="cat : ${headerCategories}"
-                       th:href="@{/products(category=${cat.slug})}" 
-                       class="px-6 py-2.5 text-gray-700 hover:text-[#0A68FF] hover:bg-blue-50 rounded-2xl transition-all whitespace-nowrap"
-                       th:text="${cat.name}">
-                        Tên danh mục
-                    </a>
-                    
-                    <!-- Fallback if no categories -->
-                    <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="px-6 py-2.5 text-gray-400 italic text-xs">
-                        Đang tải danh mục...
-                    </span>
-                </div>
+        <nav class="site-categories" aria-label="Danh mục sản phẩm">
+            <div class="site-shell site-categories__row">
+                <a th:each="cat : ${headerCategories}"
+                   th:href="@{/products(category=${cat.slug})}"
+                   class="site-category-link"
+                   th:text="${cat.name}">Tên danh mục</a>
+                <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="site-category-empty">
+                    Đang tải danh mục...
+                </span>
             </div>
         </nav>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            var button = document.querySelector('[data-theme-toggle]');
+            if (!button) return;
+
+            function applyButtonState(theme) {
+              var dark = theme === 'dark';
+              button.querySelector('.theme-toggle__icon').textContent = dark ? '☀' : '☾';
+              button.querySelector('.theme-toggle__text').textContent = dark ? 'Light' : 'Dark';
+            }
+
+            applyButtonState(document.documentElement.getAttribute('data-theme') || 'light');
+
+            button.addEventListener('click', function () {
+              var current = document.documentElement.getAttribute('data-theme') || 'light';
+              var next = current === 'dark' ? 'light' : 'dark';
+              document.documentElement.setAttribute('data-theme', next);
+              localStorage.setItem('smartshop-theme', next);
+              applyButtonState(next);
+            });
+          });
+        </script>
     </header>
 </body>
 </html>
