@@ -42,3 +42,7 @@ CLAUDE.md
 # Banner uploads
 src/main/resources/static/uploads/
 docs/
+
+# other folder
+.deepseek
+.playwright-mcp
