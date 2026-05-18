@@ -7,6 +7,7 @@ import com.ptithcm.smartshop.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -50,6 +51,7 @@ public class SecurityConfig {
 						.authenticationEntryPoint(restAuthenticationEntryPoint)
 						.accessDeniedHandler(restAccessDeniedHandler))
 				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
 						.requestMatchers(
 								"/",
 								"/products/**",

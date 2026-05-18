@@ -1,5 +1,6 @@
 package com.ptithcm.smartshop.product.entity;
 
+import com.ptithcm.smartshop.review.entity.ProductReview;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,6 +45,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductReview> reviews = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -131,6 +135,14 @@ public class Product {
 
     public void setVariants(List<ProductVariant> variants) {
         this.variants = variants;
+    }
+
+    public List<ProductReview> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<ProductReview> reviews) {
+        this.reviews = reviews;
     }
 
     @PreUpdate
