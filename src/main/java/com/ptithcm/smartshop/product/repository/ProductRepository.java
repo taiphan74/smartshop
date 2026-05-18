@@ -4,6 +4,7 @@ import com.ptithcm.smartshop.product.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -30,7 +31,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "COALESCE(" +
            "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
-           ") AS thumbnailUrl " +
+           ") AS thumbnailUrl, " +
+           "p.reviewCount AS reviewCount, " +
+           "p.averageRating AS averageRating " +
            "FROM Product p")
     Page<ProductProjection> findAllProjection(Pageable pageable);
 
@@ -46,7 +49,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "COALESCE(" +
            "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
-           ") AS thumbnailUrl " +
+           ") AS thumbnailUrl, " +
+           "p.reviewCount AS reviewCount, " +
+           "p.averageRating AS averageRating " +
            "FROM Product p")
     List<ProductProjection> findAllProjection();
 
@@ -62,8 +67,20 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "COALESCE(" +
            "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
-           ") AS thumbnailUrl " +
+           ") AS thumbnailUrl, " +
+           "p.reviewCount AS reviewCount, " +
+           "p.averageRating AS averageRating " +
            "FROM Product p WHERE p.category.id = :categoryId")
     Page<ProductProjection> findByCategoryProjection(UUID categoryId, Pageable pageable);
+
+    @Modifying
+    @Query("""
+            update Product p
+            set p.reviewCount = p.reviewCount + 1,
+                p.ratingSum = p.ratingSum + :rating,
+                p.averageRating = ((p.ratingSum + :rating) * 1.0 / (p.reviewCount + 1))
+            where p.id = :productId
+            """)
+    void incrementRatingSummary(UUID productId, int rating);
 }
 

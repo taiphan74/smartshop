@@ -17,6 +17,9 @@ public class ProductDetailDTO {
     private LocalDateTime updatedAt;
     private String categoryId;
     private String categoryName;
+    private Long reviewCount;
+    private Long ratingSum;
+    private BigDecimal averageRating;
     private List<ProductImageDTO> images;
     private List<ProductOptionDTO> options;
     private List<ProductVariantDTO> variants;
@@ -110,6 +113,30 @@ public class ProductDetailDTO {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public Long getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(Long reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public Long getRatingSum() {
+        return ratingSum;
+    }
+
+    public void setRatingSum(Long ratingSum) {
+        this.ratingSum = ratingSum;
+    }
+
+    public BigDecimal getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(BigDecimal averageRating) {
+        this.averageRating = averageRating;
     }
 
     public List<ProductImageDTO> getImages() {

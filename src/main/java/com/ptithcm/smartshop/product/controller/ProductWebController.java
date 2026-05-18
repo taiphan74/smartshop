@@ -60,6 +60,9 @@ public class ProductWebController {
             productView.put("description", productDTO.getDescription());
             productView.put("stockQuantity", productDTO.getStockQuantity());
             productView.put("categoryName", productDTO.getCategoryName());
+            productView.put("reviewCount", productDTO.getReviewCount());
+            productView.put("ratingSum", productDTO.getRatingSum());
+            productView.put("averageRating", productDTO.getAverageRating());
 
             model.addAttribute("product", productView);
             return "product/detail";

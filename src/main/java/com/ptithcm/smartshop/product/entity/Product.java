@@ -2,6 +2,7 @@ package com.ptithcm.smartshop.product.entity;
 
 import com.ptithcm.smartshop.review.entity.ProductReview;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,15 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductReview> reviews = new ArrayList<>();
+
+    @Column(name = "review_count", nullable = false)
+    private Long reviewCount = 0L;
+
+    @Column(name = "rating_sum", nullable = false)
+    private Long ratingSum = 0L;
+
+    @Column(name = "average_rating", nullable = false, precision = 3, scale = 2)
+    private BigDecimal averageRating = BigDecimal.ZERO;
 
     public UUID getId() {
         return id;
@@ -143,6 +153,30 @@ public class Product {
 
     public void setReviews(List<ProductReview> reviews) {
         this.reviews = reviews;
+    }
+
+    public Long getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(Long reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public Long getRatingSum() {
+        return ratingSum;
+    }
+
+    public void setRatingSum(Long ratingSum) {
+        this.ratingSum = ratingSum;
+    }
+
+    public BigDecimal getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(BigDecimal averageRating) {
+        this.averageRating = averageRating;
     }
 
     @PreUpdate

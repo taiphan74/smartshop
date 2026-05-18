@@ -80,16 +80,19 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         review.setComment(request.getComment());
 
         ProductReview savedReview = reviewRepository.save(review);
+        productRepository.incrementRatingSummary(productId, request.getRating());
         return mapToResponse(savedReview);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ReviewResponse> getProductReviews(UUID productId, int page, int size) {
         return reviewRepository.findByProductId(productId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .map(this::mapToResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UUID> getEligibleOrdersForReview(UUID productId, UUID userId) {
         return orderRepository.findDeliveredOrdersContainingProduct(userId, productId, OrderStatus.DELIVERED)
                 .stream()

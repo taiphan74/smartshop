@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-product-rating-summary-columns
+      author: chatgpt
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: review_count
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rating_sum
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: average_rating
+                  type: numeric(3,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              UPDATE products p
+              SET review_count = s.review_count,
+                  rating_sum = s.rating_sum,
+                  average_rating = s.average_rating
+              FROM (
+                SELECT product_id,
+                       COUNT(*) AS review_count,
+                       SUM(rating) AS rating_sum,
+                       ROUND(AVG(rating)::numeric, 2) AS average_rating
+                FROM product_reviews
+                GROUP BY product_id
+              ) s
+              WHERE p.id = s.product_id;

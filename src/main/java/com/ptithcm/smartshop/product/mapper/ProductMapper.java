@@ -34,6 +34,8 @@ public class ProductMapper {
                 .min(Comparator.naturalOrder())
                 .orElse(BigDecimal.ZERO));
         dto.setStatus(product.getStatus());
+        dto.setReviewCount(product.getReviewCount());
+        dto.setAverageRating(product.getAverageRating());
 
         if (product.getCategory() != null) {
             dto.setCategoryName(product.getCategory().getName());
@@ -70,6 +72,9 @@ public class ProductMapper {
         dto.setStatus(product.getStatus());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
+        dto.setReviewCount(product.getReviewCount());
+        dto.setRatingSum(product.getRatingSum());
+        dto.setAverageRating(product.getAverageRating());
 
         if (product.getCategory() != null) {
             dto.setCategoryId(Objects.toString(product.getCategory().getId(), null));
@@ -168,6 +173,8 @@ public class ProductMapper {
         dto.setStatus(projection.getStatus());
         dto.setCategoryName(projection.getCategoryName());
         dto.setThumbnailUrl(projection.getThumbnailUrl());
+        dto.setReviewCount(projection.getReviewCount());
+        dto.setAverageRating(projection.getAverageRating());
         return dto;
     }
 
