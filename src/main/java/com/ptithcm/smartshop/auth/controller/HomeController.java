@@ -55,9 +55,11 @@ public class HomeController {
 	public String home(HttpServletRequest request, Model model) {
 		try {
 			AuthResponse authResponse = authService.me(request);
-			model.addAttribute("auth", authResponse);
-			model.addAttribute("sessionUser", authResponse.sessionUser());
-			model.addAttribute("user", authResponse.user());
+			if (authResponse != null) {
+				model.addAttribute("auth", authResponse);
+				model.addAttribute("sessionUser", authResponse.sessionUser());
+				model.addAttribute("user", authResponse.user());
+			}
 		} catch (UnauthorizedException e) {
 			// Guest chưa đăng nhập → vẫn hiển thị trang Home bình thường.
 			// Không đưa thông tin user vào model, template tự xử lý trường hợp null.
