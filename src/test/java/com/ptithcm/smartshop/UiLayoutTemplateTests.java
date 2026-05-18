@@ -43,4 +43,17 @@ class UiLayoutTemplateTests {
         assertThat(css).contains(".site-header");
         assertThat(css).contains(".theme-toggle");
     }
+
+    @Test
+    void sharedHeaderUsesIconOnlyActionsAndAccountDropdown() throws IOException {
+        String header = readResource("templates/fragments/header.html");
+
+        assertThat(header).contains("site-action__label sr-only");
+        assertThat(header).contains("site-account-menu");
+        assertThat(header).contains("href=\"/profile\"");
+        assertThat(header).contains("Tài khoản");
+        assertThat(header).contains("Đăng xuất");
+        assertThat(header).doesNotContain("<span>Trang chủ</span>");
+        assertThat(header).doesNotContain("<span>Giỏ hàng</span>");
+    }
 }

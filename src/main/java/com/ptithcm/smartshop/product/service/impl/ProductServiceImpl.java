@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductListDTO> findAllProducts() {
-        List<ProductProjection> projections = productRepository.findAllProjection();
+        List<ProductProjection> projections = productRepository.findPublicProductsFromApprovedShops();
         return productMapper.toProjectionDTOList(projections);
     }
 
