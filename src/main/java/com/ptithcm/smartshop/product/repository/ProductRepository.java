@@ -63,6 +63,23 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
            "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
            ") AS thumbnailUrl " +
+           "FROM Product p JOIN p.shop s " +
+           "WHERE p.status = true AND s.status = 'APPROVED'")
+    List<ProductProjection> findPublicProductsFromApprovedShops();
+
+    @Query("SELECT p.id AS id, " +
+           "p.name AS name, " +
+           "p.slug AS slug, " +
+           "p.status AS status, " +
+           "p.category.name AS categoryName, " +
+           "COALESCE(" +
+           "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
+           "  0.0" +
+           ") AS price, " +
+           "COALESCE(" +
+           "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
+           "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
+           ") AS thumbnailUrl " +
            "FROM Product p WHERE p.category.id = :categoryId")
     Page<ProductProjection> findByCategoryProjection(UUID categoryId, Pageable pageable);
 }
