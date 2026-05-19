@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Danh mục sản phẩm')}"></head>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(#{category.list.page_title})}"></head>
 <body class="bg-page-bg text-text-primary font-sans antialiased">
     <div th:replace="~{fragments/header :: header}"></div>
     <main class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-semibold mb-4 text-text-primary">Danh mục sản phẩm</h1>
+        <h1 class="text-2xl font-semibold mb-4 text-text-primary" th:text="#{category.list.title}">Danh mục sản phẩm</h1>
         <div class="bg-surface rounded-lg shadow-sm border border-border p-6">
             <!-- Category list placeholder -->
             <ul class="list-disc pl-5 text-text-secondary">
-                <li>Chưa có danh mục nào để hiển thị.</li>
+                <li th:text="#{category.list.empty}">Chưa có danh mục nào để hiển thị.</li>
             </ul>
         </div>
     </main>

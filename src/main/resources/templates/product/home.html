@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head th:replace="~{fragments/head :: head('SmartShop - Sản phẩm')}"></head>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head th:replace="~{fragments/head :: head(#{product.page_title})}"></head>
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
     <main class="site-shell page-main">
         <section class="product-section">
             <p class="eyebrow">SmartShop</p>
-            <h1 class="section-title">Danh sách sản phẩm</h1>
+            <h1 class="section-title" th:text="#{product.list.title}">Danh sách sản phẩm</h1>
 
             <div class="product-grid" th:if="${products != null and !products.isEmpty()}">
                 <a th:each="product : ${products}"
@@ -28,7 +28,7 @@
             </div>
 
             <div class="empty-state" th:if="${products == null or products.isEmpty()}">
-                <p>Chưa có sản phẩm nào.</p>
+                <p th:text="#{product.home.empty}">Chưa có sản phẩm nào.</p>
             </div>
         </section>
     </main>
