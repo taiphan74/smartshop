@@ -1,94 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head(#{profile.page_title})}"></head>
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
+  <head th:replace="~{fragments/head :: head(#{profile.page_title})}"></head>
+  <body class="bg-page-bg text-text-primary font-sans antialiased flex flex-col min-h-screen">
+    <div th:replace="~{fragments/header :: header}"></div>
 
-<main class="site-shell page-main">
-    <section class="profile-hero content-card">
-        <p class="eyebrow" th:text="#{profile.eyebrow}">Tài khoản</p>
-        <h1 th:text="#{profile.title}">Hồ sơ cá nhân</h1>
-        <p th:text="#{profile.subtitle}">Quản lý thông tin cơ bản và đăng ký shop bán hàng trên SmartShop.</p>
-    </section>
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-5xl">
+      <div class="mb-8">
+        <p class="text-sm font-semibold uppercase tracking-wide text-brand-blue mb-2" th:text="#{profile.eyebrow}">TÃ i khoáº£n</p>
+        <h1 class="text-3xl font-bold text-text-primary mb-2" th:text="#{profile.title}">Há»“ sÆ¡ cÃ¡ nhÃ¢n</h1>
+        <p class="text-text-secondary" th:text="#{profile.subtitle}">Quáº£n lÃ½ thÃ´ng tin cÆ¡ báº£n vÃ  Ä‘Äƒng kÃ½ shop bÃ¡n hÃ ng trÃªn SmartShop.</p>
+      </div>
 
-    <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+      <div th:if="${successMessage}" class="mb-6 p-4 bg-brand-green-soft text-brand-green text-sm rounded-sm border border-brand-green/20" th:text="${successMessage}"></div>
 
-    <div class="profile-grid">
-        <section class="content-card profile-card">
-            <h2 th:text="#{profile.personal_info}">Thông tin cá nhân</h2>
-            <p class="subtle" th:text="#{profile.email_note}">Email dùng để đăng nhập và không thể đổi trong phiên bản này.</p>
-            <form th:action="@{/profile}" th:object="${profileForm}" method="post" class="auth-form">
-                <label>
-                    <span th:text="#{profile.email}">Email</span>
-                    <input type="email" th:value="${user.email}" readonly>
-                </label>
-                <label>
-                    <span th:text="#{profile.full_name}">Họ tên</span>
-                    <input type="text" th:field="*{fullName}" required maxlength="150">
-                </label>
-                <label>
-                    <span th:text="#{profile.phone}">Số điện thoại</span>
-                    <input type="tel" th:field="*{phone}" maxlength="20">
-                </label>
-                <button type="submit" th:text="#{profile.save}">Lưu thông tin</button>
-            </form>
-        </section>
+      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
+        <section class="bg-surface rounded-md shadow-md border border-border p-6">
+          <div class="border-b border-border pb-5 mb-5">
+            <h2 class="text-xl font-semibold text-text-primary" th:text="#{profile.personal_info}">ThÃ´ng tin cÃ¡ nhÃ¢n</h2>
+            <p class="text-sm text-text-secondary mt-1" th:text="#{profile.email_note}">Email dÃ¹ng Ä‘á»ƒ Ä‘Äƒng nháº­p vÃ  khÃ´ng thá»ƒ Ä‘á»•i trong phiÃªn báº£n nÃ y.</p>
+          </div>
 
-        <section class="content-card profile-card">
-            <h2 th:text="#{profile.shop_register}">Đăng ký shop</h2>
-            <p class="subtle" th:text="#{profile.shop_note}">Shop mới sẽ ở trạng thái chờ duyệt. Sản phẩm chỉ hiển thị công khai sau khi admin duyệt shop.</p>
-            <form th:action="@{/profile/shops}" th:object="${shopForm}" method="post" class="auth-form">
-                <label>
-                    <span th:text="#{profile.shop_name}">Tên shop</span>
-                    <input type="text" th:field="*{name}" required maxlength="150">
-                </label>
-                <label>
-                    <span th:text="#{profile.shop_description}">Mô tả</span>
-                    <textarea th:field="*{description}" maxlength="1000" rows="4"></textarea>
-                </label>
-                <label>
-                    <span th:text="#{profile.shop_phone}">Số điện thoại shop</span>
-                    <input type="tel" th:field="*{phone}" maxlength="20">
-                </label>
-                <label>
-                    <span th:text="#{profile.shop_address}">Địa chỉ shop</span>
-                    <input type="text" th:field="*{address}" maxlength="255">
-                </label>
-                <button type="submit" th:text="#{profile.shop_submit}">Gửi đăng ký shop</button>
-            </form>
-        </section>
-    </div>
-
-    <section class="content-card profile-card">
-        <div class="profile-section-heading">
+          <form th:action="@{/profile}" th:object="${profileForm}" method="post" class="space-y-5">
             <div>
-                <p class="eyebrow">Shop</p>
-                <h2 th:text="#{profile.my_shop}">Shop của tôi</h2>
+              <label class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.email}">Email</label>
+              <input type="email" th:value="${user.email}" disabled="disabled" class="w-full h-11 px-4 rounded-sm border border-border bg-surface-soft text-text-secondary text-sm" />
             </div>
-        </div>
 
-        <div class="empty-state" th:if="${shops == null or #lists.isEmpty(shops)}">
-            <p th:text="#{profile.no_shop}">Bạn chưa đăng ký shop nào.</p>
-        </div>
+            <div>
+              <label for="fullName" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.full_name}">Há» tÃªn</label>
+              <input type="text" th:field="*{fullName}" id="fullName" required="required" maxlength="150" class="w-full h-11 px-4 rounded-sm border border-border bg-white text-text-primary text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-all" />
+              <p class="mt-1 text-xs text-brand-red font-medium" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+            </div>
 
-        <div class="shop-list" th:if="${shops != null and !#lists.isEmpty(shops)}">
-            <article class="shop-card" th:each="shop : ${shops}">
-                <div>
-                    <h3 th:text="${shop.name()}">Shop Name</h3>
-                    <p class="subtle" th:text="${shop.description() != null && !shop.description().isBlank()} ? ${shop.description()} : #{profile.no_description}">Mô tả</p>
-                    <p class="subtle" th:if="${shop.phone() != null}" th:text="#{profile.phone_prefix} + ' ' + ${shop.phone()}">SĐT</p>
-                </div>
-                <div>
-                    <span class="status-badge status-pending" th:if="${shop.status().name() == 'PENDING'}" th:text="#{profile.status.pending}">Đang chờ duyệt</span>
-                    <span class="status-badge status-approved" th:if="${shop.status().name() == 'APPROVED'}" th:text="#{profile.status.approved}">Đã duyệt</span>
-                    <span class="status-badge status-rejected" th:if="${shop.status().name() == 'REJECTED'}" th:text="#{profile.status.rejected}">Bị từ chối</span>
-                    <p class="shop-note" th:if="${shop.status().name() == 'PENDING'}" th:text="#{profile.pending_note}">Admin sẽ duyệt trước khi sản phẩm hiển thị trên thị trường.</p>
-                </div>
-            </article>
-        </div>
-    </section>
-</main>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.phone}">Sá»‘ Ä‘iá»‡n thoáº¡i</label>
+              <input type="tel" th:field="*{phone}" id="phone" maxlength="20" class="w-full h-11 px-4 rounded-sm border border-border bg-white text-text-primary text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-all" />
+              <p class="mt-1 text-xs text-brand-red font-medium" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+            </div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
-</body>
+            <div class="pt-3 border-t border-border flex justify-end">
+              <button type="submit" class="h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white font-medium text-sm rounded-sm shadow-sm transition-colors cursor-pointer" th:text="#{profile.save}">LÆ°u thÃ´ng tin</button>
+            </div>
+          </form>
+        </section>
+
+                        <aside class="space-y-6">
+          <section class="bg-surface rounded-md shadow-md border border-border p-6">
+            <div class="border-b border-border pb-4 mb-5">
+              <h2 class="text-xl font-semibold text-text-primary" th:text="#{profile.my_shop}">Shop của tôi</h2>
+              <p class="text-sm text-text-secondary mt-1" th:text="#{profile.shop_note}">Shop mới sẽ ở trạng thái chờ duyệt. Sản phẩm chỉ hiển thị công khai sau khi admin duyệt shop.</p>
+              <div class="mt-4">
+                <a href="/profile/shops/register" style="color: #ffffff !important;" class="w-full h-11 px-4 inline-flex items-center justify-center bg-brand-blue text-white text-sm font-medium rounded-sm hover:bg-blue-700 transition-colors shadow-sm" th:text="#{profile.shop_register}">Đăng ký shop</a>
+              </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(shops)}" class="rounded-sm border border-dashed border-border p-5 text-sm text-text-secondary" th:text="#{profile.no_shop}">Bạn chưa đăng ký shop nào.</div>
+
+            <div th:each="shop : ${shops}" class="border border-border rounded-sm p-4 space-y-2 mb-3 last:mb-0">
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="font-semibold text-text-primary" th:text="${shop.name}">Shop A</h3>
+                <span class="text-xs font-medium rounded-full px-2.5 py-1 bg-brand-blue-soft text-brand-blue shrink-0" th:text="#{${'profile.status.' + #strings.toLowerCase(shop.status.name())}}">Chờ duyệt</span>
+              </div>
+              <p class="text-sm text-text-secondary" th:text="${#strings.isEmpty(shop.description) ? #messages.msg('profile.no_description') : shop.description}">Chưa có mô tả</p>
+              <p class="text-xs text-text-muted" th:if="${shop.phone}" th:text="#{profile.phone_prefix} + ' ' + ${shop.phone}">SĐT: 0911111111</p>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
 </html>
+

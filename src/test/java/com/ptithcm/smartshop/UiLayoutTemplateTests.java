@@ -56,4 +56,15 @@ class UiLayoutTemplateTests {
         assertThat(header).doesNotContain("<span>Trang chủ</span>");
         assertThat(header).doesNotContain("<span>Giỏ hàng</span>");
     }
+
+    @Test
+    void profileIndexDoesNotRenderShopRegistrationPage() throws IOException {
+        String profileIndex = readResource("templates/profile/index.html");
+        String shopRegister = readResource("templates/profile/shops/register.html");
+
+        assertThat(profileIndex).contains("#{profile.title}");
+        assertThat(profileIndex).doesNotContain("@{/profile/shops}");
+        assertThat(profileIndex).doesNotContain("#{profile.shop_submit}");
+        assertThat(shopRegister).contains("#{profile.shop_register}");
+    }
 }

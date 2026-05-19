@@ -1,0 +1,49 @@
+﻿<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/head :: head(#{profile.shop_register})}"></head>
+  <body class="bg-page-bg text-text-primary font-sans antialiased flex flex-col min-h-screen">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-2xl">
+      <div class="mb-6">
+        <a href="/profile" class="text-sm font-medium text-brand-blue hover:underline mb-2 inline-block">&larr; #{profile.back_to_profile}</a>
+        <h1 class="text-3xl font-bold text-text-primary mb-2" th:text="#{profile.shop_register}">Đăng ký shop</h1>
+        <p class="text-sm text-text-secondary" th:text="#{profile.shop_note}">Shop mới sẽ ở trạng thái chờ duyệt. Sản phẩm chỉ hiển thị công khai sau khi admin duyệt shop.</p>
+      </div>
+
+      <section class="bg-surface rounded-md shadow-md border border-border p-6">
+        <form th:action="@{/profile/shops}" th:object="${shopForm}" method="post" class="space-y-5">
+          <div>
+            <label for="name" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.shop_name}">Tên shop</label>
+            <input type="text" th:field="*{name}" id="name" required="required" maxlength="150" class="w-full h-11 px-4 rounded-sm border border-border bg-white text-text-primary text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-all" />
+            <p class="mt-1 text-xs text-brand-red font-medium" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+          </div>
+
+          <div>
+            <label for="description" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.shop_description}">Mô tả</label>
+            <textarea th:field="*{description}" id="description" maxlength="1000" rows="4" class="w-full p-4 rounded-sm border border-border bg-white text-text-primary text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-all resize-none"></textarea>
+            <p class="mt-1 text-xs text-brand-red font-medium" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+          </div>
+
+          <div>
+            <label for="shopPhone" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.shop_phone}">Số điện thoại shop</label>
+            <input type="tel" th:field="*{phone}" id="shopPhone" maxlength="20" class="w-full h-11 px-4 rounded-sm border border-border bg-white text-text-primary text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-all" />
+            <p class="mt-1 text-xs text-brand-red font-medium" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+          </div>
+
+          <div>
+            <label for="address" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{profile.shop_address}">Địa chỉ shop</label>
+            <input type="text" th:field="*{address}" id="address" maxlength="255" class="w-full h-11 px-4 rounded-sm border border-border bg-white text-text-primary text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-all" />
+            <p class="mt-1 text-xs text-brand-red font-medium" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
+          </div>
+
+          <div class="pt-3 border-t border-border flex justify-end">
+            <button type="submit" class="h-11 px-6 bg-brand-blue !text-white hover:bg-blue-700 hover:!text-white transition-colors rounded-sm shadow-sm font-medium text-sm cursor-pointer" th:text="#{profile.shop_submit}">Gửi đăng ký shop</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>
