@@ -65,10 +65,15 @@
                                th:if="${product.reviewCount != null && product.reviewCount > 0}">
                                 <span id="product-top-average"
                                       class="font-medium text-brand-red"
-                                      th:text="${#numbers.formatDecimal(product.averageRating, 1, 'COMMA', 1, 'POINT')}">4,3</span>
+                                      data-rating-value
+                                      th:attr="data-rating=${product.averageRating != null ? product.averageRating : 0}">0,0</span>
                                 <span id="product-top-stars"
-                                      class="text-[#ffce3d] leading-none"
-                                      th:attr="data-rating=${product.averageRating}">★★★★☆</span>
+                                      class="rating-stars leading-none"
+                                      data-rating-stars
+                                      th:attr="data-rating=${product.averageRating != null ? product.averageRating : 0}">
+                                    <span class="rating-stars__base">★★★★★</span>
+                                    <span class="rating-stars__fill">★★★★★</span>
+                                </span>
                                 <span id="product-top-count"
                                       class="text-text-secondary"
                                       th:text="'(' + ${product.reviewCount} + ' ' + #{product.review.count} + ')'">(4 đánh giá)</span>
@@ -137,9 +142,24 @@
                 <div>
                     <h2 class="text-lg font-medium text-text-primary uppercase" th:text="#{product.review.title}">Đánh giá sản phẩm</h2>
                     <div class="flex items-center gap-2 mt-1">
-                        <span id="review-average" class="text-xl font-semibold text-brand-red"
-                              th:text="${product.reviewCount != null && product.reviewCount > 0} ? ${#numbers.formatDecimal(product.averageRating, 1, 'COMMA', 1, 'POINT')} + '/5' : #{product.review.no_rating}">4.4/5</span>
-                        <span id="review-average-stars" class="text-sm text-[#ffce3d]"></span>
+                        <span id="review-average"
+                              class="text-xl font-semibold text-brand-red"
+                              th:if="${product.reviewCount != null && product.reviewCount > 0}">
+                            <span data-rating-value
+                                  th:attr="data-rating=${product.averageRating != null ? product.averageRating : 0}">0,0</span>/5
+                        </span>
+                        <span id="review-average-no-rating"
+                              class="text-xl font-semibold text-brand-red"
+                              th:if="${product.reviewCount == null || product.reviewCount == 0}"
+                              th:text="#{product.review.no_rating}">Chưa có đánh giá</span>
+                        <span id="review-average-stars"
+                              class="rating-stars text-sm"
+                              data-rating-stars
+                              th:if="${product.reviewCount != null && product.reviewCount > 0}"
+                              th:attr="data-rating=${product.averageRating != null ? product.averageRating : 0}">
+                            <span class="rating-stars__base">★★★★★</span>
+                            <span class="rating-stars__fill">★★★★★</span>
+                        </span>
                         <span id="review-summary" class="text-sm text-text-secondary"
                               th:text="${product.reviewCount != null && product.reviewCount > 0} ? '· ' + ${product.reviewCount} + ' ' + #{product.review.count} : ''">· 4 đánh giá</span>
                     </div>
@@ -250,18 +270,27 @@
                 };
 
                 const stars = (rating) => '★★★★★'.slice(0, Math.round(rating)) + '☆☆☆☆☆'.slice(Math.round(rating));
-                const formatAverage = (value) => Number(value || 0).toFixed(1).replace('.', ',');
 
                 const renderRatingSummary = () => {
                     if (reviewCount > 0) {
-                        average.textContent = `${formatAverage(averageRating)}/5`;
-                        averageStars.textContent = stars(averageRating);
+                        average.innerHTML = `<span data-rating-value data-rating="${averageRating}"></span>/5`;
+                        average.hidden = false;
+                        document.getElementById('review-average-no-rating')?.setAttribute('hidden', 'hidden');
+                        averageStars.hidden = false;
+                        averageStars.dataset.rating = averageRating;
                         summary.textContent = `· ${reviewCount} ${i18n.reviewCount}`;
                     } else {
-                        average.textContent = i18n.noRating;
-                        averageStars.textContent = '';
+                        average.hidden = true;
+                        var noRating = document.getElementById('review-average-no-rating');
+                        if (noRating) {
+                            noRating.removeAttribute('hidden');
+                            noRating.textContent = i18n.noRating;
+                        }
+                        averageStars.hidden = true;
                         summary.textContent = '';
                     }
+
+                    applyRatingDisplay(section);
                 };
 
                 const escapeHtml = (value) => {
@@ -400,6 +429,21 @@
                             : submittedRating;
                         reviewCount += 1;
                         renderRatingSummary();
+
+                        var topStars = document.getElementById('product-top-stars');
+                        if (topStars) {
+                            topStars.dataset.rating = averageRating;
+                        }
+
+                        var topValue = document.getElementById('product-top-average');
+                        if (topValue) {
+                            topValue.dataset.rating = averageRating;
+                        }
+                        var topCount = document.getElementById('product-top-count');
+                        if (topCount) {
+                            topCount.textContent = `(${reviewCount} ${i18n.reviewCount})`;
+                        }
+                        applyRatingDisplay(document);
 
                         formMessage.textContent = i18n.submitted;
                         formMessage.className = 'text-sm text-green-600';

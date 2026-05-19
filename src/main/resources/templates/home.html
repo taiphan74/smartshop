@@ -114,9 +114,18 @@
 							<div class="p-3 md:p-4 flex flex-col flex-1">
 								<h3 class="text-gray-800 text-sm md:text-base font-medium line-clamp-2 mb-2 group-hover:text-brand-blue transition-colors"
 								    th:text="${product.name}">Tên sản phẩm</h3>
-								<div class="product-rating flex items-center gap-1 mb-2 text-[#ffce3d] text-[10px] md:text-xs">
-									<span>★★★★★</span>
-									<span class="text-gray-400 font-normal" th:text="#{home.rating_count}"> (0)</span>
+								<div class="product-rating flex items-center gap-1 mb-2 text-[10px] md:text-xs">
+									<span class="font-semibold text-brand-red"
+									      data-rating-value
+									      th:attr="data-rating=${product.averageRating != null ? product.averageRating : 0}">0,0</span>
+									<span class="rating-stars"
+									      data-rating-stars
+									      th:attr="data-rating=${product.averageRating != null ? product.averageRating : 0}">
+										<span class="rating-stars__base">★★★★★</span>
+										<span class="rating-stars__fill">★★★★★</span>
+									</span>
+									<span class="text-gray-400 font-normal"
+									      th:text="'(' + (${product.reviewCount} != null ? ${product.reviewCount} : 0) + ')'">(0)</span>
 								</div>
 								<div class="mt-auto">
 									<p class="text-brand-red text-base md:text-lg font-bold"
