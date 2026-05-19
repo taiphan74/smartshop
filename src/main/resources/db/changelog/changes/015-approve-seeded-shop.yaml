@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-approve-seeded-shop
+      author: chatgpt
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              UPDATE shops
+              SET status = 'APPROVED'
+              WHERE slug = 'smartshop-official';

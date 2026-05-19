@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Hồ sơ cá nhân | SmartShop')}"></head>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(#{profile.page_title})}"></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="site-shell page-main">
     <section class="profile-hero content-card">
-        <p class="eyebrow">Tài khoản</p>
-        <h1>Hồ sơ cá nhân</h1>
-        <p>Quản lý thông tin cơ bản và đăng ký shop bán hàng trên SmartShop.</p>
+        <p class="eyebrow" th:text="#{profile.eyebrow}">Tài khoản</p>
+        <h1 th:text="#{profile.title}">Hồ sơ cá nhân</h1>
+        <p th:text="#{profile.subtitle}">Quản lý thông tin cơ bản và đăng ký shop bán hàng trên SmartShop.</p>
     </section>
 
     <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
 
     <div class="profile-grid">
         <section class="content-card profile-card">
-            <h2>Thông tin cá nhân</h2>
-            <p class="subtle">Email dùng để đăng nhập và không thể đổi trong phiên bản này.</p>
+            <h2 th:text="#{profile.personal_info}">Thông tin cá nhân</h2>
+            <p class="subtle" th:text="#{profile.email_note}">Email dùng để đăng nhập và không thể đổi trong phiên bản này.</p>
             <form th:action="@{/profile}" th:object="${profileForm}" method="post" class="auth-form">
                 <label>
-                    Email
+                    <span th:text="#{profile.email}">Email</span>
                     <input type="email" th:value="${user.email}" readonly>
                 </label>
                 <label>
-                    Họ tên
+                    <span th:text="#{profile.full_name}">Họ tên</span>
                     <input type="text" th:field="*{fullName}" required maxlength="150">
                 </label>
                 <label>
-                    Số điện thoại
+                    <span th:text="#{profile.phone}">Số điện thoại</span>
                     <input type="tel" th:field="*{phone}" maxlength="20">
                 </label>
-                <button type="submit">Lưu thông tin</button>
+                <button type="submit" th:text="#{profile.save}">Lưu thông tin</button>
             </form>
         </section>
 
         <section class="content-card profile-card">
-            <h2>Đăng ký shop</h2>
-            <p class="subtle">Shop mới sẽ ở trạng thái chờ duyệt. Sản phẩm chỉ hiển thị công khai sau khi admin duyệt shop.</p>
+            <h2 th:text="#{profile.shop_register}">Đăng ký shop</h2>
+            <p class="subtle" th:text="#{profile.shop_note}">Shop mới sẽ ở trạng thái chờ duyệt. Sản phẩm chỉ hiển thị công khai sau khi admin duyệt shop.</p>
             <form th:action="@{/profile/shops}" th:object="${shopForm}" method="post" class="auth-form">
                 <label>
-                    Tên shop
+                    <span th:text="#{profile.shop_name}">Tên shop</span>
                     <input type="text" th:field="*{name}" required maxlength="150">
                 </label>
                 <label>
-                    Mô tả
+                    <span th:text="#{profile.shop_description}">Mô tả</span>
                     <textarea th:field="*{description}" maxlength="1000" rows="4"></textarea>
                 </label>
                 <label>
-                    Số điện thoại shop
+                    <span th:text="#{profile.shop_phone}">Số điện thoại shop</span>
                     <input type="tel" th:field="*{phone}" maxlength="20">
                 </label>
                 <label>
-                    Địa chỉ shop
+                    <span th:text="#{profile.shop_address}">Địa chỉ shop</span>
                     <input type="text" th:field="*{address}" maxlength="255">
                 </label>
-                <button type="submit">Gửi đăng ký shop</button>
+                <button type="submit" th:text="#{profile.shop_submit}">Gửi đăng ký shop</button>
             </form>
         </section>
     </div>
@@ -63,26 +63,26 @@
         <div class="profile-section-heading">
             <div>
                 <p class="eyebrow">Shop</p>
-                <h2>Shop của tôi</h2>
+                <h2 th:text="#{profile.my_shop}">Shop của tôi</h2>
             </div>
         </div>
 
         <div class="empty-state" th:if="${shops == null or #lists.isEmpty(shops)}">
-            <p>Bạn chưa đăng ký shop nào.</p>
+            <p th:text="#{profile.no_shop}">Bạn chưa đăng ký shop nào.</p>
         </div>
 
         <div class="shop-list" th:if="${shops != null and !#lists.isEmpty(shops)}">
             <article class="shop-card" th:each="shop : ${shops}">
                 <div>
                     <h3 th:text="${shop.name()}">Shop Name</h3>
-                    <p class="subtle" th:text="${shop.description() ?: 'Chưa có mô tả'}">Mô tả</p>
-                    <p class="subtle" th:if="${shop.phone() != null}" th:text="'SĐT: ' + ${shop.phone()}">SĐT</p>
+                    <p class="subtle" th:text="${shop.description() != null && !shop.description().isBlank()} ? ${shop.description()} : #{profile.no_description}">Mô tả</p>
+                    <p class="subtle" th:if="${shop.phone() != null}" th:text="#{profile.phone_prefix} + ' ' + ${shop.phone()}">SĐT</p>
                 </div>
                 <div>
-                    <span class="status-badge status-pending" th:if="${shop.status().name() == 'PENDING'}">Đang chờ duyệt</span>
-                    <span class="status-badge status-approved" th:if="${shop.status().name() == 'APPROVED'}">Đã duyệt</span>
-                    <span class="status-badge status-rejected" th:if="${shop.status().name() == 'REJECTED'}">Bị từ chối</span>
-                    <p class="shop-note" th:if="${shop.status().name() == 'PENDING'}">Admin sẽ duyệt trước khi sản phẩm hiển thị trên thị trường.</p>
+                    <span class="status-badge status-pending" th:if="${shop.status().name() == 'PENDING'}" th:text="#{profile.status.pending}">Đang chờ duyệt</span>
+                    <span class="status-badge status-approved" th:if="${shop.status().name() == 'APPROVED'}" th:text="#{profile.status.approved}">Đã duyệt</span>
+                    <span class="status-badge status-rejected" th:if="${shop.status().name() == 'REJECTED'}" th:text="#{profile.status.rejected}">Bị từ chối</span>
+                    <p class="shop-note" th:if="${shop.status().name() == 'PENDING'}" th:text="#{profile.pending_note}">Admin sẽ duyệt trước khi sản phẩm hiển thị trên thị trường.</p>
                 </div>
             </article>
         </div>

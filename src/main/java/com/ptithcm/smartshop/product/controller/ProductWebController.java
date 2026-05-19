@@ -1,17 +1,20 @@
 package com.ptithcm.smartshop.product.controller;
 
+import com.ptithcm.smartshop.product.dto.CategoryDTO;
 import com.ptithcm.smartshop.product.dto.ProductDetailDTO;
 import com.ptithcm.smartshop.product.dto.ProductListDTO;
+import com.ptithcm.smartshop.product.service.CategoryService;
 import com.ptithcm.smartshop.product.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,15 +23,37 @@ import java.util.Optional;
 public class ProductWebController {
 
     private final ProductService productService;
+    private final CategoryService categoryService;
 
-    public ProductWebController(ProductService productService) {
+    public ProductWebController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping
-    public String getHome(Model model) {
-        List<ProductListDTO> products = productService.findAllProducts();
+    public String getHome(@RequestParam(value = "category", required = false) String categorySlug, Model model) {
+        if (categorySlug == null || categorySlug.isBlank()) {
+            List<ProductListDTO> products = productService.findAllProducts();
+            model.addAttribute("products", products);
+            model.addAttribute("activeCategory", null);
+            model.addAttribute("childCategories", List.of());
+            model.addAttribute("selectedCategorySlug", null);
+            return "product/home";
+        }
+
+        Optional<CategoryDTO> categoryOpt = categoryService.findBySlug(categorySlug);
+        if (categoryOpt.isEmpty()) {
+            return "error/404";
+        }
+
+        CategoryDTO activeCategory = categoryOpt.get();
+        List<ProductListDTO> products = productService.findPublicProductsByCategorySlug(categorySlug);
+        List<CategoryDTO> childCategories = categoryService.findChildrenBySlug(categorySlug);
+
         model.addAttribute("products", products);
+        model.addAttribute("activeCategory", activeCategory);
+        model.addAttribute("childCategories", childCategories);
+        model.addAttribute("selectedCategorySlug", categorySlug);
         return "product/home";
     }
 
@@ -39,8 +64,7 @@ public class ProductWebController {
         if (productOpt.isPresent()) {
             ProductDetailDTO productDTO = productOpt.get();
 
-            // Tìm ảnh chính (Main Image)
-            String mainImageUrl = "https://via.placeholder.com/400"; // Ảnh mặc định nếu chưa có
+            String mainImageUrl = "https://via.placeholder.com/400";
             if (productDTO.getImages() != null && !productDTO.getImages().isEmpty()) {
                 mainImageUrl = productDTO.getImages().stream()
                         .filter(img -> img.getIsMain() != null && img.getIsMain())
@@ -49,7 +73,6 @@ public class ProductWebController {
                         .orElse(productDTO.getImages().get(0).getImageUrl());
             }
 
-            // Map dữ liệu để phù hợp với hiển thị trên Thymeleaf
             Map<String, Object> productView = new HashMap<>();
             productView.put("id", productDTO.getId());
             productView.put("name", productDTO.getName());
@@ -68,7 +91,6 @@ public class ProductWebController {
             return "product/detail";
         }
 
-        // Nếu không tìm thấy, trả về 404
         return "error/404";
     }
 }

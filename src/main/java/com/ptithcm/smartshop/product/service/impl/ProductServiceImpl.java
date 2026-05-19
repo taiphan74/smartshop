@@ -58,6 +58,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ProductListDTO> findPublicProductsByCategorySlug(String categorySlug) {
+        Category category = categoryRepository.findBySlug(categorySlug)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", categorySlug));
+        List<ProductProjection> projections = productRepository.findPublicProductsByCategoryPath(category.getPath());
+        return productMapper.toProjectionDTOList(projections);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<ProductDetailDTO> findById(String id) {
         return productRepository.findById(parseUuid(id, "id")).map(productMapper::toDetailDTO);
     }

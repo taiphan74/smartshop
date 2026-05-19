@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,5 +76,70 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js" defer></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <style>
+        .rating-stars {
+            --rating-percent: 0%;
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .rating-stars__base {
+            color: #d1d5db;
+        }
+
+        .rating-stars__fill {
+            position: absolute;
+            inset: 0;
+            width: var(--rating-percent);
+            overflow: hidden;
+            color: #ffce3d;
+            white-space: nowrap;
+        }
+    </style>
+
+    <script>
+        function normalizeRating(value) {
+            var rating = Number(value || 0);
+            if (!Number.isFinite(rating)) {
+                return 0;
+            }
+
+            return Math.max(0, Math.min(5, rating));
+        }
+
+        function formatRating(value) {
+            var rating = normalizeRating(value);
+            var rounded = Number(rating.toFixed(1));
+            var locale = document.documentElement.lang || 'vi';
+
+            return new Intl.NumberFormat(locale, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            }).format(rounded);
+        }
+
+        function getRoundedRating(value) {
+            return Number(normalizeRating(value).toFixed(1));
+        }
+
+        function applyRatingDisplay(root) {
+            root.querySelectorAll('[data-rating-stars]').forEach(function (element) {
+                var rounded = getRoundedRating(element.dataset.rating);
+                var percent = rounded / 5 * 100;
+                element.style.setProperty('--rating-percent', percent + '%');
+            });
+
+            root.querySelectorAll('[data-rating-value]').forEach(function (element) {
+                element.textContent = formatRating(element.dataset.rating);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applyRatingDisplay(document);
+        });
+    </script>
 </head>
 </html>

@@ -1,0 +1,190 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-seed-leaf-category-products
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            stripComments: true
+            sql: |
+              -- Normalize old demo products from legacy category slugs to current leaf category slugs.
+              UPDATE products p
+              SET category_id = c.id,
+                  updated_at = CURRENT_TIMESTAMP
+              FROM categories c
+              WHERE p.slug = 'iphone-15-pro'
+                AND c.slug = 'dien-tu-dien-thoai-smartphone';
+
+              UPDATE products p
+              SET category_id = c.id,
+                  updated_at = CURRENT_TIMESTAMP
+              FROM categories c
+              WHERE p.slug = 'samsung-galaxy-s24-ultra'
+                AND c.slug = 'dien-tu-dien-thoai-smartphone';
+
+              UPDATE products p
+              SET category_id = c.id,
+                  updated_at = CURRENT_TIMESTAMP
+              FROM categories c
+              WHERE p.slug = 'macbook-air-m2'
+                AND c.slug = 'dien-tu-laptop-laptop-van-phong';
+
+              UPDATE products p
+              SET category_id = c.id,
+                  updated_at = CURRENT_TIMESTAMP
+              FROM categories c
+              WHERE p.slug = 'sony-wh-1000xm5'
+                AND c.slug = 'dien-tu-thiet-bi-am-thanh-tai-nghe';
+
+              -- Seed one lightweight demo product for every leaf category.
+              WITH seed(category_slug, product_name, product_slug, product_description, price, stock_quantity) AS (
+                VALUES
+                  ('dien-tu-may-tinh-bang', 'Sản phẩm Máy tính bảng SmartShop', 'demo-dien-tu-may-tinh-bang', 'Sản phẩm demo cho danh mục Máy tính bảng, dùng để kiểm tra hiển thị category.', 74000.00, 31),
+                  ('dien-tu-smart-home', 'Sản phẩm Smart home SmartShop', 'demo-dien-tu-smart-home', 'Sản phẩm demo cho danh mục Smart home, dùng để kiểm tra hiển thị category.', 99000.00, 32),
+                  ('lam-dep-dung-cu-lam-dep', 'Sản phẩm Dụng cụ làm đẹp SmartShop', 'demo-lam-dep-dung-cu-lam-dep', 'Sản phẩm demo cho danh mục Dụng cụ làm đẹp, dùng để kiểm tra hiển thị category.', 124000.00, 33),
+                  ('lam-dep-nuoc-hoa', 'Sản phẩm Nước hoa SmartShop', 'demo-lam-dep-nuoc-hoa', 'Sản phẩm demo cho danh mục Nước hoa, dùng để kiểm tra hiển thị category.', 149000.00, 34),
+                  ('me-be-do-choi', 'Sản phẩm Đồ chơi SmartShop', 'demo-me-be-do-choi', 'Sản phẩm demo cho danh mục Đồ chơi, dùng để kiểm tra hiển thị category.', 174000.00, 35),
+                  ('me-be-quan-ao-tre-em', 'Sản phẩm Quần áo trẻ em SmartShop', 'demo-me-be-quan-ao-tre-em', 'Sản phẩm demo cho danh mục Quần áo trẻ em, dùng để kiểm tra hiển thị category.', 199000.00, 36),
+                  ('me-be-sua', 'Sản phẩm Sữa SmartShop', 'demo-me-be-sua', 'Sản phẩm demo cho danh mục Sữa, dùng để kiểm tra hiển thị category.', 224000.00, 37),
+                  ('me-be-ta-bim', 'Sản phẩm Tã bỉm SmartShop', 'demo-me-be-ta-bim', 'Sản phẩm demo cho danh mục Tã bỉm, dùng để kiểm tra hiển thị category.', 249000.00, 38),
+                  ('nha-cua-dung-cu-sua-chua', 'Sản phẩm Dụng cụ sửa chữa SmartShop', 'demo-nha-cua-dung-cu-sua-chua', 'Sản phẩm demo cho danh mục Dụng cụ sửa chữa, dùng để kiểm tra hiển thị category.', 274000.00, 39),
+                  ('o-to-xe-may-dau-nhot', 'Sản phẩm Dầu nhớt SmartShop', 'demo-o-to-xe-may-dau-nhot', 'Sản phẩm demo cho danh mục Dầu nhớt, dùng để kiểm tra hiển thị category.', 299000.00, 40),
+                  ('o-to-xe-may-phu-kien-o-to', 'Sản phẩm Phụ kiện ô tô SmartShop', 'demo-o-to-xe-may-phu-kien-o-to', 'Sản phẩm demo cho danh mục Phụ kiện ô tô, dùng để kiểm tra hiển thị category.', 324000.00, 41),
+                  ('o-to-xe-may-phu-kien-xe-may', 'Sản phẩm Phụ kiện xe máy SmartShop', 'demo-o-to-xe-may-phu-kien-xe-may', 'Sản phẩm demo cho danh mục Phụ kiện xe máy, dùng để kiểm tra hiển thị category.', 349000.00, 42),
+                  ('sach-dung-cu-hoc-tap', 'Sản phẩm Dụng cụ học tập SmartShop', 'demo-sach-dung-cu-hoc-tap', 'Sản phẩm demo cho danh mục Dụng cụ học tập, dùng để kiểm tra hiển thị category.', 374000.00, 43),
+                  ('sach-sach-giao-khoa', 'Sản phẩm Sách giáo khoa SmartShop', 'demo-sach-sach-giao-khoa', 'Sản phẩm demo cho danh mục Sách giáo khoa, dùng để kiểm tra hiển thị category.', 399000.00, 44),
+                  ('sach-sach-ky-nang', 'Sản phẩm Sách kỹ năng SmartShop', 'demo-sach-sach-ky-nang', 'Sản phẩm demo cho danh mục Sách kỹ năng, dùng để kiểm tra hiển thị category.', 424000.00, 45),
+                  ('sach-tieu-thuyet', 'Sản phẩm Tiểu thuyết SmartShop', 'demo-sach-tieu-thuyet', 'Sản phẩm demo cho danh mục Tiểu thuyết, dùng để kiểm tra hiển thị category.', 449000.00, 46),
+                  ('the-thao-the-thao-ngoai-troi', 'Sản phẩm Thể thao ngoài trời SmartShop', 'demo-the-thao-the-thao-ngoai-troi', 'Sản phẩm demo cho danh mục Thể thao ngoài trời, dùng để kiểm tra hiển thị category.', 474000.00, 47),
+                  ('thoi-trang-tre-em', 'Sản phẩm Trẻ em SmartShop', 'demo-thoi-trang-tre-em', 'Sản phẩm demo cho danh mục Trẻ em, dùng để kiểm tra hiển thị category.', 499000.00, 48),
+                  ('thuc-pham-dac-san-vung-mien', 'Sản phẩm Đặc sản vùng miền SmartShop', 'demo-thuc-pham-dac-san-vung-mien', 'Sản phẩm demo cho danh mục Đặc sản vùng miền, dùng để kiểm tra hiển thị category.', 524000.00, 49),
+                  ('thuc-pham-do-an-nhanh', 'Sản phẩm Đồ ăn nhanh SmartShop', 'demo-thuc-pham-do-an-nhanh', 'Sản phẩm demo cho danh mục Đồ ăn nhanh, dùng để kiểm tra hiển thị category.', 549000.00, 50),
+                  ('tieu-dung-do-ve-sinh', 'Sản phẩm Đồ vệ sinh SmartShop', 'demo-tieu-dung-do-ve-sinh', 'Sản phẩm demo cho danh mục Đồ vệ sinh, dùng để kiểm tra hiển thị category.', 574000.00, 51),
+                  ('tieu-dung-giat-giu', 'Sản phẩm Giặt giũ SmartShop', 'demo-tieu-dung-giat-giu', 'Sản phẩm demo cho danh mục Giặt giũ, dùng để kiểm tra hiển thị category.', 599000.00, 52),
+                  ('tieu-dung-giay-khan', 'Sản phẩm Giấy & khăn SmartShop', 'demo-tieu-dung-giay-khan', 'Sản phẩm demo cho danh mục Giấy & khăn, dùng để kiểm tra hiển thị category.', 624000.00, 53),
+                  ('dien-tu-dien-thoai-feature-phone', 'Sản phẩm Feature phone SmartShop', 'demo-dien-tu-dien-thoai-feature-phone', 'Sản phẩm demo cho danh mục Feature phone, dùng để kiểm tra hiển thị category.', 649000.00, 54),
+                  ('dien-tu-dien-thoai-smartphone', 'Sản phẩm Smartphone SmartShop', 'demo-dien-tu-dien-thoai-smartphone', 'Sản phẩm demo cho danh mục Smartphone, dùng để kiểm tra hiển thị category.', 674000.00, 55),
+                  ('dien-tu-laptop-laptop-gaming', 'Sản phẩm Laptop gaming SmartShop', 'demo-dien-tu-laptop-laptop-gaming', 'Sản phẩm demo cho danh mục Laptop gaming, dùng để kiểm tra hiển thị category.', 699000.00, 56),
+                  ('dien-tu-laptop-laptop-van-phong', 'Sản phẩm Laptop văn phòng SmartShop', 'demo-dien-tu-laptop-laptop-van-phong', 'Sản phẩm demo cho danh mục Laptop văn phòng, dùng để kiểm tra hiển thị category.', 724000.00, 57),
+                  ('dien-tu-laptop-phu-kien', 'Sản phẩm Phụ kiện SmartShop', 'demo-dien-tu-laptop-phu-kien', 'Sản phẩm demo cho danh mục Phụ kiện, dùng để kiểm tra hiển thị category.', 749000.00, 58),
+                  ('dien-tu-thiet-bi-am-thanh-loa', 'Sản phẩm Loa SmartShop', 'demo-dien-tu-thiet-bi-am-thanh-loa', 'Sản phẩm demo cho danh mục Loa, dùng để kiểm tra hiển thị category.', 774000.00, 59),
+                  ('dien-tu-thiet-bi-am-thanh-micro', 'Sản phẩm Micro SmartShop', 'demo-dien-tu-thiet-bi-am-thanh-micro', 'Sản phẩm demo cho danh mục Micro, dùng để kiểm tra hiển thị category.', 799000.00, 60),
+                  ('dien-tu-thiet-bi-am-thanh-tai-nghe', 'Sản phẩm Tai nghe SmartShop', 'demo-dien-tu-thiet-bi-am-thanh-tai-nghe', 'Sản phẩm demo cho danh mục Tai nghe, dùng để kiểm tra hiển thị category.', 824000.00, 61),
+                  ('lam-dep-cham-soc-toc-dau-goi', 'Sản phẩm Dầu gội SmartShop', 'demo-lam-dep-cham-soc-toc-dau-goi', 'Sản phẩm demo cho danh mục Dầu gội, dùng để kiểm tra hiển thị category.', 849000.00, 62),
+                  ('lam-dep-cham-soc-toc-dau-xa', 'Sản phẩm Dầu xả SmartShop', 'demo-lam-dep-cham-soc-toc-dau-xa', 'Sản phẩm demo cho danh mục Dầu xả, dùng để kiểm tra hiển thị category.', 874000.00, 63),
+                  ('lam-dep-cham-soc-toc-serum-toc', 'Sản phẩm Serum tóc SmartShop', 'demo-lam-dep-cham-soc-toc-serum-toc', 'Sản phẩm demo cho danh mục Serum tóc, dùng để kiểm tra hiển thị category.', 899000.00, 64),
+                  ('lam-dep-makeup-kem-nen', 'Sản phẩm Kem nền SmartShop', 'demo-lam-dep-makeup-kem-nen', 'Sản phẩm demo cho danh mục Kem nền, dùng để kiểm tra hiển thị category.', 924000.00, 65),
+                  ('lam-dep-makeup-phan', 'Sản phẩm Phấn SmartShop', 'demo-lam-dep-makeup-phan', 'Sản phẩm demo cho danh mục Phấn, dùng để kiểm tra hiển thị category.', 949000.00, 66),
+                  ('lam-dep-makeup-son', 'Sản phẩm Son SmartShop', 'demo-lam-dep-makeup-son', 'Sản phẩm demo cho danh mục Son, dùng để kiểm tra hiển thị category.', 974000.00, 67),
+                  ('lam-dep-skincare-kem-duong', 'Sản phẩm Kem dưỡng SmartShop', 'demo-lam-dep-skincare-kem-duong', 'Sản phẩm demo cho danh mục Kem dưỡng, dùng để kiểm tra hiển thị category.', 999000.00, 68),
+                  ('lam-dep-skincare-serum', 'Sản phẩm Serum SmartShop', 'demo-lam-dep-skincare-serum', 'Sản phẩm demo cho danh mục Serum, dùng để kiểm tra hiển thị category.', 1024000.00, 69),
+                  ('lam-dep-skincare-sua-rua-mat', 'Sản phẩm Sữa rửa mặt SmartShop', 'demo-lam-dep-skincare-sua-rua-mat', 'Sản phẩm demo cho danh mục Sữa rửa mặt, dùng để kiểm tra hiển thị category.', 49000.00, 70),
+                  ('lam-dep-skincare-toner', 'Sản phẩm Toner SmartShop', 'demo-lam-dep-skincare-toner', 'Sản phẩm demo cho danh mục Toner, dùng để kiểm tra hiển thị category.', 74000.00, 71),
+                  ('me-be-do-dung-cho-be-binh-sua', 'Sản phẩm Bình sữa SmartShop', 'demo-me-be-do-dung-cho-be-binh-sua', 'Sản phẩm demo cho danh mục Bình sữa, dùng để kiểm tra hiển thị category.', 99000.00, 72),
+                  ('me-be-do-dung-cho-be-ghe-an', 'Sản phẩm Ghế ăn SmartShop', 'demo-me-be-do-dung-cho-be-ghe-an', 'Sản phẩm demo cho danh mục Ghế ăn, dùng để kiểm tra hiển thị category.', 124000.00, 73),
+                  ('me-be-do-dung-cho-be-xe-day', 'Sản phẩm Xe đẩy SmartShop', 'demo-me-be-do-dung-cho-be-xe-day', 'Sản phẩm demo cho danh mục Xe đẩy, dùng để kiểm tra hiển thị category.', 149000.00, 74),
+                  ('nha-cua-gia-dung-may-giat', 'Sản phẩm Máy giặt SmartShop', 'demo-nha-cua-gia-dung-may-giat', 'Sản phẩm demo cho danh mục Máy giặt, dùng để kiểm tra hiển thị category.', 174000.00, 75),
+                  ('nha-cua-gia-dung-may-hut-bui', 'Sản phẩm Máy hút bụi SmartShop', 'demo-nha-cua-gia-dung-may-hut-bui', 'Sản phẩm demo cho danh mục Máy hút bụi, dùng để kiểm tra hiển thị category.', 199000.00, 76),
+                  ('nha-cua-gia-dung-quat', 'Sản phẩm Quạt SmartShop', 'demo-nha-cua-gia-dung-quat', 'Sản phẩm demo cho danh mục Quạt, dùng để kiểm tra hiển thị category.', 224000.00, 77),
+                  ('nha-cua-nha-bep-chao', 'Sản phẩm Chảo SmartShop', 'demo-nha-cua-nha-bep-chao', 'Sản phẩm demo cho danh mục Chảo, dùng để kiểm tra hiển thị category.', 249000.00, 78),
+                  ('nha-cua-nha-bep-dung-cu-nau-an', 'Sản phẩm Dụng cụ nấu ăn SmartShop', 'demo-nha-cua-nha-bep-dung-cu-nau-an', 'Sản phẩm demo cho danh mục Dụng cụ nấu ăn, dùng để kiểm tra hiển thị category.', 274000.00, 79),
+                  ('nha-cua-nha-bep-noi', 'Sản phẩm Nồi SmartShop', 'demo-nha-cua-nha-bep-noi', 'Sản phẩm demo cho danh mục Nồi, dùng để kiểm tra hiển thị category.', 299000.00, 80),
+                  ('nha-cua-noi-that-ban', 'Sản phẩm Bàn SmartShop', 'demo-nha-cua-noi-that-ban', 'Sản phẩm demo cho danh mục Bàn, dùng để kiểm tra hiển thị category.', 324000.00, 81),
+                  ('nha-cua-noi-that-ghe', 'Sản phẩm Ghế SmartShop', 'demo-nha-cua-noi-that-ghe', 'Sản phẩm demo cho danh mục Ghế, dùng để kiểm tra hiển thị category.', 349000.00, 82),
+                  ('nha-cua-noi-that-tu', 'Sản phẩm Tủ SmartShop', 'demo-nha-cua-noi-that-tu', 'Sản phẩm demo cho danh mục Tủ, dùng để kiểm tra hiển thị category.', 374000.00, 83),
+                  ('nha-cua-trang-tri-cay-canh', 'Sản phẩm Cây cảnh SmartShop', 'demo-nha-cua-trang-tri-cay-canh', 'Sản phẩm demo cho danh mục Cây cảnh, dùng để kiểm tra hiển thị category.', 399000.00, 84),
+                  ('nha-cua-trang-tri-den', 'Sản phẩm Đèn SmartShop', 'demo-nha-cua-trang-tri-den', 'Sản phẩm demo cho danh mục Đèn, dùng để kiểm tra hiển thị category.', 424000.00, 85),
+                  ('nha-cua-trang-tri-tranh', 'Sản phẩm Tranh SmartShop', 'demo-nha-cua-trang-tri-tranh', 'Sản phẩm demo cho danh mục Tranh, dùng để kiểm tra hiển thị category.', 449000.00, 86),
+                  ('o-to-xe-may-do-bao-ho-ao-giap', 'Sản phẩm Áo giáp SmartShop', 'demo-o-to-xe-may-do-bao-ho-ao-giap', 'Sản phẩm demo cho danh mục Áo giáp, dùng để kiểm tra hiển thị category.', 474000.00, 87),
+                  ('o-to-xe-may-do-bao-ho-mu-bao-hiem', 'Sản phẩm Mũ bảo hiểm SmartShop', 'demo-o-to-xe-may-do-bao-ho-mu-bao-hiem', 'Sản phẩm demo cho danh mục Mũ bảo hiểm, dùng để kiểm tra hiển thị category.', 499000.00, 88),
+                  ('sach-van-phong-pham-but', 'Sản phẩm Bút SmartShop', 'demo-sach-van-phong-pham-but', 'Sản phẩm demo cho danh mục Bút, dùng để kiểm tra hiển thị category.', 524000.00, 89),
+                  ('sach-van-phong-pham-giay', 'Sản phẩm Giấy SmartShop', 'demo-sach-van-phong-pham-giay', 'Sản phẩm demo cho danh mục Giấy, dùng để kiểm tra hiển thị category.', 549000.00, 90),
+                  ('sach-van-phong-pham-so', 'Sản phẩm Sổ SmartShop', 'demo-sach-van-phong-pham-so', 'Sản phẩm demo cho danh mục Sổ, dùng để kiểm tra hiển thị category.', 574000.00, 91),
+                  ('the-thao-du-lich-balo', 'Sản phẩm Balo SmartShop', 'demo-the-thao-du-lich-balo', 'Sản phẩm demo cho danh mục Balo, dùng để kiểm tra hiển thị category.', 599000.00, 92),
+                  ('the-thao-du-lich-phu-kien-du-lich', 'Sản phẩm Phụ kiện du lịch SmartShop', 'demo-the-thao-du-lich-phu-kien-du-lich', 'Sản phẩm demo cho danh mục Phụ kiện du lịch, dùng để kiểm tra hiển thị category.', 624000.00, 93),
+                  ('the-thao-du-lich-vali', 'Sản phẩm Vali SmartShop', 'demo-the-thao-du-lich-vali', 'Sản phẩm demo cho danh mục Vali, dùng để kiểm tra hiển thị category.', 649000.00, 94),
+                  ('the-thao-gym-fitness-day-khang-luc', 'Sản phẩm Dây kháng lực SmartShop', 'demo-the-thao-gym-fitness-day-khang-luc', 'Sản phẩm demo cho danh mục Dây kháng lực, dùng để kiểm tra hiển thị category.', 674000.00, 95),
+                  ('the-thao-gym-fitness-may-tap', 'Sản phẩm Máy tập SmartShop', 'demo-the-thao-gym-fitness-may-tap', 'Sản phẩm demo cho danh mục Máy tập, dùng để kiểm tra hiển thị category.', 699000.00, 96),
+                  ('the-thao-gym-fitness-ta', 'Sản phẩm Tạ SmartShop', 'demo-the-thao-gym-fitness-ta', 'Sản phẩm demo cho danh mục Tạ, dùng để kiểm tra hiển thị category.', 724000.00, 97),
+                  ('thoi-trang-nu-ao', 'Sản phẩm Áo SmartShop', 'demo-thoi-trang-nu-ao', 'Sản phẩm demo cho danh mục Áo, dùng để kiểm tra hiển thị category.', 749000.00, 98),
+                  ('thoi-trang-nu-giay-dep', 'Sản phẩm Giày dép SmartShop', 'demo-thoi-trang-nu-giay-dep', 'Sản phẩm demo cho danh mục Giày dép, dùng để kiểm tra hiển thị category.', 774000.00, 99),
+                  ('thoi-trang-nu-quan', 'Sản phẩm Quần SmartShop', 'demo-thoi-trang-nu-quan', 'Sản phẩm demo cho danh mục Quần, dùng để kiểm tra hiển thị category.', 799000.00, 30),
+                  ('thoi-trang-nu-tui-xach', 'Sản phẩm Túi xách SmartShop', 'demo-thoi-trang-nu-tui-xach', 'Sản phẩm demo cho danh mục Túi xách, dùng để kiểm tra hiển thị category.', 824000.00, 31),
+                  ('thoi-trang-nu-vay', 'Sản phẩm Váy SmartShop', 'demo-thoi-trang-nu-vay', 'Sản phẩm demo cho danh mục Váy, dùng để kiểm tra hiển thị category.', 849000.00, 32),
+                  ('thuc-pham-do-kho-gao', 'Sản phẩm Gạo SmartShop', 'demo-thuc-pham-do-kho-gao', 'Sản phẩm demo cho danh mục Gạo, dùng để kiểm tra hiển thị category.', 874000.00, 33),
+                  ('thuc-pham-do-kho-gia-vi', 'Sản phẩm Gia vị SmartShop', 'demo-thuc-pham-do-kho-gia-vi', 'Sản phẩm demo cho danh mục Gia vị, dùng để kiểm tra hiển thị category.', 899000.00, 34),
+                  ('thuc-pham-do-kho-mi', 'Sản phẩm Mì SmartShop', 'demo-thuc-pham-do-kho-mi', 'Sản phẩm demo cho danh mục Mì, dùng để kiểm tra hiển thị category.', 924000.00, 35),
+                  ('thuc-pham-do-uong-ca-phe', 'Sản phẩm Cà phê SmartShop', 'demo-thuc-pham-do-uong-ca-phe', 'Sản phẩm demo cho danh mục Cà phê, dùng để kiểm tra hiển thị category.', 949000.00, 36),
+                  ('thuc-pham-do-uong-nuoc-ngot', 'Sản phẩm Nước ngọt SmartShop', 'demo-thuc-pham-do-uong-nuoc-ngot', 'Sản phẩm demo cho danh mục Nước ngọt, dùng để kiểm tra hiển thị category.', 974000.00, 37),
+                  ('thuc-pham-do-uong-tra', 'Sản phẩm Trà SmartShop', 'demo-thuc-pham-do-uong-tra', 'Sản phẩm demo cho danh mục Trà, dùng để kiểm tra hiển thị category.', 999000.00, 38),
+                  ('thuc-pham-thuc-pham-tuoi-hai-san', 'Sản phẩm Hải sản SmartShop', 'demo-thuc-pham-thuc-pham-tuoi-hai-san', 'Sản phẩm demo cho danh mục Hải sản, dùng để kiểm tra hiển thị category.', 1024000.00, 39),
+                  ('thuc-pham-thuc-pham-tuoi-rau', 'Sản phẩm Rau SmartShop', 'demo-thuc-pham-thuc-pham-tuoi-rau', 'Sản phẩm demo cho danh mục Rau, dùng để kiểm tra hiển thị category.', 49000.00, 40),
+                  ('thuc-pham-thuc-pham-tuoi-thit', 'Sản phẩm Thịt SmartShop', 'demo-thuc-pham-thuc-pham-tuoi-thit', 'Sản phẩm demo cho danh mục Thịt, dùng để kiểm tra hiển thị category.', 74000.00, 41),
+                  ('tieu-dung-cham-soc-ca-nhan-dau-goi', 'Sản phẩm Dầu gội SmartShop', 'demo-tieu-dung-cham-soc-ca-nhan-dau-goi', 'Sản phẩm demo cho danh mục Dầu gội, dùng để kiểm tra hiển thị category.', 99000.00, 42),
+                  ('tieu-dung-cham-soc-ca-nhan-kem-danh-rang', 'Sản phẩm Kem đánh răng SmartShop', 'demo-tieu-dung-cham-soc-ca-nhan-kem-danh-rang', 'Sản phẩm demo cho danh mục Kem đánh răng, dùng để kiểm tra hiển thị category.', 124000.00, 43),
+                  ('tieu-dung-cham-soc-ca-nhan-sua-tam', 'Sản phẩm Sữa tắm SmartShop', 'demo-tieu-dung-cham-soc-ca-nhan-sua-tam', 'Sản phẩm demo cho danh mục Sữa tắm, dùng để kiểm tra hiển thị category.', 149000.00, 44),
+                  ('dien-tu-dien-thoai-phu-kien-op-lung', 'Sản phẩm Ốp lưng SmartShop', 'demo-dien-tu-dien-thoai-phu-kien-op-lung', 'Sản phẩm demo cho danh mục Ốp lưng, dùng để kiểm tra hiển thị category.', 174000.00, 45),
+                  ('dien-tu-dien-thoai-phu-kien-sac', 'Sản phẩm Sạc SmartShop', 'demo-dien-tu-dien-thoai-phu-kien-sac', 'Sản phẩm demo cho danh mục Sạc, dùng để kiểm tra hiển thị category.', 199000.00, 46),
+                  ('dien-tu-dien-thoai-phu-kien-tai-nghe', 'Sản phẩm Tai nghe SmartShop', 'demo-dien-tu-dien-thoai-phu-kien-tai-nghe', 'Sản phẩm demo cho danh mục Tai nghe, dùng để kiểm tra hiển thị category.', 224000.00, 47),
+                  ('thoi-trang-nam-ao-ao-hoodie', 'Sản phẩm Áo hoodie SmartShop', 'demo-thoi-trang-nam-ao-ao-hoodie', 'Sản phẩm demo cho danh mục Áo hoodie, dùng để kiểm tra hiển thị category.', 249000.00, 48),
+                  ('thoi-trang-nam-ao-ao-khoac', 'Sản phẩm Áo khoác SmartShop', 'demo-thoi-trang-nam-ao-ao-khoac', 'Sản phẩm demo cho danh mục Áo khoác, dùng để kiểm tra hiển thị category.', 274000.00, 49),
+                  ('thoi-trang-nam-ao-ao-so-mi', 'Sản phẩm Áo sơ mi SmartShop', 'demo-thoi-trang-nam-ao-ao-so-mi', 'Sản phẩm demo cho danh mục Áo sơ mi, dùng để kiểm tra hiển thị category.', 299000.00, 50),
+                  ('thoi-trang-nam-ao-ao-thun', 'Sản phẩm Áo thun SmartShop', 'demo-thoi-trang-nam-ao-ao-thun', 'Sản phẩm demo cho danh mục Áo thun, dùng để kiểm tra hiển thị category.', 324000.00, 51),
+                  ('thoi-trang-nam-giay-dep-dep', 'Sản phẩm Dép SmartShop', 'demo-thoi-trang-nam-giay-dep-dep', 'Sản phẩm demo cho danh mục Dép, dùng để kiểm tra hiển thị category.', 349000.00, 52),
+                  ('thoi-trang-nam-giay-dep-sandal', 'Sản phẩm Sandal SmartShop', 'demo-thoi-trang-nam-giay-dep-sandal', 'Sản phẩm demo cho danh mục Sandal, dùng để kiểm tra hiển thị category.', 374000.00, 53),
+                  ('thoi-trang-nam-giay-dep-sneaker', 'Sản phẩm Sneaker SmartShop', 'demo-thoi-trang-nam-giay-dep-sneaker', 'Sản phẩm demo cho danh mục Sneaker, dùng để kiểm tra hiển thị category.', 399000.00, 54),
+                  ('thoi-trang-nam-phu-kien-dong-ho', 'Sản phẩm Đồng hồ SmartShop', 'demo-thoi-trang-nam-phu-kien-dong-ho', 'Sản phẩm demo cho danh mục Đồng hồ, dùng để kiểm tra hiển thị category.', 424000.00, 55),
+                  ('thoi-trang-nam-phu-kien-non', 'Sản phẩm Nón SmartShop', 'demo-thoi-trang-nam-phu-kien-non', 'Sản phẩm demo cho danh mục Nón, dùng để kiểm tra hiển thị category.', 449000.00, 56),
+                  ('thoi-trang-nam-phu-kien-that-lung', 'Sản phẩm Thắt lưng SmartShop', 'demo-thoi-trang-nam-phu-kien-that-lung', 'Sản phẩm demo cho danh mục Thắt lưng, dùng để kiểm tra hiển thị category.', 474000.00, 57),
+                  ('thoi-trang-nam-quan-quan-jeans', 'Sản phẩm Quần jeans SmartShop', 'demo-thoi-trang-nam-quan-quan-jeans', 'Sản phẩm demo cho danh mục Quần jeans, dùng để kiểm tra hiển thị category.', 499000.00, 58),
+                  ('thoi-trang-nam-quan-quan-short', 'Sản phẩm Quần short SmartShop', 'demo-thoi-trang-nam-quan-quan-short', 'Sản phẩm demo cho danh mục Quần short, dùng để kiểm tra hiển thị category.', 524000.00, 59),
+                  ('thoi-trang-nam-quan-quan-tay', 'Sản phẩm Quần tây SmartShop', 'demo-thoi-trang-nam-quan-quan-tay', 'Sản phẩm demo cho danh mục Quần tây, dùng để kiểm tra hiển thị category.', 549000.00, 60)
+              )
+              INSERT INTO products (id, shop_id, category_id, name, slug, description, price, stock_quantity, status, created_at, updated_at)
+              SELECT gen_random_uuid(),
+                     shop.id,
+                     category.id,
+                     seed.product_name,
+                     seed.product_slug,
+                     seed.product_description,
+                     seed.price,
+                     seed.stock_quantity,
+                     TRUE,
+                     CURRENT_TIMESTAMP,
+                     CURRENT_TIMESTAMP
+              FROM seed
+              JOIN shops shop ON shop.slug = 'smartshop-official'
+              JOIN categories category ON category.slug = seed.category_slug
+              WHERE NOT EXISTS (
+                SELECT 1 FROM products product WHERE product.slug = seed.product_slug
+              );
+
+              -- Add one image for seeded demo products.
+              INSERT INTO product_images (id, product_id, image_url, is_main, sort_order)
+              SELECT gen_random_uuid(),
+                     product.id,
+                     'https://picsum.photos/seed/' || product.slug || '/800/800',
+                     TRUE,
+                     1
+              FROM products product
+              WHERE product.slug LIKE 'demo-%'
+                AND NOT EXISTS (
+                  SELECT 1 FROM product_images image WHERE image.product_id = product.id
+                );
+
+              -- Add one basic variant for seeded demo products.
+              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status, created_at, updated_at)
+              SELECT gen_random_uuid(),
+                     product.id,
+                     'DEMO-' || upper(substring(md5(product.slug), 1, 12)),
+                     product.price,
+                     product.stock_quantity,
+                     TRUE,
+                     CURRENT_TIMESTAMP,
+                     CURRENT_TIMESTAMP
+              FROM products product
+              WHERE product.slug LIKE 'demo-%'
+                AND NOT EXISTS (
+                  SELECT 1 FROM product_variants variant WHERE variant.product_id = product.id
+                );

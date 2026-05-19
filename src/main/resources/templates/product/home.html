@@ -1,34 +1,53 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head th:replace="~{fragments/head :: head('SmartShop - Sản phẩm')}"></head>
-<body>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${activeCategory != null ? activeCategory.displayName : #messages.msg('product.list.page_title')})}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <main class="site-shell page-main">
-        <section class="product-section">
-            <p class="eyebrow">SmartShop</p>
-            <h1 class="section-title">Danh sách sản phẩm</h1>
+    <main class="container mx-auto px-4 py-8">
+        <section class="mb-6">
+            <h1 class="mt-1 text-2xl md:text-3xl font-bold text-text-primary"
+                th:text="${activeCategory != null ? activeCategory.displayName : 'Danh sách sản phẩm'}">Danh sách sản phẩm</h1>
+            <p class="mt-2 text-text-secondary"
+               th:if="${activeCategory != null}"
+               th:text="'Sản phẩm thuộc danh mục ' + ${activeCategory.displayName}">Sản phẩm thuộc danh mục này.</p>
+        </section>
 
+        <section class="mb-6"
+                 th:if="${activeCategory != null and childCategories != null and !#lists.isEmpty(childCategories)}">
+            <div class="flex flex-wrap gap-2">
+                <a th:each="cat : ${childCategories}"
+                   th:href="@{/products(category=${cat.slug})}"
+                   class="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:border-brand-blue hover:text-brand-blue transition-colors"
+                   th:text="${cat.displayName}">Danh mục con</a>
+            </div>
+        </section>
+
+        <section>
             <div class="product-grid" th:if="${products != null and !products.isEmpty()}">
                 <a th:each="product : ${products}"
                    th:href="@{/products/{slug}(slug=${product.slug})}"
-                   class="product-link">
-                    <article class="product-card">
-                        <img th:src="${product.thumbnailUrl}"
-                             th:alt="${product.name}"
-                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22 viewBox=%220 0 300 300%22%3E%3Crect width=%22300%22 height=%22300%22 fill=%22%23f1f5f9%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-family=%22Arial%22 font-size=%2218%22%3ESmartShop%3C/text%3E%3C/svg%3E'">
-                        <div class="product-info">
-                            <h2 class="product-name" th:text="${product.name}">Tên sản phẩm</h2>
-                            <p class="product-category" th:text="${product.categoryName}">Danh mục</p>
-                            <p class="product-price"
-                               th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</p>
-                        </div>
-                    </article>
+                   class="product-card">
+                    <div class="product-card__image">
+                        <img th:src="${product.thumbnailUrl != null ? product.thumbnailUrl : 'https://via.placeholder.com/300'}"
+                             th:alt="${product.name}">
+                    </div>
+                    <div class="product-card__body">
+                        <p class="product-category" th:text="${product.categoryName}">Danh mục</p>
+                        <h2 class="product-name" th:text="${product.name}">Tên sản phẩm</h2>
+                        <p class="product-price"
+                           th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</p>
+                    </div>
                 </a>
             </div>
 
             <div class="empty-state" th:if="${products == null or products.isEmpty()}">
-                <p>Chưa có sản phẩm nào.</p>
+                <p th:if="${activeCategory != null}" th:text="#{product.list.category_empty}">
+                    Chưa có sản phẩm nào trong danh mục này.
+                </p>
+                <p th:if="${activeCategory == null}" th:text="#{product.list.empty}">
+                    Chưa có sản phẩm nào để hiển thị.
+                </p>
             </div>
         </section>
     </main>

@@ -58,6 +58,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<CategoryDTO> findChildrenBySlug(String slug) {
+        return categoryRepository.findBySlug(slug)
+                .map(categoryRepository::findByParent)
+                .map(categoryMapper::toDTOList)
+                .orElse(List.of());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PageResponse<CategoryDTO> findParentCategories(int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();

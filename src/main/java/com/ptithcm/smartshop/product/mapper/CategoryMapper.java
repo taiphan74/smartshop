@@ -3,6 +3,8 @@ package com.ptithcm.smartshop.product.mapper;
 import com.ptithcm.smartshop.product.dto.CategoryDTO;
 import com.ptithcm.smartshop.product.dto.request.CategoryRequest;
 import com.ptithcm.smartshop.product.entity.Category;
+import com.ptithcm.smartshop.product.entity.CategoryTranslation;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ public class CategoryMapper {
         CategoryDTO dto = new CategoryDTO();
         dto.setId(Objects.toString(category.getId(), null));
         dto.setName(category.getName());
+        dto.setDisplayName(resolveDisplayName(category));
         dto.setSlug(category.getSlug());
         dto.setPath(category.getPath());
         dto.setLevel(category.getLevel());
@@ -56,6 +59,15 @@ public class CategoryMapper {
         category.setName(request.getName());
         
         return category;
+    }
+
+    private String resolveDisplayName(Category category) {
+        String language = LocaleContextHolder.getLocale().getLanguage();
+        return category.getTranslations().stream()
+                .filter(translation -> language.equals(translation.getLocale()))
+                .map(CategoryTranslation::getName)
+                .findFirst()
+                .orElse(category.getName());
     }
 
     public List<CategoryDTO> toDTOList(List<Category> categories) {

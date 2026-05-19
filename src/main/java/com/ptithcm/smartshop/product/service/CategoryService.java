@@ -3,6 +3,7 @@ package com.ptithcm.smartshop.product.service;
 import com.ptithcm.smartshop.product.dto.CategoryDTO;
 import com.ptithcm.smartshop.product.dto.PageResponse;
 import com.ptithcm.smartshop.product.dto.request.CategoryRequest;
+import java.util.List;
 import java.util.Optional;
 
 public interface CategoryService {
@@ -12,6 +13,8 @@ public interface CategoryService {
     Optional<CategoryDTO> findById(String id);
     
     Optional<CategoryDTO> findBySlug(String slug);
+
+    List<CategoryDTO> findChildrenBySlug(String slug);
     
     PageResponse<CategoryDTO> findParentCategories(int pageNo, int pageSize, String sortBy, String sortDir);
     
@@ -23,4 +26,3 @@ public interface CategoryService {
     
     void deleteById(String id);
 }
-

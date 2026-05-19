@@ -13,6 +13,8 @@ public interface ProductService {
 
     List<ProductListDTO> findAllProducts();
 
+    List<ProductListDTO> findPublicProductsByCategorySlug(String categorySlug);
+
     Optional<ProductDetailDTO> findById(String id);
 
     Optional<ProductDetailDTO> findBySlug(String slug);
@@ -25,4 +27,3 @@ public interface ProductService {
 
     void deleteById(String id);
 }
-
