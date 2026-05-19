@@ -8,6 +8,7 @@ import com.ptithcm.smartshop.product.dto.PageResponse;
 import com.ptithcm.smartshop.product.dto.ProductListDTO;
 import com.ptithcm.smartshop.product.service.CategoryService;
 import com.ptithcm.smartshop.product.service.ProductService;
+import com.ptithcm.smartshop.shared.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
