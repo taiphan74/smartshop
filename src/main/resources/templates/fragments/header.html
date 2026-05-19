@@ -84,6 +84,7 @@
                 <a th:each="cat : ${headerCategories}"
                    th:href="@{/products(category=${cat.slug})}"
                    class="site-category-link"
+                   th:classappend="${selectedCategorySlug != null and selectedCategorySlug == cat.slug} ? ' site-category-link--active' : ''"
                    th:text="${cat.displayName}">Tên danh mục</a>
                 <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="site-category-empty">
                     <span th:text="#{common.loading_categories}">Đang tải danh mục...</span>
