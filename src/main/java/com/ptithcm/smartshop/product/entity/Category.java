@@ -35,6 +35,9 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CategoryTranslation> translations = new ArrayList<>();
+
     public UUID getId() {
         return id;
     }
@@ -97,6 +100,14 @@ public class Category {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public List<CategoryTranslation> getTranslations() {
+        return translations;
+    }
+
+    public void setTranslations(List<CategoryTranslation> translations) {
+        this.translations = translations;
     }
 }
 
