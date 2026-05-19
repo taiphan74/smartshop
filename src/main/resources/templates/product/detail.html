@@ -302,7 +302,7 @@
                         reviews.forEach(renderReview);
 
                         currentPage = data.number || page;
-                        loadMore.classList.toggle('hidden', data.last === true || total === 0);
+                        loadMore.classList.toggle('hidden', data.last === true || reviews.length === 0);
                     } catch (error) {
                         summary.textContent = error.message;
                         loadMore.classList.add('hidden');
