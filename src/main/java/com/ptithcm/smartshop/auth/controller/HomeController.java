@@ -52,11 +52,16 @@ public class HomeController {
 	 */
 	@GetMapping("/")
 	public String home(HttpServletRequest request, Model model) {
-		AuthResponse authResponse = authService.me(request);
-		if (authResponse != null) {
-			model.addAttribute("auth", authResponse);
-			model.addAttribute("sessionUser", authResponse.sessionUser());
-			model.addAttribute("user", authResponse.user());
+		try {
+			AuthResponse authResponse = authService.me(request);
+			if (authResponse != null) {
+				model.addAttribute("auth", authResponse);
+				model.addAttribute("sessionUser", authResponse.sessionUser());
+				model.addAttribute("user", authResponse.user());
+			}
+		} catch (UnauthorizedException e) {
+			// Guest chưa đăng nhập → vẫn hiển thị trang Home bình thường.
+			// Không đưa thông tin user vào model, template tự xử lý trường hợp null.
 		}
 
 		// Lấy danh mục và sản phẩm cho trang chủ

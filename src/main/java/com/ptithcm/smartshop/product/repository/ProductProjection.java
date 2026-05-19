@@ -10,5 +10,7 @@ public interface ProductProjection {
     Boolean getStatus();
     String getCategoryName();
     String getThumbnailUrl();
+    Long getReviewCount();
+    BigDecimal getAverageRating();
 }
 

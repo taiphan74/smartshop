@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-create-product-review-table
+      author: claude
+      changes:
+        - createTable:
+            tableName: product_reviews
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: product_id, type: uuid, constraints: { nullable: false, foreignKeyName: fk_review_product, references: products(id) } }
+              - column: { name: user_id, type: uuid, constraints: { nullable: false, foreignKeyName: fk_review_user, references: users(id) } }
+              - column: { name: order_id, type: uuid, constraints: { nullable: false, foreignKeyName: fk_review_order, references: orders(id) } }
+              - column: { name: rating, type: int, constraints: { nullable: false } }
+              - column: { name: comment, type: text }
+              - column: { name: created_at, type: timestamp, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp }
+              - column: { name: created_by, type: varchar(100) }
+              - column: { name: updated_by, type: varchar(100) }
+        - addUniqueConstraint:
+            tableName: product_reviews
+            columnNames: product_id, user_id, order_id
+            constraintName: uk_product_user_order_review

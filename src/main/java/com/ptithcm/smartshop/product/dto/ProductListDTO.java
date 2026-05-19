@@ -11,6 +11,8 @@ public class ProductListDTO {
     private Boolean status;
     private String categoryName;
     private String thumbnailUrl;
+    private Long reviewCount;
+    private BigDecimal averageRating;
 
     public ProductListDTO() {
     }
@@ -69,6 +71,22 @@ public class ProductListDTO {
 
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public Long getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(Long reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public BigDecimal getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(BigDecimal averageRating) {
+        this.averageRating = averageRating;
     }
 }
 

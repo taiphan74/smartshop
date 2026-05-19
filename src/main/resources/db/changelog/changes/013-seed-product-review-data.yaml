@@ -1,0 +1,259 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-seed-product-review-data
+      author: chatgpt
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              -- Seed review demo data:
+              -- 1) 4 reviewer accounts: bought all seeded products and already reviewed them.
+              -- 2) 5 buyer accounts: bought all seeded products, DELIVERED, but not reviewed yet.
+
+              -- ===== Seed users =====
+              WITH seed_users(email, phone, full_name) AS (
+                VALUES
+                  ('reviewer1@smartshop.local', '0920000001', 'Minh Anh'),
+                  ('reviewer2@smartshop.local', '0920000002', 'Hoàng Nam'),
+                  ('reviewer3@smartshop.local', '0920000003', 'Thu Hà'),
+                  ('reviewer4@smartshop.local', '0920000004', 'Quang Huy'),
+                  ('buyer1@smartshop.local', '0930000001', 'Test Buyer 1'),
+                  ('buyer2@smartshop.local', '0930000002', 'Test Buyer 2'),
+                  ('buyer3@smartshop.local', '0930000003', 'Test Buyer 3'),
+                  ('buyer4@smartshop.local', '0930000004', 'Test Buyer 4'),
+                  ('buyer5@smartshop.local', '0930000005', 'Test Buyer 5')
+              )
+              INSERT INTO users (id, email, phone, password_hash, status, created_at, updated_at)
+              SELECT
+                gen_random_uuid(),
+                email,
+                phone,
+                '$2a$10$OHI.d1Ts5/wxS6/uQRtdI.WVM.uDZ/FJGswnabD7AsrBlxDVo.DPy',
+                'ACTIVE',
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP
+              FROM seed_users
+              ON CONFLICT (email) DO NOTHING;
+
+              -- ===== Seed user profiles =====
+              WITH seed_users(email, full_name) AS (
+                VALUES
+                  ('reviewer1@smartshop.local', 'Minh Anh'),
+                  ('reviewer2@smartshop.local', 'Hoàng Nam'),
+                  ('reviewer3@smartshop.local', 'Thu Hà'),
+                  ('reviewer4@smartshop.local', 'Quang Huy'),
+                  ('buyer1@smartshop.local', 'Test Buyer 1'),
+                  ('buyer2@smartshop.local', 'Test Buyer 2'),
+                  ('buyer3@smartshop.local', 'Test Buyer 3'),
+                  ('buyer4@smartshop.local', 'Test Buyer 4'),
+                  ('buyer5@smartshop.local', 'Test Buyer 5')
+              )
+              INSERT INTO user_profiles (id, user_id, full_name, created_at, updated_at)
+              SELECT gen_random_uuid(), u.id, su.full_name, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM seed_users su
+              JOIN users u ON u.email = su.email
+              WHERE NOT EXISTS (
+                SELECT 1 FROM user_profiles up WHERE up.user_id = u.id
+              );
+
+              -- ===== Assign CUSTOMER role =====
+              WITH seed_users(email) AS (
+                VALUES
+                  ('reviewer1@smartshop.local'),
+                  ('reviewer2@smartshop.local'),
+                  ('reviewer3@smartshop.local'),
+                  ('reviewer4@smartshop.local'),
+                  ('buyer1@smartshop.local'),
+                  ('buyer2@smartshop.local'),
+                  ('buyer3@smartshop.local'),
+                  ('buyer4@smartshop.local'),
+                  ('buyer5@smartshop.local')
+              )
+              INSERT INTO user_roles (id, user_id, role_id, created_at)
+              SELECT gen_random_uuid(), u.id, r.id, CURRENT_TIMESTAMP
+              FROM seed_users su
+              JOIN users u ON u.email = su.email
+              JOIN roles r ON r.code = 'CUSTOMER'
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM user_roles ur
+                WHERE ur.user_id = u.id
+                  AND ur.role_id = r.id
+              );
+
+              -- ===== Seed delivered orders for reviewers and buyers =====
+              WITH seed_orders(email, code, receiver_name, created_offset_days) AS (
+                VALUES
+                  ('reviewer1@smartshop.local', 'REVIEW-DEMO-ORDER-001', 'Minh Anh', 20),
+                  ('reviewer2@smartshop.local', 'REVIEW-DEMO-ORDER-002', 'Hoàng Nam', 16),
+                  ('reviewer3@smartshop.local', 'REVIEW-DEMO-ORDER-003', 'Thu Hà', 11),
+                  ('reviewer4@smartshop.local', 'REVIEW-DEMO-ORDER-004', 'Quang Huy', 6),
+                  ('buyer1@smartshop.local', 'REVIEW-ELIGIBLE-ORDER-001', 'Test Buyer 1', 5),
+                  ('buyer2@smartshop.local', 'REVIEW-ELIGIBLE-ORDER-002', 'Test Buyer 2', 4),
+                  ('buyer3@smartshop.local', 'REVIEW-ELIGIBLE-ORDER-003', 'Test Buyer 3', 3),
+                  ('buyer4@smartshop.local', 'REVIEW-ELIGIBLE-ORDER-004', 'Test Buyer 4', 2),
+                  ('buyer5@smartshop.local', 'REVIEW-ELIGIBLE-ORDER-005', 'Test Buyer 5', 1)
+              ),
+              product_total AS (
+                SELECT COALESCE(SUM(price), 0) AS total_amount
+                FROM products
+                WHERE slug IN ('iphone-15-pro', 'macbook-air-m2', 'samsung-galaxy-s24-ultra', 'sony-wh-1000xm5')
+              )
+              INSERT INTO orders (
+                id,
+                code,
+                user_id,
+                shop_id,
+                receiver_name,
+                receiver_phone,
+                shipping_province,
+                shipping_district,
+                shipping_ward,
+                shipping_detail,
+                note,
+                total_amount,
+                shipping_fee,
+                discount_amount,
+                final_amount,
+                status,
+                payment_method,
+                payment_status,
+                created_at,
+                updated_at
+              )
+              SELECT
+                gen_random_uuid(),
+                so.code,
+                u.id,
+                s.id,
+                so.receiver_name,
+                COALESCE(u.phone, '0900000000'),
+                'TP. Hồ Chí Minh',
+                'Quận 1',
+                'Phường Bến Nghé',
+                '123 SmartShop Test Street',
+                'Seed order for product review demo',
+                pt.total_amount,
+                0,
+                0,
+                pt.total_amount,
+                'DELIVERED',
+                'COD',
+                'UNPAID',
+                CURRENT_TIMESTAMP - (so.created_offset_days || ' days')::interval,
+                CURRENT_TIMESTAMP - (so.created_offset_days || ' days')::interval
+              FROM seed_orders so
+              JOIN users u ON u.email = so.email
+              CROSS JOIN shops s
+              CROSS JOIN product_total pt
+              WHERE s.slug = 'smartshop-official'
+                AND NOT EXISTS (
+                  SELECT 1 FROM orders o WHERE o.code = so.code
+                );
+
+              -- ===== Seed order items: every seeded order bought every seeded product =====
+              WITH seeded_order_products AS (
+                SELECT
+                  o.id AS order_id,
+                  p.id AS product_id,
+                  p.name AS product_name,
+                  p.price,
+                  COALESCE((
+                    SELECT pi.image_url
+                    FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.is_main DESC, pi.sort_order ASC
+                    LIMIT 1
+                  ), '') AS image_url
+                FROM orders o
+                CROSS JOIN products p
+                WHERE o.code IN (
+                    'REVIEW-DEMO-ORDER-001',
+                    'REVIEW-DEMO-ORDER-002',
+                    'REVIEW-DEMO-ORDER-003',
+                    'REVIEW-DEMO-ORDER-004',
+                    'REVIEW-ELIGIBLE-ORDER-001',
+                    'REVIEW-ELIGIBLE-ORDER-002',
+                    'REVIEW-ELIGIBLE-ORDER-003',
+                    'REVIEW-ELIGIBLE-ORDER-004',
+                    'REVIEW-ELIGIBLE-ORDER-005'
+                  )
+                  AND p.slug IN ('iphone-15-pro', 'macbook-air-m2', 'samsung-galaxy-s24-ultra', 'sony-wh-1000xm5')
+              )
+              INSERT INTO order_items (
+                id,
+                order_id,
+                product_id,
+                product_name,
+                product_image_url,
+                price,
+                quantity,
+                subtotal,
+                created_at
+              )
+              SELECT
+                gen_random_uuid(),
+                sop.order_id,
+                sop.product_id,
+                sop.product_name,
+                sop.image_url,
+                sop.price,
+                1,
+                sop.price,
+                CURRENT_TIMESTAMP
+              FROM seeded_order_products sop
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM order_items oi
+                WHERE oi.order_id = sop.order_id
+                  AND oi.product_id = sop.product_id
+              );
+
+              -- ===== Seed product reviews: 4 reviews per seeded product =====
+              WITH reviewer_reviews(email, order_code, rating, comment_template, created_offset_days) AS (
+                VALUES
+                  ('reviewer1@smartshop.local', 'REVIEW-DEMO-ORDER-001', 5, 'Sản phẩm %s dùng rất hài lòng, đóng gói kỹ, đúng mô tả.', 19),
+                  ('reviewer2@smartshop.local', 'REVIEW-DEMO-ORDER-002', 4, 'Mình dùng %s vài ngày thấy ổn, hiệu năng tốt, giao hàng nhanh.', 15),
+                  ('reviewer3@smartshop.local', 'REVIEW-DEMO-ORDER-003', 5, '%s chất lượng tốt hơn mong đợi, sẽ tiếp tục ủng hộ shop.', 10),
+                  ('reviewer4@smartshop.local', 'REVIEW-DEMO-ORDER-004', 3, '%s dùng tạm ổn, giá hợp lý, nhưng trải nghiệm vẫn có thể tốt hơn.', 5)
+              ),
+              target_products AS (
+                SELECT id, name, slug
+                FROM products
+                WHERE slug IN ('iphone-15-pro', 'macbook-air-m2', 'samsung-galaxy-s24-ultra', 'sony-wh-1000xm5')
+              )
+              INSERT INTO product_reviews (
+                id,
+                product_id,
+                user_id,
+                order_id,
+                rating,
+                comment,
+                created_at,
+                updated_at,
+                created_by,
+                updated_by
+              )
+              SELECT
+                gen_random_uuid(),
+                p.id,
+                u.id,
+                o.id,
+                rr.rating,
+                format(rr.comment_template, p.name),
+                CURRENT_TIMESTAMP - (rr.created_offset_days || ' days')::interval,
+                NULL,
+                u.email,
+                NULL
+              FROM reviewer_reviews rr
+              JOIN users u ON u.email = rr.email
+              JOIN orders o ON o.code = rr.order_code
+              CROSS JOIN target_products p
+              WHERE EXISTS (
+                SELECT 1
+                FROM order_items oi
+                WHERE oi.order_id = o.id
+                  AND oi.product_id = p.id
+              )
+              ON CONFLICT ON CONSTRAINT uk_product_user_order_review DO NOTHING;

@@ -57,6 +57,29 @@
                     <!-- Title -->
                     <div class="mb-3">
                         <h1 class="text-xl font-medium text-text-primary leading-snug" th:text="${product.name}">Tên sản phẩm</h1>
+
+                        <div class="mt-2 flex items-center gap-2 text-sm min-h-5">
+                            <a href="#product-review-section"
+                               id="product-top-rating"
+                               class="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                               th:if="${product.reviewCount != null && product.reviewCount > 0}">
+                                <span id="product-top-average"
+                                      class="font-medium text-brand-red"
+                                      th:text="${#numbers.formatDecimal(product.averageRating, 1, 'COMMA', 1, 'POINT')}">4,3</span>
+                                <span id="product-top-stars"
+                                      class="text-[#ffce3d] leading-none"
+                                      th:attr="data-rating=${product.averageRating}">★★★★☆</span>
+                                <span id="product-top-count"
+                                      class="text-text-secondary"
+                                      th:text="'(' + ${product.reviewCount} + ' đánh giá)'">(4 đánh giá)</span>
+                            </a>
+
+                            <span id="product-top-no-rating"
+                                  th:if="${product.reviewCount == null || product.reviewCount == 0}"
+                                  class="text-text-secondary">
+                                Chưa có đánh giá
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Price Box -->
@@ -105,6 +128,284 @@
                 Chưa có thông tin mô tả chi tiết cho sản phẩm này.
             </div>
         </div>
+
+        <!-- Product Review Section -->
+        <section id="product-review-section"
+                 class="bg-surface rounded-lg p-6 shadow-sm border border-border mt-6"
+                 th:attr="data-product-id=${product.id},data-authenticated=${sessionUser != null},data-average-rating=${product.averageRating},data-review-count=${product.reviewCount}">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 bg-surface-soft p-4 -mx-6 -mt-6 rounded-t-lg">
+                <div>
+                    <h2 class="text-lg font-medium text-text-primary uppercase">Đánh giá sản phẩm</h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="review-average" class="text-xl font-semibold text-brand-red"
+                              th:text="${product.reviewCount != null && product.reviewCount > 0} ? ${#numbers.formatDecimal(product.averageRating, 1, 'COMMA', 1, 'POINT')} + '/5' : 'Chưa có đánh giá'">4.4/5</span>
+                        <span id="review-average-stars" class="text-sm text-[#ffce3d]"></span>
+                        <span id="review-summary" class="text-sm text-text-secondary"
+                              th:text="${product.reviewCount != null && product.reviewCount > 0} ? '· ' + ${product.reviewCount} + ' đánh giá' : ''">· 4 đánh giá</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="review-not-eligible-message"
+                 class="hidden mb-6 rounded-lg border border-amber-100 bg-amber-50 p-4 text-sm text-amber-700">
+                Bạn chỉ có thể đánh giá sau khi đã đặt mua sản phẩm này và đơn hàng đã hoàn tất.
+            </div>
+
+            <div id="review-form-wrap" class="hidden mb-6 rounded-lg border border-border bg-surface-soft p-4">
+                <h3 class="text-base font-semibold text-text-primary mb-3">Viết đánh giá của bạn</h3>
+
+                <form id="review-form" class="grid gap-3">
+                    <label class="grid gap-1 text-sm text-text-secondary">
+                        Đơn hàng đủ điều kiện
+                        <select id="review-order-id" class="rounded-md border border-border-strong bg-white px-3 py-2 text-text-primary"></select>
+                    </label>
+
+                    <label class="grid gap-1 text-sm text-text-secondary">
+                        Số sao
+                        <select id="review-rating" class="rounded-md border border-border-strong bg-white px-3 py-2 text-text-primary">
+                            <option value="5">★★★★★ - Rất tốt</option>
+                            <option value="4">★★★★☆ - Tốt</option>
+                            <option value="3">★★★☆☆ - Bình thường</option>
+                            <option value="2">★★☆☆☆ - Không hài lòng</option>
+                            <option value="1">★☆☆☆☆ - Tệ</option>
+                        </select>
+                    </label>
+
+                    <label class="grid gap-1 text-sm text-text-secondary">
+                        Bình luận
+                        <textarea id="review-comment"
+                                  rows="4"
+                                  maxlength="2000"
+                                  placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
+                                  class="rounded-md border border-border-strong bg-white px-3 py-2 text-text-primary outline-none focus:ring-1 focus:ring-primary"></textarea>
+                    </label>
+
+                    <div class="flex items-center gap-3">
+                        <button type="submit"
+                                class="w-auto rounded-md bg-brand-blue hover:bg-brand-blue-hover text-white font-medium px-5 py-2">
+                            Gửi đánh giá
+                        </button>
+                        <span id="review-form-message" class="text-sm"></span>
+                    </div>
+                </form>
+            </div>
+
+            <div id="review-empty" class="hidden text-sm text-text-secondary italic">
+                Chưa có đánh giá nào cho sản phẩm này.
+            </div>
+
+            <div id="review-list" class="grid gap-4"></div>
+
+            <div class="flex justify-center mt-6">
+                <button id="review-load-more"
+                        type="button"
+                        class="hidden w-auto rounded-md border border-border-strong bg-white px-5 py-2 text-sm font-medium text-text-primary hover:bg-surface-soft">
+                    Xem thêm đánh giá
+                </button>
+            </div>
+        </section>
+
+        <script>
+            (() => {
+                const section = document.getElementById('product-review-section');
+                if (!section) return;
+
+                const productId = section.dataset.productId;
+                const authenticated = section.dataset.authenticated === 'true';
+                const list = document.getElementById('review-list');
+                const empty = document.getElementById('review-empty');
+                const summary = document.getElementById('review-summary');
+                const average = document.getElementById('review-average');
+                const averageStars = document.getElementById('review-average-stars');
+                const loadMore = document.getElementById('review-load-more');
+                const formWrap = document.getElementById('review-form-wrap');
+                const notEligibleMessage = document.getElementById('review-not-eligible-message');
+                const form = document.getElementById('review-form');
+                const orderSelect = document.getElementById('review-order-id');
+                const ratingSelect = document.getElementById('review-rating');
+                const commentInput = document.getElementById('review-comment');
+                const formMessage = document.getElementById('review-form-message');
+                const reviewAverage = document.getElementById('review-average');
+                const reviewAverageStars = document.getElementById('review-average-stars');
+                const topRating = document.getElementById('product-top-rating');
+                const topNoRating = document.getElementById('product-top-no-rating');
+                const topAverage = document.getElementById('product-top-average');
+                const topStars = document.getElementById('product-top-stars');
+                const topCount = document.getElementById('product-top-count');
+
+                let currentPage = 0;
+                let reviewCount = Number(section.dataset.reviewCount || 0);
+                let averageRating = Number(section.dataset.averageRating || 0);
+                const pageSize = 5;
+
+                const stars = (rating) => '★★★★★'.slice(0, Math.round(rating)) + '☆☆☆☆☆'.slice(Math.round(rating));
+                const formatAverage = (value) => Number(value || 0).toFixed(1).replace('.', ',');
+
+                const renderRatingSummary = () => {
+                    if (reviewCount > 0) {
+                        average.textContent = `${formatAverage(averageRating)}/5`;
+                        averageStars.textContent = stars(averageRating);
+                        summary.textContent = `· ${reviewCount} đánh giá`;
+                    } else {
+                        average.textContent = 'Chưa có đánh giá';
+                        averageStars.textContent = '';
+                        summary.textContent = '';
+                    }
+                };
+
+                const escapeHtml = (value) => {
+                    const div = document.createElement('div');
+                    div.textContent = value ?? '';
+                    return div.innerHTML;
+                };
+
+                const formatDate = (value) => {
+                    if (!value) return '';
+                    return new Intl.DateTimeFormat('vi-VN', {
+                        dateStyle: 'medium',
+                        timeStyle: 'short'
+                    }).format(new Date(value));
+                };
+
+                const renderReview = (review) => {
+                    const item = document.createElement('article');
+                    item.className = 'rounded-lg border border-border bg-white p-4';
+                    item.innerHTML = `
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="font-semibold text-text-primary">${escapeHtml(review.userName || 'Người dùng')}</div>
+                                <div class="text-brand-red text-sm mt-1">${stars(Number(review.rating || 0))}</div>
+                            </div>
+                            <time class="text-xs text-text-secondary">${formatDate(review.createdAt)}</time>
+                        </div>
+                        <p class="text-sm text-text-primary leading-relaxed mt-3 whitespace-pre-line">${escapeHtml(review.comment || 'Không có bình luận.')}</p>
+                    `;
+                    list.appendChild(item);
+                };
+
+                const loadReviews = async (page = 0) => {
+                    try {
+                        const res = await fetch(`/api/products/${productId}/reviews?page=${page}&size=${pageSize}`, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+
+                        if (!res.ok) throw new Error('Không thể tải đánh giá');
+
+                        const data = await res.json();
+                        const reviews = data.content || [];
+
+                        if (page === 0) {
+                            list.innerHTML = '';
+                            empty.classList.toggle('hidden', reviews.length > 0);
+                        }
+
+                        reviews.forEach(renderReview);
+
+                        currentPage = data.number || page;
+                        loadMore.classList.toggle('hidden', data.last === true || reviews.length === 0);
+                    } catch (error) {
+                        summary.textContent = error.message;
+                        loadMore.classList.add('hidden');
+                    }
+                };
+
+                const loadEligibleOrders = async () => {
+                    formWrap.classList.add('hidden');
+                    notEligibleMessage.classList.add('hidden');
+
+                    if (!authenticated) {
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`/api/products/${productId}/reviews/eligible-orders`, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+
+                        if (!res.ok) {
+                            notEligibleMessage.classList.remove('hidden');
+                            return;
+                        }
+
+                        const orderIds = await res.json();
+                        orderSelect.innerHTML = '';
+
+                        if (!orderIds.length) {
+                            notEligibleMessage.classList.remove('hidden');
+                            return;
+                        }
+
+                        orderIds.forEach((id) => {
+                            const option = document.createElement('option');
+                            option.value = id;
+                            option.textContent = `Đơn hàng ${id}`;
+                            orderSelect.appendChild(option);
+                        });
+
+                        formWrap.classList.remove('hidden');
+                    } catch (_) {
+                        notEligibleMessage.classList.remove('hidden');
+                    }
+                };
+
+                topRating?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+
+                loadMore.addEventListener('click', () => loadReviews(currentPage + 1));
+
+                form?.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    formMessage.textContent = 'Đang gửi...';
+                    formMessage.className = 'text-sm text-text-secondary';
+
+                    try {
+                        const res = await fetch(`/api/products/${productId}/reviews`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                orderId: orderSelect.value,
+                                rating: Number(ratingSelect.value),
+                                comment: commentInput.value.trim()
+                            })
+                        });
+
+                        if (!res.ok) {
+                            let message = 'Gửi đánh giá thất bại';
+                            try {
+                                const error = await res.json();
+                                message = error.message || error.error || message;
+                            } catch (_) {}
+                            throw new Error(message);
+                        }
+
+                        const submittedRating = Number(ratingSelect.value);
+                        averageRating = reviewCount > 0
+                            ? ((averageRating * reviewCount) + submittedRating) / (reviewCount + 1)
+                            : submittedRating;
+                        reviewCount += 1;
+                        renderRatingSummary();
+
+                        formMessage.textContent = 'Đã gửi đánh giá.';
+                        formMessage.className = 'text-sm text-green-600';
+                        commentInput.value = '';
+                        await loadReviews(0);
+                        await loadEligibleOrders();
+                    } catch (error) {
+                        formMessage.textContent = error.message;
+                        formMessage.className = 'text-sm text-red-600';
+                    }
+                });
+
+                renderRatingSummary();
+                loadReviews(0);
+                loadEligibleOrders();
+            })();
+        </script>
         
     </main>
     
