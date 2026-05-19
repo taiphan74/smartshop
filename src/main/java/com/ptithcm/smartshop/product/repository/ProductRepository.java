@@ -15,6 +15,12 @@ import java.util.UUID;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
+    interface CategoryProductCountProjection {
+        String getCategoryName();
+
+        long getProductCount();
+    }
+
     Page<Product> findByCategory_Id(UUID categoryId, Pageable pageable);
 
     Optional<Product> findBySlug(String slug);
@@ -121,5 +127,16 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             where p.id = :productId
             """)
     void incrementRatingSummary(UUID productId, int rating);
+
+    long countByStatusTrue();
+
+    @Query("""
+            select p.category.name as categoryName, count(p.id) as productCount
+            from Product p
+            where p.status = true
+            group by p.category.name
+            order by count(p.id) desc, p.category.name asc
+            """)
+    List<CategoryProductCountProjection> countActiveProductsByCategory();
 }
 

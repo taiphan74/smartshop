@@ -1,6 +1,7 @@
 package com.ptithcm.smartshop.user.repository;
 
 import com.ptithcm.smartshop.user.entity.User;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,5 +37,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 		Optional<User> byEmail = findByEmail(emailOrPhone);
 		return byEmail.isPresent() ? byEmail : findByPhone(emailOrPhone);
 	}
+
+	long countByCreatedAtBetween(Instant startInclusive, Instant endExclusive);
 
 }

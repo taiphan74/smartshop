@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-1-normalize-shop-status-values
+      author: claude
+      changes:
+        - update:
+            tableName: shops
+            columns:
+              - column:
+                  name: status
+                  value: APPROVED
+            where: status = 'ACTIVE'
+        - update:
+            tableName: shops
+            columns:
+              - column:
+                  name: status
+                  value: REJECTED
+            where: status = 'CLOSED'
+
+  - changeSet:
+      id: 019-2-create-shop-approval-history
+      author: claude
+      changes:
+        - createTable:
+            tableName: shop_approval_history
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: shop_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: admin_user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: old_status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: new_status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reason
+                  type: text
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: varchar(100)
+              - column:
+                  name: updated_by
+                  type: varchar(100)
+        - addForeignKeyConstraint:
+            baseTableName: shop_approval_history
+            baseColumnNames: shop_id
+            referencedTableName: shops
+            referencedColumnNames: id
+            constraintName: fk_shop_approval_history_shop
+        - addForeignKeyConstraint:
+            baseTableName: shop_approval_history
+            baseColumnNames: admin_user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_shop_approval_history_admin_user
+        - createIndex:
+            tableName: shop_approval_history
+            indexName: idx_shop_approval_history_shop_created_at
+            columns:
+              - column:
+                  name: shop_id
+              - column:
+                  name: created_at
+        - createIndex:
+            tableName: shop_approval_history
+            indexName: idx_shop_approval_history_new_status
+            columns:
+              - column:
+                  name: new_status

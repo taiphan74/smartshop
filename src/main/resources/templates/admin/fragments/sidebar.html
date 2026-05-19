@@ -1,0 +1,22 @@
+﻿<div th:fragment="sidebar" class="w-64 bg-slate-900 text-slate-100 min-h-screen flex flex-col shadow-xl">
+    <div class="p-5 text-xl font-bold border-b border-slate-800 flex items-center gap-2">
+        <span class="text-indigo-400">⚡</span> SmartShop Admin
+    </div>
+    <nav class="flex-1 p-4 space-y-1">
+        <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <span>📊</span> Tổng quan (Dashboard)
+        </a>
+        <a href="/admin/products" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <span>📦</span> Quản lý sản phẩm
+        </a>
+        <a href="/admin/banners/list" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <span>🖼️</span> Quản lý Banners
+        </a>
+        <a th:href="@{/admin/shops}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white">
+            <span>🏪</span> Duyệt shop
+        </a>
+    </nav>
+    <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+        Phiên bản Enterprise v1.0
+    </div>
+</div>

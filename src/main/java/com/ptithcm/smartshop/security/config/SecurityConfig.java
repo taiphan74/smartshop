@@ -51,6 +51,7 @@ public class SecurityConfig {
 						.authenticationEntryPoint(restAuthenticationEntryPoint)
 						.accessDeniedHandler(restAccessDeniedHandler))
 				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
 						.requestMatchers(
 								"/",
