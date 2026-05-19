@@ -70,4 +70,13 @@ public class ProfileController {
         redirectAttributes.addFlashAttribute("successMessage", "Đã gửi đăng ký shop. Vui lòng chờ admin duyệt.");
         return "redirect:/profile";
     }
+
+    @GetMapping("/profile/shops/register")
+    public String viewShopRegister(Model model) {
+            if (!model.containsAttribute("shopForm")) {
+        model.addAttribute("shopForm", new ShopRegistrationForm("", "", "", ""));
+    }
+        return "profile/shops/register"; 
+    }
+
 }
