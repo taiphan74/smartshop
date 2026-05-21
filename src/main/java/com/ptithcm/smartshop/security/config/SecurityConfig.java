@@ -1,9 +1,5 @@
 package com.ptithcm.smartshop.security.config;
 
-import com.ptithcm.smartshop.security.principal.CustomUserDetails;
-import com.ptithcm.smartshop.security.web.RestAccessDeniedHandler;
-import com.ptithcm.smartshop.security.web.RestAuthenticationEntryPoint;
-import com.ptithcm.smartshop.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -17,6 +13,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.ptithcm.smartshop.security.principal.CustomUserDetails;
+import com.ptithcm.smartshop.security.web.RestAccessDeniedHandler;
+import com.ptithcm.smartshop.security.web.RestAuthenticationEntryPoint;
+import com.ptithcm.smartshop.user.repository.UserRepository;
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -56,6 +57,7 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/",
 								"/products/**",
+								"/cart/**",
 								"/auth/login",
 								"/auth/register",
 								"/css/**",

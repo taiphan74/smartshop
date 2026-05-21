@@ -1,0 +1,164 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-session-voucher-support
+      author: github-copilot
+      changes:
+        - createTable:
+            tableName: vouchers
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: scope
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: discount_type
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: discount_value
+                  type: decimal(15,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_discount_amount
+                  type: decimal(15,2)
+              - column:
+                  name: min_order_value
+                  type: decimal(15,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: usage_limit
+                  type: integer
+              - column:
+                  name: used_count
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_at
+                  type: timestamp
+              - column:
+                  name: end_at
+                  type: timestamp
+              - column:
+                  name: created_at
+                  type: timestamp
+              - column:
+                  name: updated_at
+                  type: timestamp
+        - addColumn:
+            tableName: session_orders
+            columns:
+              - column:
+                  name: discount_amount
+                  type: decimal(15,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shipping_discount_amount
+                  type: decimal(15,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: final_amount
+                  type: decimal(15,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_voucher_code
+                  type: varchar(50)
+              - column:
+                  name: shipping_voucher_code
+                  type: varchar(50)
+        - sql:
+            sql: |
+              UPDATE session_orders
+              SET discount_amount = 0,
+                  shipping_discount_amount = 0,
+                  final_amount = total_amount
+              WHERE final_amount = 0 OR final_amount IS NULL;
+        - insert:
+            tableName: vouchers
+            columns:
+              - column: { name: id, value: 7fce4a43-8bd0-45ea-90a0-8efaa9cf0001 }
+              - column: { name: code, value: GIAM50K }
+              - column: { name: name, value: Giảm 50K cho đơn từ 500K }
+              - column: { name: scope, value: ORDER }
+              - column: { name: discount_type, value: FIXED }
+              - column: { name: discount_value, valueNumeric: 50000 }
+              - column: { name: max_discount_amount, valueNumeric: 50000 }
+              - column: { name: min_order_value, valueNumeric: 500000 }
+              - column: { name: usage_limit, valueNumeric: 200 }
+              - column: { name: used_count, valueNumeric: 0 }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: start_at, valueDate: 2026-01-01T00:00:00 }
+              - column: { name: end_at, valueDate: 2027-01-01T00:00:00 }
+              - column: { name: created_at, valueDate: 2026-01-01T00:00:00 }
+              - column: { name: updated_at, valueDate: 2026-01-01T00:00:00 }
+        - insert:
+            tableName: vouchers
+            columns:
+              - column: { name: id, value: 7fce4a43-8bd0-45ea-90a0-8efaa9cf0002 }
+              - column: { name: code, value: GIAM10 }
+              - column: { name: name, value: Giảm 10% tối đa 80K }
+              - column: { name: scope, value: ORDER }
+              - column: { name: discount_type, value: PERCENT }
+              - column: { name: discount_value, valueNumeric: 10 }
+              - column: { name: max_discount_amount, valueNumeric: 80000 }
+              - column: { name: min_order_value, valueNumeric: 300000 }
+              - column: { name: usage_limit, valueNumeric: 500 }
+              - column: { name: used_count, valueNumeric: 0 }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: start_at, valueDate: 2026-01-01T00:00:00 }
+              - column: { name: end_at, valueDate: 2027-01-01T00:00:00 }
+              - column: { name: created_at, valueDate: 2026-01-01T00:00:00 }
+              - column: { name: updated_at, valueDate: 2026-01-01T00:00:00 }
+        - insert:
+            tableName: vouchers
+            columns:
+              - column: { name: id, value: 7fce4a43-8bd0-45ea-90a0-8efaa9cf0003 }
+              - column: { name: code, value: FREESHIP35K }
+              - column: { name: name, value: Miễn phí vận chuyển tối đa 35K }
+              - column: { name: scope, value: SHIPPING }
+              - column: { name: discount_type, value: FIXED }
+              - column: { name: discount_value, valueNumeric: 35000 }
+              - column: { name: max_discount_amount, valueNumeric: 35000 }
+              - column: { name: min_order_value, valueNumeric: 0 }
+              - column: { name: usage_limit, valueNumeric: 500 }
+              - column: { name: used_count, valueNumeric: 0 }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: start_at, valueDate: 2026-01-01T00:00:00 }
+              - column: { name: end_at, valueDate: 2027-01-01T00:00:00 }
+              - column: { name: created_at, valueDate: 2026-01-01T00:00:00 }
+              - column: { name: updated_at, valueDate: 2026-01-01T00:00:00 }

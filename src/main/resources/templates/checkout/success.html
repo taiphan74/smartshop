@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Đặt hàng thành công - SmartShop')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="max-w-[960px] mx-auto px-4 md:px-6 py-10">
+        <div class="bg-surface rounded-2xl border border-border shadow-sm p-8 md:p-12 text-center">
+            <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-11 w-11 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <p class="text-sm font-bold uppercase tracking-[0.18em] text-brand-blue mb-3">Đơn hàng đã được ghi nhận</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-text-primary">Đặt hàng thành công</h1>
+            <p class="mt-4 text-base text-text-secondary max-w-2xl mx-auto">
+                SmartShop đã xác nhận đơn hàng của bạn. Đơn đang được chuẩn bị và sẽ sớm bàn giao cho đơn vị vận chuyển để giao đến bạn.
+            </p>
+
+            <div th:if="${orderCode != null}" class="mt-8 inline-flex items-center gap-3 rounded-xl bg-primary-soft px-5 py-4 text-left">
+                <span class="text-sm font-medium text-text-secondary">Mã đơn hàng</span>
+                <span class="text-lg font-bold text-brand-blue" th:text="${orderCode}">ORD-123456</span>
+            </div>
+
+            <div class="mt-10 grid gap-3 sm:grid-cols-2 max-w-xl mx-auto">
+                <a href="/products" class="inline-flex items-center justify-center rounded-md border border-border bg-white px-5 py-3 text-sm font-semibold text-text-primary hover:bg-surface-soft transition-colors">
+                    Tiếp tục mua sắm
+                </a>
+                <a href="/my/orders" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-5 py-3 text-sm font-semibold text-white hover:bg-brand-blue-hover transition-colors">
+                    Xem đơn hàng
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
