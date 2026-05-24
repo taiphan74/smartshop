@@ -6,6 +6,7 @@ import com.ptithcm.smartshop.auth.entity.RegistrationOtp;
 import com.ptithcm.smartshop.auth.enums.RegistrationOtpStatus;
 import com.ptithcm.smartshop.auth.repository.RegistrationOtpRepository;
 import com.ptithcm.smartshop.auth.service.RegistrationOtpService;
+import com.ptithcm.smartshop.shared.mail.EmailService;
 import com.ptithcm.smartshop.security.rbac.entity.Role;
 import com.ptithcm.smartshop.security.rbac.repository.RoleRepository;
 import com.ptithcm.smartshop.shared.exception.ConflictException;
@@ -38,17 +39,20 @@ public class RegistrationOtpServiceImpl implements RegistrationOtpService {
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final EmailService emailService;
 	private final SecureRandom secureRandom = new SecureRandom();
 
 	public RegistrationOtpServiceImpl(
 			RegistrationOtpRepository otpRepository,
 			UserRepository userRepository,
 			RoleRepository roleRepository,
-			PasswordEncoder passwordEncoder) {
+			PasswordEncoder passwordEncoder,
+			EmailService emailService) {
 		this.otpRepository = otpRepository;
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.emailService = emailService;
 	}
 
 	@Override
@@ -78,6 +82,7 @@ public class RegistrationOtpServiceImpl implements RegistrationOtpService {
 			registrationOtp.setExpiresAt(now.plusSeconds(OTP_TTL_SECONDS));
 			registrationOtp.setCorrelationId(command.correlationId());
 			otpRepository.save(registrationOtp);
+			emailService.sendOtp(normalizedEmail, otp);
 			log.info("Registration OTP row created for emailHash={}", Integer.toHexString(normalizedEmail.hashCode()));
 		}
 	}

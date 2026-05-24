@@ -18,6 +18,7 @@ import com.ptithcm.smartshop.auth.service.impl.RegistrationOtpServiceImpl;
 import com.ptithcm.smartshop.security.rbac.entity.Role;
 import com.ptithcm.smartshop.security.rbac.repository.RoleRepository;
 import com.ptithcm.smartshop.shared.exception.ConflictException;
+import com.ptithcm.smartshop.shared.mail.EmailService;
 import com.ptithcm.smartshop.user.dto.UserResponse;
 import com.ptithcm.smartshop.user.repository.UserRepository;
 import java.time.Instant;
@@ -34,11 +35,13 @@ class RegistrationOtpServiceImplTest {
 	private final UserRepository userRepository = mock(UserRepository.class);
 	private final RoleRepository roleRepository = mock(RoleRepository.class);
 	private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	private final EmailService emailService = mock(EmailService.class);
 	private final RegistrationOtpService service = new RegistrationOtpServiceImpl(
 			otpRepository,
 			userRepository,
 			roleRepository,
-			passwordEncoder);
+			passwordEncoder,
+			emailService);
 
 	@BeforeEach
 	void setUp() {
