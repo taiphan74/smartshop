@@ -99,9 +99,9 @@
                         <div class="flex items-center">
                             <div class="w-[110px] flex-shrink-0 text-text-secondary" th:text="#{product.quantity}">Số Lượng</div>
                             <div class="flex items-center">
-                                <button class="w-8 h-8 flex items-center justify-center border border-border-strong text-text-primary hover:bg-surface-soft bg-surface rounded-l outline-none font-medium">-</button>
-                                <input type="text" value="1" class="w-12 h-8 border-y border-border-strong text-center text-text-primary text-base outline-none m-0 focus:z-10 focus:ring-1 focus:ring-primary focus:border-primary transition-colors">
-                                <button class="w-8 h-8 flex items-center justify-center border border-border-strong text-text-primary hover:bg-surface-soft bg-surface rounded-r outline-none font-medium">+</button>
+                                <button type="button" id="qty-decrease" class="w-8 h-8 flex items-center justify-center border border-border-strong text-text-primary hover:bg-surface-soft bg-surface rounded-l outline-none font-medium">-</button>
+                                <input id="quantity-input" type="text" value="1" inputmode="numeric" class="w-12 h-8 border-y border-border-strong text-center text-text-primary text-base outline-none m-0 focus:z-10 focus:ring-1 focus:ring-primary focus:border-primary transition-colors">
+                                <button type="button" id="qty-increase" class="w-8 h-8 flex items-center justify-center border border-border-strong text-text-primary hover:bg-surface-soft bg-surface rounded-r outline-none font-medium">+</button>
                             </div>
                             <div class="ml-4 text-text-secondary text-sm" th:text="${product.stockQuantity} + ' ' + #{product.stock_suffix}">3441 sản phẩm có sẵn</div>
                         </div>
@@ -109,13 +109,23 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex items-center gap-3.5 mt-4">
-                        <button class="bg-brand-red-soft hover:bg-brand-red-soft/80 text-brand-red border border-brand-red font-medium h-12 px-6 flex items-center justify-center gap-2 rounded-md shadow-sm transition-colors cursor-pointer">
-                            <span class="text-xl">🛒</span> <span th:text="#{product.add_to_cart}">Thêm Vào Giỏ Hàng</span>
-                        </button>
-                        <button class="bg-brand-blue hover:bg-brand-blue-hover text-white font-medium h-12 w-[180px] flex items-center justify-center rounded-md shadow-sm transition-colors cursor-pointer">
-                            <span th:text="#{product.buy_now}">Mua Ngay</span>
-                        </button>
+                    <div class="flex flex-wrap items-center gap-3.5 mt-4">
+                        <form th:action="@{/cart/add}" method="post" class="flex-1 min-w-[260px]">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <input type="hidden" name="quantity" id="add-to-cart-quantity" value="1">
+                            <input type="hidden" name="redirectUrl" th:value="@{'/products/' + ${product.slug}}">
+                            <button type="submit" class="w-full bg-brand-red-soft hover:bg-brand-red-soft/80 text-brand-red border border-brand-red font-medium h-12 px-6 flex items-center justify-center gap-2 rounded-md shadow-sm transition-colors cursor-pointer">
+                                <span class="text-xl">🛒</span> <span th:text="#{product.add_to_cart}">Thêm Vào Giỏ Hàng</span>
+                            </button>
+                        </form>
+                        <form th:action="@{/cart/add}" method="post" class="w-[180px]">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <input type="hidden" name="quantity" id="buy-now-quantity" value="1">
+                            <input type="hidden" name="redirectUrl" value="/checkout">
+                            <button type="submit" class="w-full bg-brand-blue hover:bg-brand-blue-hover text-white font-medium h-12 flex items-center justify-center rounded-md shadow-sm transition-colors cursor-pointer">
+                                <span th:text="#{product.buy_now}">Mua Ngay</span>
+                            </button>
+                        </form>
                     </div>
 
 
@@ -224,6 +234,40 @@
                 </button>
             </div>
         </section>
+
+        <script>
+            (() => {
+                const quantityInput = document.getElementById('quantity-input');
+                const decreaseBtn = document.getElementById('qty-decrease');
+                const increaseBtn = document.getElementById('qty-increase');
+                const addToCartQuantity = document.getElementById('add-to-cart-quantity');
+                const buyNowQuantity = document.getElementById('buy-now-quantity');
+
+                if (!quantityInput || !addToCartQuantity || !buyNowQuantity) {
+                    return;
+                }
+
+                const syncQuantity = (rawValue) => {
+                    const parsed = Number.parseInt(String(rawValue), 10);
+                    const value = Number.isNaN(parsed) || parsed < 1 ? 1 : parsed;
+                    quantityInput.value = String(value);
+                    addToCartQuantity.value = String(value);
+                    buyNowQuantity.value = String(value);
+                };
+
+                decreaseBtn?.addEventListener('click', () => {
+                    syncQuantity(Number.parseInt(quantityInput.value || '1', 10) - 1);
+                });
+
+                increaseBtn?.addEventListener('click', () => {
+                    syncQuantity(Number.parseInt(quantityInput.value || '1', 10) + 1);
+                });
+
+                quantityInput.addEventListener('input', () => syncQuantity(quantityInput.value));
+                quantityInput.addEventListener('blur', () => syncQuantity(quantityInput.value));
+                syncQuantity(quantityInput.value);
+            })();
+        </script>
 
         <script th:inline="javascript">
             (() => {

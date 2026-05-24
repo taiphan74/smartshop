@@ -56,8 +56,9 @@
                         </summary>
                         <div class="site-account-dropdown">
                             <a href="/profile" class="site-account-dropdown__item" th:text="#{nav.account}">Tài khoản</a>
+                            <a href="/my/orders" class="site-account-dropdown__item">Đơn hàng của tôi</a>
                             <form th:action="@{/auth/logout}" method="post">
-                                <button type="submit" class="site-account-dropdown__item site-account-dropdown__button" th:text="#{nav.logout}">Đăng xuất</button>
+                                <button type="submit" class="site-account-dropdown__item site-account-dropdown__button font-bold text-red-600 hover:text-red-700" th:text="#{nav.logout}">Đăng xuất</button>
                             </form>
                         </div>
                     </details>

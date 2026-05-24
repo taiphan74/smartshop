@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Đơn hàng của tôi - SmartShop')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="max-w-[1280px] mx-auto px-4 md:px-6 py-6">
+        <div class="flex items-center gap-2 text-sm text-blue-600 mb-4">
+            <a href="/" class="hover:underline">SmartShop</a>
+            <span class="text-gray-400">›</span>
+            <span class="text-gray-600">Đơn hàng của tôi</span>
+        </div>
+
+        <div class="mb-5 flex items-start justify-between gap-3 flex-col sm:flex-row sm:items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-text-primary">Đơn hàng của tôi</h1>
+            <a href="/products" class="text-sm font-semibold text-brand-blue hover:underline">Tiếp tục mua sắm</a>
+        </div>
+
+        <div th:if="${errorMessage != null}" class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" th:text="${errorMessage}">Lỗi</div>
+
+        <section class="bg-surface rounded-lg shadow-sm border border-border overflow-hidden" th:if="${orders != null and !#lists.isEmpty(orders)}">
+            <div class="divide-y divide-border">
+                <article th:each="order : ${orders}" class="p-4 md:p-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <p class="text-sm text-text-secondary">Mã đơn:</p>
+                            <p class="font-semibold text-text-primary" th:text="${order.orderCode}">ORD-XXXX</p>
+                        </div>
+                        <p class="text-sm text-text-secondary">
+                            Đặt lúc
+                            <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">00/00/0000 00:00</span>
+                        </p>
+                        <p class="text-sm text-text-secondary">Trạng thái: <span class="font-semibold text-text-primary" th:text="${order.status}">PENDING</span></p>
+                    </div>
+
+                    <div class="flex items-center gap-4 justify-between md:justify-end">
+                        <div>
+                            <p class="text-xs text-text-secondary">Tổng thanh toán</p>
+                            <p class="text-lg font-bold text-brand-red" th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</p>
+                        </div>
+                        <a th:href="@{'/my/orders/' + ${order.orderCode}}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-semibold text-white hover:bg-brand-blue-hover transition-colors">Xem chi tiết</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section th:if="${orders == null or #lists.isEmpty(orders)}" class="bg-surface rounded-lg shadow-sm border border-border p-8 text-center">
+            <h2 class="text-xl font-semibold text-text-primary">Bạn chưa có đơn hàng nào</h2>
+            <p class="mt-2 text-text-secondary">Các đơn mới tạo sau khi checkout sẽ xuất hiện tại đây.</p>
+            <a href="/products" class="mt-5 inline-flex items-center justify-center rounded-md bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-blue-hover transition-colors">Mua sắm ngay</a>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

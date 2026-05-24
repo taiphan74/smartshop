@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Chi tiết đơn hàng - SmartShop')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="max-w-[1280px] mx-auto px-4 md:px-6 py-6" th:object="${order}">
+        <div class="flex items-center gap-2 text-sm text-blue-600 mb-4">
+            <a href="/" class="hover:underline">SmartShop</a>
+            <span class="text-gray-400">›</span>
+            <a href="/my/orders" class="hover:underline">Đơn hàng của tôi</a>
+            <span class="text-gray-400">›</span>
+            <span class="text-gray-600" th:text="*{orderCode}">ORD-XXXX</span>
+        </div>
+
+        <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-text-primary">Chi tiết đơn hàng</h1>
+                <p class="mt-1 text-sm text-text-secondary">Mã đơn: <span class="font-semibold text-text-primary" th:text="*{orderCode}">ORD-XXXX</span></p>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-primary-soft px-3 py-1 text-sm font-semibold text-brand-blue" th:text="*{status}">PENDING</span>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6">
+            <section class="bg-surface rounded-lg shadow-sm border border-border p-6">
+                <h2 class="text-xl font-semibold text-text-primary mb-4">Sản phẩm trong đơn</h2>
+
+                <div class="space-y-4" th:if="${order.items != null and !#lists.isEmpty(order.items)}">
+                    <article th:each="item : ${order.items}" class="flex items-start gap-3 border-b border-border pb-4 last:border-b-0 last:pb-0">
+                        <div class="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-surface-soft">
+                            <img th:src="${item.imageUrl}" th:alt="${item.productName}" class="h-full w-full object-cover">
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-semibold text-text-primary" th:text="${item.productName}">Tên sản phẩm</p>
+                            <p class="mt-1 text-sm text-text-secondary" th:text="'Số lượng: ' + ${item.quantity}">Số lượng: 1</p>
+                            <p class="mt-1 text-sm text-brand-red font-semibold" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</p>
+                        </div>
+                    </article>
+                </div>
+
+                <p th:if="${order.items == null or #lists.isEmpty(order.items)}" class="text-sm text-text-secondary">Đơn hàng chưa có sản phẩm.</p>
+            </section>
+
+            <aside class="bg-surface rounded-lg shadow-sm border border-border p-5 h-fit space-y-3">
+                <h2 class="text-lg font-semibold text-text-primary">Thông tin giao hàng</h2>
+                <p class="text-sm"><span class="text-text-secondary">Người nhận:</span> <span class="font-semibold" th:text="*{customerName}">Tên</span></p>
+                <p class="text-sm"><span class="text-text-secondary">Số điện thoại:</span> <span class="font-semibold" th:text="*{customerPhone}">0900...</span></p>
+                <p class="text-sm"><span class="text-text-secondary">Địa chỉ:</span> <span class="font-semibold" th:text="*{customerAddress}">Địa chỉ</span></p>
+                <p class="text-sm"><span class="text-text-secondary">Ngày đặt:</span> <span class="font-semibold" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">00/00/0000</span></p>
+
+                <div class="border-t border-border pt-3 mt-3 space-y-2 text-sm">
+                    <div class="flex justify-between"><span class="text-text-secondary">Tạm tính</span><span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span></div>
+                    <div class="flex justify-between"><span class="text-text-secondary">Phí ship</span><span th:text="${#numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span></div>
+                    <div class="flex justify-between" th:if="${order.discountAmount != null and order.discountAmount.signum() > 0}"><span class="text-text-secondary">Giảm giá đơn</span><span class="text-green-700" th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">-0₫</span></div>
+                    <div class="flex justify-between" th:if="${order.shippingDiscountAmount != null and order.shippingDiscountAmount.signum() > 0}"><span class="text-text-secondary">Giảm phí ship</span><span class="text-green-700" th:text="'-' + ${#numbers.formatDecimal(order.shippingDiscountAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">-0₫</span></div>
+                    <div class="flex justify-between border-t border-dashed border-border pt-3 text-base font-semibold"><span>Tổng thanh toán</span><span class="text-brand-red" th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span></div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
