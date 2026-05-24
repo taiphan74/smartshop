@@ -1,0 +1,166 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-seed-leaf-product-variants
+      author: system
+      comment: >
+        Seed product options, option values, and multiple variants for leaf-category products
+        that were previously seeded without options (from 018). Uses dynamic SQL with
+        idempotent logic (INSERT ... WHERE NOT EXISTS / ON CONFLICT DO NOTHING).
+        Fixed ambiguous column name: sku → v_sku.
+      changes:
+        - sql:
+            splitStatements: false
+            stripComments: true
+            sql: |
+              DO $$
+              DECLARE
+                  prod RECORD;
+                  opt_color_id UUID;
+                  opt_second_id UUID;
+                  val1 RECORD;
+                  val2 RECORD;
+                  v_sku TEXT;
+                  base_price NUMERIC;
+                  new_price NUMERIC;
+                  stock INT;
+                  variant_id UUID;
+                  second_option_name TEXT;
+              BEGIN
+                  FOR prod IN
+                      SELECT p.id, p.slug, p.name, p.price, c.slug AS cat_slug
+                      FROM products p
+                      JOIN categories c ON p.category_id = c.id
+                      WHERE c.id NOT IN (
+                          SELECT DISTINCT parent_id FROM categories WHERE parent_id IS NOT NULL
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1 FROM product_options WHERE product_id = p.id
+                      )
+                  LOOP
+                      base_price := prod.price;
+                      opt_color_id := NULL;
+                      opt_second_id := NULL;
+                      second_option_name := NULL;
+
+                      IF prod.cat_slug IN ('dien-thoai', 'may-tinh-bang') THEN
+                          second_option_name := 'Dung lượng';
+                      ELSIF prod.cat_slug = 'laptop' THEN
+                          second_option_name := 'RAM';
+                      ELSIF prod.cat_slug = 'tai-nghe' THEN
+                          second_option_name := 'Loại kết nối';
+                      ELSIF prod.cat_slug = 'dong-ho' THEN
+                          second_option_name := 'Kích thước';
+                      ELSE
+                          second_option_name := NULL;
+                      END IF;
+
+                      INSERT INTO product_options (id, product_id, name, sort_order)
+                      SELECT gen_random_uuid(), prod.id, 'Màu sắc', 1
+                      WHERE NOT EXISTS (
+                          SELECT 1 FROM product_options WHERE product_id = prod.id AND name = 'Màu sắc'
+                      )
+                      RETURNING id INTO opt_color_id;
+                      IF opt_color_id IS NULL THEN
+                          SELECT id INTO opt_color_id FROM product_options
+                          WHERE product_id = prod.id AND name = 'Màu sắc';
+                      END IF;
+
+                      IF second_option_name IS NOT NULL THEN
+                          INSERT INTO product_options (id, product_id, name, sort_order)
+                          SELECT gen_random_uuid(), prod.id, second_option_name, 2
+                          WHERE NOT EXISTS (
+                              SELECT 1 FROM product_options WHERE product_id = prod.id AND name = second_option_name
+                          )
+                          RETURNING id INTO opt_second_id;
+                          IF opt_second_id IS NULL THEN
+                              SELECT id INTO opt_second_id FROM product_options
+                              WHERE product_id = prod.id AND name = second_option_name;
+                          END IF;
+                      END IF;
+
+                      INSERT INTO product_option_values (id, option_id, value, sort_order)
+                      SELECT gen_random_uuid(), opt_color_id, v.val, v.sort
+                      FROM (VALUES ('Đen',1), ('Trắng',2), ('Xanh dương',3), ('Đỏ',4)) AS v(val, sort)
+                      WHERE NOT EXISTS (
+                          SELECT 1 FROM product_option_values WHERE option_id = opt_color_id AND value = v.val
+                      );
+
+                      IF second_option_name = 'Dung lượng' THEN
+                          INSERT INTO product_option_values (id, option_id, value, sort_order)
+                          SELECT gen_random_uuid(), opt_second_id, v.val, v.sort
+                          FROM (VALUES ('64GB',1), ('128GB',2), ('256GB',3), ('512GB',4)) AS v(val, sort)
+                          WHERE NOT EXISTS (
+                              SELECT 1 FROM product_option_values WHERE option_id = opt_second_id AND value = v.val
+                          );
+                      ELSIF second_option_name = 'RAM' THEN
+                          INSERT INTO product_option_values (id, option_id, value, sort_order)
+                          SELECT gen_random_uuid(), opt_second_id, v.val, v.sort
+                          FROM (VALUES ('8GB',1), ('16GB',2), ('32GB',3)) AS v(val, sort)
+                          WHERE NOT EXISTS (
+                              SELECT 1 FROM product_option_values WHERE option_id = opt_second_id AND value = v.val
+                          );
+                      ELSIF second_option_name = 'Loại kết nối' THEN
+                          INSERT INTO product_option_values (id, option_id, value, sort_order)
+                          SELECT gen_random_uuid(), opt_second_id, v.val, v.sort
+                          FROM (VALUES ('Có dây',1), ('Bluetooth',2), ('USB-C',3)) AS v(val, sort)
+                          WHERE NOT EXISTS (
+                              SELECT 1 FROM product_option_values WHERE option_id = opt_second_id AND value = v.val
+                          );
+                      ELSIF second_option_name = 'Kích thước' THEN
+                          INSERT INTO product_option_values (id, option_id, value, sort_order)
+                          SELECT gen_random_uuid(), opt_second_id, v.val, v.sort
+                          FROM (VALUES ('40mm',1), ('44mm',2), ('38mm',3), ('42mm',4)) AS v(val, sort)
+                          WHERE NOT EXISTS (
+                              SELECT 1 FROM product_option_values WHERE option_id = opt_second_id AND value = v.val
+                          );
+                      END IF;
+
+                      FOR val1 IN
+                          SELECT id, value FROM product_option_values
+                          WHERE option_id = opt_color_id
+                          ORDER BY sort_order
+                      LOOP
+                          IF opt_second_id IS NOT NULL THEN
+                              FOR val2 IN
+                                  SELECT id, value FROM product_option_values
+                                  WHERE option_id = opt_second_id
+                                  ORDER BY sort_order
+                              LOOP
+                                  v_sku := upper(substring(prod.slug, 1, 6)) || '-' ||
+                                           upper(substring(val1.value, 1, 4)) || '-' ||
+                                           upper(replace(val2.value, ' ', ''));
+                                  new_price := round((base_price * (1 + (random()*0.1 - 0.05)))::numeric, -3);
+                                  stock := floor(random()*90 + 10)::int;
+
+                                  INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status, created_at, updated_at)
+                                  SELECT gen_random_uuid(), prod.id, v_sku, new_price, stock, TRUE, now(), now()
+                                  WHERE NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = v_sku)
+                                  RETURNING id INTO variant_id;
+
+                                  IF variant_id IS NOT NULL THEN
+                                      INSERT INTO product_variant_values (variant_id, option_value_id)
+                                      VALUES (variant_id, val1.id), (variant_id, val2.id)
+                                      ON CONFLICT DO NOTHING;
+                                  END IF;
+                              END LOOP;
+                          ELSE
+                              v_sku := upper(substring(prod.slug, 1, 6)) || '-' ||
+                                       upper(substring(val1.value, 1, 4));
+                              new_price := base_price;
+                              stock := floor(random()*90 + 10)::int;
+
+                              INSERT INTO product_variants (id, product_id, sku, price, stock_quantity, status, created_at, updated_at)
+                              SELECT gen_random_uuid(), prod.id, v_sku, new_price, stock, TRUE, now(), now()
+                              WHERE NOT EXISTS (SELECT 1 FROM product_variants WHERE sku = v_sku)
+                              RETURNING id INTO variant_id;
+
+                              IF variant_id IS NOT NULL THEN
+                                  INSERT INTO product_variant_values (variant_id, option_value_id)
+                                  VALUES (variant_id, val1.id)
+                                  ON CONFLICT DO NOTHING;
+                              END IF;
+                          END IF;
+                      END LOOP;
+                  END LOOP;
+              END;
+              $$;
