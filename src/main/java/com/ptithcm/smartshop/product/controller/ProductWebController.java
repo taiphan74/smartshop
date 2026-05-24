@@ -86,6 +86,8 @@ public class ProductWebController {
             productView.put("reviewCount", productDTO.getReviewCount());
             productView.put("ratingSum", productDTO.getRatingSum());
             productView.put("averageRating", productDTO.getAverageRating());
+            productView.put("options", productDTO.getOptions());
+            productView.put("variants", productDTO.getVariants());
 
             model.addAttribute("product", productView);
             return "product/detail";
