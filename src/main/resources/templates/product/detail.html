@@ -243,6 +243,31 @@
                 const form = document.getElementById('review-form');
                 const orderSelect = document.getElementById('review-order-id');
                 const ratingSelect = document.getElementById('review-rating');
+                
+                // Logic điều khiển Sao tương tác hiện đại
+                document.querySelectorAll('.core-star-container button').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const val = this.dataset.star;
+                        ratingSelect.value = val;
+                        
+                        // Cập nhật nhãn chữ tương ứng
+                        const targetLabel = document.getElementById(`label-star-${val}`);
+                        if (targetLabel) {
+                            document.getElementById('review-rating-label').textContent = targetLabel.textContent;
+                        }
+                        
+                        // Thay đổi màu sắc hiển thị của các Ngôi sao SVG
+                        document.querySelectorAll('.core-star-container button').forEach(sBtn => {
+                            if (parseInt(sBtn.dataset.star) <= parseInt(val)) {
+                                sBtn.classList.remove('text-gray-300');
+                                sBtn.classList.add('text-amber-400');
+                            } else {
+                                sBtn.classList.remove('text-amber-400');
+                                sBtn.classList.add('text-gray-300');
+                            }
+                        });
+                    });
+                });
                 const commentInput = document.getElementById('review-comment');
                 const formMessage = document.getElementById('review-form-message');
                 const reviewAverage = document.getElementById('review-average');
