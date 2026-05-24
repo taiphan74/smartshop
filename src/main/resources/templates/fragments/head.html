@@ -1,18 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head(title)">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head th:fragment="head(title)">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${title}">Shop</title>
-    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
-    <script>
-      (function () {
-        var savedTheme = localStorage.getItem('smartshop-theme');
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = savedTheme || (prefersDark ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', theme);
-      })();
-    </script>
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Swiper CSS -->
@@ -23,123 +15,123 @@
           extend: {
             colors: {
               brand: {
-                blue: '#0A68FF',
-                'blue-hover': '#0059D6',
-                'blue-soft': '#EAF2FF',
-                red: '#FF424E',
-                'red-hover': '#F92F3B',
-                'red-soft': '#FFF0F1',
-                green: '#00AB56',
-                'green-soft': '#EFFFF4',
+                blue: "#0A68FF",
+                "blue-hover": "#0059D6",
+                "blue-soft": "#EAF2FF",
+                red: "#FF424E",
+                "red-hover": "#F92F3B",
+                "red-soft": "#FFF0F1",
+                green: "#00AB56",
+                "green-soft": "#EFFFF4",
               },
               primary: {
-                DEFAULT: '#0A68FF',
-                hover: '#0059D6',
-                soft: '#EAF2FF',
+                DEFAULT: "#0A68FF",
+                hover: "#0059D6",
+                soft: "#EAF2FF",
               },
-              warning: '#FFB200',
+              warning: "#FFB200",
               surface: {
-                DEFAULT: '#FFFFFF',
-                soft: '#FAFAFC',
+                DEFAULT: "#FFFFFF",
+                soft: "#FAFAFC",
               },
               border: {
-                DEFAULT: '#EBEBF0',
-                strong: '#DDDDE3',
+                DEFAULT: "#EBEBF0",
+                strong: "#DDDDE3",
               },
               text: {
-                primary: '#27272A',
-                secondary: '#808089',
-                muted: '#A6A6B0',
+                primary: "#27272A",
+                secondary: "#808089",
+                muted: "#A6A6B0",
               },
               yellow: {
-                DEFAULT: '#ffce3d',
-              }
+                DEFAULT: "#ffce3d",
+              },
             },
             backgroundColor: {
-              'page-bg': '#F5F5FA',
+              "page-bg": "#F5F5FA",
             },
             borderRadius: {
-              'sm': '8px',
-              'md': '12px',
-              'lg': '16px',
-              'pill': '999px',
+              sm: "8px",
+              md: "12px",
+              lg: "16px",
+              pill: "999px",
             },
             boxShadow: {
-              'sm': '0 1px 2px rgba(39, 39, 42, 0.04)',
-              'md': '0 4px 14px rgba(39, 39, 42, 0.08)',
-            }
-          }
-        }
-      }
+              sm: "0 1px 2px rgba(39, 39, 42, 0.04)",
+              md: "0 4px 14px rgba(39, 39, 42, 0.08)",
+            },
+          },
+        },
+      };
     </script>
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js" defer></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}" />
 
     <style>
-        .rating-stars {
-            --rating-percent: 0%;
-            position: relative;
-            display: inline-block;
-            line-height: 1;
-            white-space: nowrap;
-        }
+      .rating-stars {
+        --rating-percent: 0%;
+        position: relative;
+        display: inline-block;
+        line-height: 1;
+        white-space: nowrap;
+      }
 
-        .rating-stars__base {
-            color: #d1d5db;
-        }
+      .rating-stars__base {
+        color: #d1d5db;
+      }
 
-        .rating-stars__fill {
-            position: absolute;
-            inset: 0;
-            width: var(--rating-percent);
-            overflow: hidden;
-            color: #ffce3d;
-            white-space: nowrap;
-        }
+      .rating-stars__fill {
+        position: absolute;
+        inset: 0;
+        width: var(--rating-percent);
+        overflow: hidden;
+        color: #ffce3d;
+        white-space: nowrap;
+      }
     </style>
 
     <script>
-        function normalizeRating(value) {
-            var rating = Number(value || 0);
-            if (!Number.isFinite(rating)) {
-                return 0;
-            }
-
-            return Math.max(0, Math.min(5, rating));
+      function normalizeRating(value) {
+        var rating = Number(value || 0);
+        if (!Number.isFinite(rating)) {
+          return 0;
         }
 
-        function formatRating(value) {
-            var rating = normalizeRating(value);
-            var rounded = Number(rating.toFixed(1));
-            var locale = document.documentElement.lang || 'vi';
+        return Math.max(0, Math.min(5, rating));
+      }
 
-            return new Intl.NumberFormat(locale, {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1
-            }).format(rounded);
-        }
+      function formatRating(value) {
+        var rating = normalizeRating(value);
+        var rounded = Number(rating.toFixed(1));
+        var locale = document.documentElement.lang || "vi";
 
-        function getRoundedRating(value) {
-            return Number(normalizeRating(value).toFixed(1));
-        }
+        return new Intl.NumberFormat(locale, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }).format(rounded);
+      }
 
-        function applyRatingDisplay(root) {
-            root.querySelectorAll('[data-rating-stars]').forEach(function (element) {
-                var rounded = getRoundedRating(element.dataset.rating);
-                var percent = rounded / 5 * 100;
-                element.style.setProperty('--rating-percent', percent + '%');
-            });
+      function getRoundedRating(value) {
+        return Number(normalizeRating(value).toFixed(1));
+      }
 
-            root.querySelectorAll('[data-rating-value]').forEach(function (element) {
-                element.textContent = formatRating(element.dataset.rating);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            applyRatingDisplay(document);
+      function applyRatingDisplay(root) {
+        root.querySelectorAll("[data-rating-stars]").forEach(function (element) {
+          var rounded = getRoundedRating(element.dataset.rating);
+          var percent = (rounded / 5) * 100;
+          element.style.setProperty("--rating-percent", percent + "%");
         });
+
+        root.querySelectorAll("[data-rating-value]").forEach(function (element) {
+          element.textContent = formatRating(element.dataset.rating);
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        applyRatingDisplay(document);
+      });
     </script>
-</head>
+  </head>
 </html>
