@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-create-registration-otp-table
+      author: claude
+      changes:
+        - createTable:
+            tableName: registration_otp
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: email, type: varchar(150), constraints: { nullable: false } }
+              - column: { name: otp_hash, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: status, type: varchar(20), constraints: { nullable: false } }
+              - column: { name: expires_at, type: timestamp with time zone, constraints: { nullable: false } }
+              - column: { name: correlation_id, type: varchar(100) }
+              - column: { name: created_at, type: timestamp with time zone, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp with time zone, constraints: { nullable: false } }
+              - column: { name: created_by, type: varchar(100) }
+              - column: { name: updated_by, type: varchar(100) }
+        - createIndex:
+            tableName: registration_otp
+            indexName: idx_registration_otp_email_created_at
+            columns:
+              - column: { name: email }
+              - column: { name: created_at, descending: true }
+        - createIndex:
+            tableName: registration_otp
+            indexName: idx_registration_otp_email_status
+            columns:
+              - column: { name: email }
+              - column: { name: status }
+        - createIndex:
+            tableName: registration_otp
+            indexName: idx_registration_otp_expires_at
+            columns:
+              - column: { name: expires_at }

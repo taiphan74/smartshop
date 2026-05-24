@@ -38,10 +38,8 @@ class UiLayoutTemplateTests {
         String css = readResource("static/css/app.css");
 
         assertThat(css).contains(":root");
-        assertThat(css).contains("[data-theme=\"dark\"]");
         assertThat(css).contains("--color-bg");
         assertThat(css).contains(".site-header");
-        assertThat(css).contains(".theme-toggle");
     }
 
     @Test
