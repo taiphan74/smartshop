@@ -19,4 +19,6 @@ public interface RegistrationOtpRepository extends JpaRepository<RegistrationOtp
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	Optional<RegistrationOtp> findFirstByEmailAndStatusAndExpiresAtGreaterThanOrderByCreatedAtDesc(
 			String email, RegistrationOtpStatus status, Instant now);
+
+	List<RegistrationOtp> findByStatusAndExpiresAtGreaterThan(RegistrationOtpStatus status, Instant now);
 }

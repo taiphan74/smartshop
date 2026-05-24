@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Xác thực tài khoản')}"></head>
+<body class="bg-page-bg text-text-primary font-sans antialiased flex flex-col min-h-screen">
+
+    <main class="flex-grow flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-[480px] bg-surface rounded-lg shadow-md border border-border p-8">
+            <div class="text-center mb-8">
+                <a th:href="@{/}" class="inline-block mb-6">
+                    <img th:src="@{/images/smartshop-logo.png}" alt="SmartShop Logo" class="w-16 h-16 mx-auto rounded-md shadow-sm">
+                </a>
+                <h1 class="text-2xl font-bold text-text-primary mb-2">Xác thực tài khoản</h1>
+                <p class="text-sm text-text-secondary">Nhập mã OTP để kích hoạt tài khoản</p>
+            </div>
+
+            <div th:if="${formError}" class="mb-5 p-3.5 bg-brand-red-soft text-brand-red text-sm rounded-md border border-brand-red/20 shadow-sm" th:text="${formError}"></div>
+            <div th:if="${successMessage}" class="mb-5 p-3.5 bg-green-100 text-green-800 text-sm rounded-md border border-green-300 shadow-sm" th:text="${successMessage}"></div>
+
+            <form th:action="@{/auth/verify}" method="post" class="space-y-5">
+                <div>
+                    <label for="otp" class="block text-sm font-medium text-text-primary mb-1.5">Mã OTP</label>
+                    <input type="text" name="otp" id="otp" th:value="${otpCode}" required
+                           placeholder="Nhập mã OTP"
+                           class="w-full h-11 px-4 rounded-sm border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted text-sm">
+                    <p th:if="${otpCode}" class="mt-1 text-[11px] text-text-muted">Mã OTP đã được điền tự động.</p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                            class="w-full h-12 bg-brand-blue hover:bg-brand-blue-hover text-white font-medium rounded-md shadow-sm transition-all transform active:scale-[98%] cursor-pointer">
+                        Xác thực tài khoản
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-border text-center">
+                <p class="text-sm text-text-secondary">
+                    <a th:href="@{/auth/login}" class="text-brand-blue font-medium hover:underline">Đăng nhập</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

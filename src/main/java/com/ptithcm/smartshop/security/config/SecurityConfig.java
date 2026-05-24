@@ -62,6 +62,7 @@ public class SecurityConfig {
 								"/cart/**",
 								"/auth/login",
 								"/auth/register",
+								"/auth/verify",
 								"/css/**",
 								"/js/**",
 								"/images/**",

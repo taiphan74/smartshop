@@ -9,4 +9,6 @@ public interface RegistrationOtpService {
 	void sendRegistrationOtp(SendRegistrationOtpCommand command);
 
 	UserResponse verifyAndRegister(VerifyOtpAndRegisterUserCommand command);
+
+	UserResponse activateByOtp(String otp, String correlationId);
 }

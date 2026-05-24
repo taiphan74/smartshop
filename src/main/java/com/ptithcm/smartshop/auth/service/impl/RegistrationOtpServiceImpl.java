@@ -17,6 +17,7 @@ import com.ptithcm.smartshop.user.enums.UserStatus;
 import com.ptithcm.smartshop.user.repository.UserRepository;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -127,6 +128,37 @@ public class RegistrationOtpServiceImpl implements RegistrationOtpService {
 
 			log.info("User registered via OTP for emailHash={}", Integer.toHexString(normalizedEmail.hashCode()));
 			return UserResponse.from(savedUser);
+		}
+	}
+
+	@Override
+	@Transactional
+	public UserResponse activateByOtp(String otp, String correlationId) {
+		try (MDC.MDCCloseable ignored = MDC.putCloseable("correlationId", correlationId)) {
+			List<RegistrationOtp> candidates = otpRepository.findByStatusAndExpiresAtGreaterThan(
+					RegistrationOtpStatus.WAIT, Instant.now());
+
+			RegistrationOtp match = null;
+			for (RegistrationOtp row : candidates) {
+				if (passwordEncoder.matches(otp, row.getOtpHash())) {
+					match = row;
+					break;
+				}
+			}
+			if (match == null) {
+				throw new ConflictException("OTP is invalid or expired");
+			}
+
+			match.setStatus(RegistrationOtpStatus.SUCCESS);
+			otpRepository.save(match);
+
+			User user = userRepository.findByEmail(match.getEmail())
+					.orElseThrow(() -> new ConflictException("User not found"));
+			user.setStatus(UserStatus.ACTIVE);
+			userRepository.save(user);
+
+			log.info("User activated via OTP for emailHash={}", Integer.toHexString(match.getEmail().hashCode()));
+			return UserResponse.from(user);
 		}
 	}
 
