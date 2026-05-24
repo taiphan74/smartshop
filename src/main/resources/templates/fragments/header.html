@@ -1,130 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
-<body>
+  <body>
     <header th:fragment="header" class="site-header sticky top-0 z-50">
-        <div class="site-header__main">
-            <div class="site-shell site-header__row">
-                <a href="/" class="site-logo" th:attr="aria-label=#{common.home}">
-                    <img src="/images/smartshop-logo.png" alt="SmartShop Logo" class="site-logo__image" />
-                    <span class="site-logo__tagline" th:text="#{nav.tagline}">Mua sắm thông minh</span>
-                </a>
+      <div class="site-header__main">
+        <div class="site-shell site-header__row">
+          <a href="/" class="site-logo" th:attr="aria-label=#{common.home}">
+            <img src="/images/smartshop-logo.png" alt="SmartShop Logo" class="site-logo__image" />
+            <span class="site-logo__tagline" th:text="#{nav.tagline}">Mua sắm thông minh</span>
+          </a>
 
-                <form action="/products" method="get" class="site-search">
-                    <label class="sr-only" for="site-search-input" th:text="#{nav.search_label}">Tìm kiếm sản phẩm</label>
-                    <input id="site-search-input"
-                           type="text"
-                           name="q"
-                           th:placeholder="#{nav.search_placeholder}" placeholder="Bạn muốn tìm gì hôm nay?"
-                           class="site-search__input">
-                    <span class="site-search__icon" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path stroke-linecap="round" d="m21 21-4.35-4.35"/>
-                        </svg>
-                    </span>
+          <form action="/products" method="get" class="site-search">
+            <label class="sr-only" for="site-search-input" th:text="#{nav.search_label}">Tìm kiếm sản phẩm</label>
+            <input id="site-search-input" type="text" name="q" th:placeholder="#{nav.search_placeholder}" placeholder="Bạn muốn tìm gì hôm nay?" class="site-search__input" />
+            <span class="site-search__icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <path stroke-linecap="round" d="m21 21-4.35-4.35" />
+              </svg>
+            </span>
+          </form>
+
+          <nav class="site-actions" th:attr="aria-label=#{nav.main_actions}">
+            <a href="/" class="site-action" th:attr="aria-label=#{nav.home}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
+              </svg>
+              <span class="site-action__label sr-only" th:text="#{nav.home}">Trang chủ</span>
+            </a>
+            <a th:if="${sessionUser == null}" href="/auth/login" class="site-action" th:attr="aria-label=#{nav.login}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span class="site-action__label sr-only" th:text="#{nav.login}">Đăng nhập</span>
+            </a>
+            <a href="/cart" class="site-action site-cart" th:attr="aria-label=#{nav.cart}">
+              <span class="site-cart__badge" th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}">0</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z" />
+              </svg>
+              <span class="site-action__label sr-only" th:text="#{nav.cart}">Giỏ hàng</span>
+            </a>
+            <details th:if="${sessionUser != null}" class="site-account-menu">
+              <summary class="site-action site-account-trigger" th:attr="aria-label=#{nav.account}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span class="site-action__label sr-only" th:text="#{nav.account}">Tài khoản</span>
+              </summary>
+              <div class="site-account-dropdown">
+                <a href="/profile" class="site-account-dropdown__item" th:text="#{nav.account}">Tài khoản</a>
+                <a href="/my/orders" class="site-account-dropdown__item">Đơn hàng của tôi</a>
+                <form th:action="@{/auth/logout}" method="post">
+                  <button type="submit" class="site-account-dropdown__item site-account-dropdown__button font-bold text-red-600 hover:text-red-700" th:text="#{nav.logout}">Đăng xuất</button>
                 </form>
-
-                <nav class="site-actions" th:attr="aria-label=#{nav.main_actions}">
-                    <a href="/" class="site-action" th:attr="aria-label=#{nav.home}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/>
-                        </svg>
-                        <span class="site-action__label sr-only" th:text="#{nav.home}">Trang chủ</span>
-                    </a>
-                    <a th:if="${sessionUser == null}" href="/auth/login" class="site-action" th:attr="aria-label=#{nav.login}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        <span class="site-action__label sr-only" th:text="#{nav.login}">Đăng nhập</span>
-                    </a>
-                    <a href="/cart" class="site-action site-cart" th:attr="aria-label=#{nav.cart}">
-                        <span class="site-cart__badge"
-                              th:if="${cartCount != null and cartCount > 0}"
-                              th:text="${cartCount}">0</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/>
-                        </svg>
-                        <span class="site-action__label sr-only" th:text="#{nav.cart}">Giỏ hàng</span>
-                    </a>
-                    <details th:if="${sessionUser != null}" class="site-account-menu">
-                        <summary class="site-action site-account-trigger" th:attr="aria-label=#{nav.account}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                            <span class="site-action__label sr-only" th:text="#{nav.account}">Tài khoản</span>
-                        </summary>
-                        <div class="site-account-dropdown">
-                            <a href="/profile" class="site-account-dropdown__item" th:text="#{nav.account}">Tài khoản</a>
-                            <a href="/my/orders" class="site-account-dropdown__item">Đơn hàng của tôi</a>
-                            <form th:action="@{/auth/logout}" method="post">
-                                <button type="submit" class="site-account-dropdown__item site-account-dropdown__button font-bold text-red-600 hover:text-red-700" th:text="#{nav.logout}">Đăng xuất</button>
-                            </form>
-                        </div>
-                    </details>
-                    <div class="flex items-center gap-1 text-xs font-semibold" th:attr="aria-label=#{nav.language}">
-                        <a href="?language=vi"
-                           data-language-option="vi"
-                           class="px-2 py-1 rounded border border-border hover:bg-surface-soft"
-                           th:classappend="${#locale.language == 'vi'} ? ' bg-brand-blue text-white border-brand-blue' : ''">VI</a>
-                        <a href="?language=en"
-                           data-language-option="en"
-                           class="px-2 py-1 rounded border border-border hover:bg-surface-soft"
-                           th:classappend="${#locale.language == 'en'} ? ' bg-brand-blue text-white border-brand-blue' : ''">EN</a>
-                    </div>
-                    <button type="button" class="theme-toggle" th:attr="aria-label=#{nav.theme_toggle}" data-theme-toggle>
-                        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
-                        <span class="theme-toggle__text sr-only">Dark</span>
-                    </button>
-                </nav>
+              </div>
+            </details>
+            <div class="flex items-center gap-1 text-xs font-semibold" th:attr="aria-label=#{nav.language}">
+              <a href="?language=vi" data-language-option="vi" class="px-2 py-1 rounded border border-border hover:bg-surface-soft" th:classappend="${#locale.language == 'vi'} ? ' bg-brand-blue text-white border-brand-blue' : ''">VI</a>
+              <a href="?language=en" data-language-option="en" class="px-2 py-1 rounded border border-border hover:bg-surface-soft" th:classappend="${#locale.language == 'en'} ? ' bg-brand-blue text-white border-brand-blue' : ''">EN</a>
             </div>
+          </nav>
         </div>
+      </div>
 
-        <nav class="site-categories" th:attr="aria-label=#{nav.categories}">
-            <div class="site-shell site-categories__row">
-                <a th:each="cat : ${headerCategories}"
-                   th:href="@{/products(category=${cat.slug})}"
-                   class="site-category-link"
-                   th:classappend="${selectedCategorySlug != null and selectedCategorySlug == cat.slug} ? ' site-category-link--active' : ''"
-                   th:text="${cat.displayName}">Tên danh mục</a>
-                <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="site-category-empty">
-                    <span th:text="#{common.loading_categories}">Đang tải danh mục...</span>
-                </span>
-            </div>
-        </nav>
+      <nav class="site-categories" th:attr="aria-label=#{nav.categories}">
+        <div class="site-shell site-categories__row">
+          <a th:each="cat : ${headerCategories}" th:href="@{/products(category=${cat.slug})}" class="site-category-link" th:classappend="${selectedCategorySlug != null and selectedCategorySlug == cat.slug} ? ' site-category-link--active' : ''" th:text="${cat.displayName}">Tên danh mục</a>
+          <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="site-category-empty">
+            <span th:text="#{common.loading_categories}">Đang tải danh mục...</span>
+          </span>
+        </div>
+      </nav>
 
-        <script>
-          document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[data-language-option]').forEach(function (link) {
-              link.addEventListener('click', function (event) {
-                event.preventDefault();
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          document.querySelectorAll("[data-language-option]").forEach(function (link) {
+            link.addEventListener("click", function (event) {
+              event.preventDefault();
 
-                var url = new URL(window.location.href);
-                url.searchParams.set('language', link.getAttribute('data-language-option'));
-                window.location.href = url.toString();
-              });
-            });
-
-            var button = document.querySelector('[data-theme-toggle]');
-            if (!button) return;
-
-            function applyButtonState(theme) {
-              var dark = theme === 'dark';
-              button.querySelector('.theme-toggle__icon').textContent = dark ? '☀' : '☾';
-              button.querySelector('.theme-toggle__text').textContent = dark ? 'Light' : 'Dark';
-            }
-
-            applyButtonState(document.documentElement.getAttribute('data-theme') || 'light');
-
-            button.addEventListener('click', function () {
-              var current = document.documentElement.getAttribute('data-theme') || 'light';
-              var next = current === 'dark' ? 'light' : 'dark';
-              document.documentElement.setAttribute('data-theme', next);
-              localStorage.setItem('smartshop-theme', next);
-              applyButtonState(next);
+              var url = new URL(window.location.href);
+              url.searchParams.set("language", link.getAttribute("data-language-option"));
+              window.location.href = url.toString();
             });
           });
-        </script>
+        });
+      </script>
     </header>
-</body>
+  </body>
 </html>

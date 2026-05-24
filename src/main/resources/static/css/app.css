@@ -21,36 +21,12 @@
 	--radius-lg: 24px;
 }
 
-[data-theme="dark"] {
-	--color-bg: #0f172a;
-	--color-bg-soft: #111c33;
-	--color-surface: #172033;
-	--color-surface-soft: #1f2a44;
-	--color-border: #2c3954;
-	--color-border-strong: #3d4c6b;
-	--color-text: #f8fafc;
-	--color-text-soft: #cbd5e1;
-	--color-text-muted: #94a3b8;
-	--color-primary: #60a5fa;
-	--color-primary-hover: #93c5fd;
-	--color-primary-soft: rgba(96, 165, 250, 0.16);
-	--color-danger: #fb7185;
-	--color-success: #34d399;
-	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-	--shadow-md: 0 12px 32px rgba(0, 0, 0, 0.30);
-	--shadow-lg: 0 24px 80px rgba(0, 0, 0, 0.38);
-}
-
 * {
 	box-sizing: border-box;
 }
 
 html {
 	color-scheme: light;
-}
-
-html[data-theme="dark"] {
-	color-scheme: dark;
 }
 
 body {
