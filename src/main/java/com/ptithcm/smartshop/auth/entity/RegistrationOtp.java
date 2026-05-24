@@ -26,6 +26,9 @@ public class RegistrationOtp extends AuditableEntity {
 	@Column(name = "expires_at", nullable = false)
 	private Instant expiresAt;
 
+	@Column(nullable = false)
+	private int attempts;
+
 	@Column(name = "correlation_id", length = 100)
 	private String correlationId;
 
@@ -67,5 +70,13 @@ public class RegistrationOtp extends AuditableEntity {
 
 	public void setCorrelationId(String correlationId) {
 		this.correlationId = correlationId;
+	}
+
+	public int getAttempts() {
+		return attempts;
+	}
+
+	public void setAttempts(int attempts) {
+		this.attempts = attempts;
 	}
 }

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021-add-registration-otp-attempts
+      author: claude
+      changes:
+        - addColumn:
+            tableName: registration_otp
+            columns:
+              - column:
+                  name: attempts
+                  type: int
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

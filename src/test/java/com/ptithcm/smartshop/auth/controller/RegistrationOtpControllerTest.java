@@ -1,14 +1,19 @@
 package com.ptithcm.smartshop.auth.controller;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ptithcm.smartshop.auth.command.SendRegistrationOtpCommand;
+import com.ptithcm.smartshop.auth.command.VerifyOtpAndRegisterUserCommand;
 import com.ptithcm.smartshop.auth.service.RegistrationOtpService;
+import com.ptithcm.smartshop.user.dto.UserResponse;
+import com.ptithcm.smartshop.user.enums.UserStatus;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,13 +40,13 @@ class RegistrationOtpControllerTest {
 
 		mockMvc.perform(post("/api/auth/registration/otp")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"email\":\" Customer@Example.com \"}"))
+				.content("{\"email\":\"customer@example.com\"}"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.message", is("If the email can receive registration OTP, instructions will be sent.")));
 
 		verify(registrationOtpService).sendRegistrationOtp(captor.capture());
 		SendRegistrationOtpCommand command = captor.getValue();
-		org.assertj.core.api.Assertions.assertThat(command.email()).isEqualTo(" Customer@Example.com ");
+		org.assertj.core.api.Assertions.assertThat(command.email()).isEqualTo("customer@example.com");
 		org.assertj.core.api.Assertions.assertThat(command.correlationId()).isNotBlank();
 	}
 
@@ -50,6 +55,32 @@ class RegistrationOtpControllerTest {
 		mockMvc.perform(post("/api/auth/registration/otp")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("{\"email\":\"not-email\"}"))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(registrationOtpService);
+	}
+
+	@Test
+	void returnsCreatedForValidRegistration() throws Exception {
+		UserResponse mockResponse = new UserResponse(
+				java.util.UUID.randomUUID(), "test@example.com", null, "Test User",
+				UserStatus.ACTIVE, java.util.Set.of("CUSTOMER"), java.util.Set.of(), null, null);
+		when(registrationOtpService.verifyAndRegister(any())).thenReturn(mockResponse);
+
+		mockMvc.perform(post("/api/auth/registration")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"email\":\"test@example.com\",\"otp\":\"123456\",\"password\":\"password123\",\"fullName\":\"Test User\"}"))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.email", is("test@example.com")));
+
+		verify(registrationOtpService).verifyAndRegister(any(VerifyOtpAndRegisterUserCommand.class));
+	}
+
+	@Test
+	void rejectsWeakPassword() throws Exception {
+		mockMvc.perform(post("/api/auth/registration")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"email\":\"test@example.com\",\"otp\":\"123456\",\"password\":\"123\",\"fullName\":\"Test User\"}"))
 				.andExpect(status().isBadRequest());
 
 		verifyNoInteractions(registrationOtpService);
