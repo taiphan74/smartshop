@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -138,5 +139,25 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             order by count(p.id) desc, p.category.name asc
             """)
     List<CategoryProductCountProjection> countActiveProductsByCategory();
-}
 
+
+    @Query("SELECT p.id AS id, " +
+           "p.name AS name, " +
+           "p.slug AS slug, " +
+           "p.status AS status, " +
+           "p.category.name AS categoryName, " +
+           "COALESCE(" +
+           "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
+           "  0.0" +
+           ") AS price, " +
+           "COALESCE(" +
+           "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
+           "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
+           ") AS thumbnailUrl, " +
+           "p.reviewCount AS reviewCount, " +
+           "p.averageRating AS averageRating " +
+           "FROM Product p JOIN p.shop s " +
+           "WHERE p.status = true AND s.status = 'APPROVED' " +
+           "AND LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<ProductProjection> searchPublicProducts(@Param("keyword") String keyword, Pageable pageable);
+}

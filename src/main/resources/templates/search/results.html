@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Kết quả tìm kiếm')}">
+    
+</head>
+<body class="search-page bg-page-bg text-text-primary antialiased">
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <main>
+    <section class="container mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-16">
+      <p class="small-caps text-text-secondary text-xs mb-6"
+         th:text="'Bộ sưu tập — Tháng ' + ${#dates.format(#dates.createNow(), 'M, yyyy')}">
+        Bộ sưu tập — Tháng 5, 2026
+      </p>
+
+      <h1 class="display-font text-3xl md:text-4xl lg:text-5xl leading-tight text-zinc-900 mb-4 max-w-3xl"
+          th:if="${query != null and !query.isEmpty()}">
+    <span class="italic text-brand-blue">"</span><span th:text="${query}">áo thun</span><span class="italic text-brand-blue">"</span>
+</h1>
+<h1 class="display-font text-3xl md:text-4xl lg:text-5xl leading-tight text-zinc-900 mb-4 max-w-3xl italic"
+          th:if="${query == null or query.isEmpty()}">
+    Tìm kiếm sản phẩm
+</h1>
+
+      <div class="flex items-center gap-3 mb-8">
+    <p class="text-sm font-medium text-brand-blue bg-brand-blue/10 px-3 py-1 rounded-full"
+       th:text="${products.totalElements} + ' sản phẩm'">0 sản phẩm</p>
+    <span class="text-text-secondary text-sm">được chọn lọc</span>
+</div>
+
+      <div class="hairline-rule"></div>
+    </section>
+
+    <section class="container mx-auto px-6 pb-24"
+             th:if="${products != null and !products.isEmpty()}">
+      <div th:replace="~{fragments/product-grid :: grid(products=${products})}"></div>      </div>
+
+      <nav th:if="${products.totalPages > 1}" class="mt-24 flex justify-center items-center gap-8">
+        <a th:if="${products.hasPrevious()}"
+           th:href="@{/search(q=${query}, page=${products.number - 1})}"
+           class="page-link text-sm small-caps text-text-secondary">← Trước</a>
+        <div class="flex items-center gap-6">
+          <a th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}"
+             th:if="${products.totalPages <= 7 or (i >= products.number - 1 and i <= products.number + 1) or i == 0 or i == products.totalPages - 1}"
+             th:href="@{/search(q=${query}, page=${i})}"
+             class="page-link text-sm"
+             th:classappend="${i == products.number} ? 'page-link--active' : 'text-text-secondary'"
+             th:text="${i + 1}">1</a>
+        </div>
+        <a th:if="${products.hasNext()}"
+           th:href="@{/search(q=${query}, page=${products.number + 1})}"
+           class="page-link text-sm small-caps text-text-secondary">Sau →</a>
+      </nav>
+    </section>
+
+    <section th:if="${products == null or products.isEmpty()}"
+             class="container mx-auto px-6 py-24 md:py-32 text-center">
+      <svg class="empty-illustration mx-auto mb-10 w-32 h-32 text-text-muted" viewBox="0 0 128 128" fill="none" stroke="currentColor" stroke-width="1">
+        <circle cx="52" cy="52" r="36" />
+        <line x1="80" y1="80" x2="112" y2="112" stroke-width="2" stroke-linecap="round" />
+        <text x="52" y="62" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="32" fill="currentColor" stroke="none">?</text>
+      </svg>
+      <h2 class="display-font text-4xl md:text-5xl text-zinc-900 mb-4 italic">
+        Không tìm thấy gì cả.
+      </h2>
+      <p class="text-text-secondary text-lg mb-10 max-w-md mx-auto">
+        Từ khóa <span class="font-medium text-zinc-900" th:text="${query}">...</span> không khớp với sản phẩm nào trong bộ sưu tập của chúng tôi.
+      </p>
+      <div class="mb-10">
+        <p class="small-caps text-xs text-text-muted mb-4">Thử những từ phổ biến hơn</p>
+        <div class="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+          <a th:each="suggestion : ${ {'áo thun', 'váy', 'giày', 'túi xách', 'áo khoác'} }"
+             th:href="@{/search(q=${suggestion})}"
+             class="px-4 py-2 border border-border rounded-pill text-sm hover:border-brand-blue hover:text-brand-blue transition-colors"
+             th:text="${suggestion}">áo thun</a>
+        </div>
+      </div>
+      <a href="/" class="inline-flex items-center gap-2 text-sm small-caps text-brand-blue hover:gap-3 transition-all">
+        ← Quay về trang chủ
+      </a>
+    </section>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
