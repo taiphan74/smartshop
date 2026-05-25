@@ -9,6 +9,8 @@ import com.ptithcm.smartshop.user.entity.User;
 import com.ptithcm.smartshop.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
+import org.springframework.context.MessageSource;
+import java.util.Locale;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +26,12 @@ public class ProfileController {
     private final UserRepository userRepository;
     private final ShopRegistrationService shopRegistrationService;
 
-    public ProfileController(UserRepository userRepository, ShopRegistrationService shopRegistrationService) {
+    private final MessageSource messageSource;
+
+    public ProfileController(UserRepository userRepository, ShopRegistrationService shopRegistrationService, MessageSource messageSource) {
         this.userRepository = userRepository;
         this.shopRegistrationService = shopRegistrationService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("/profile")
@@ -64,7 +69,7 @@ public class ProfileController {
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             model.addAttribute("user", user);
             model.addAttribute("isEdit", true);
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin nhập.");
+            model.addAttribute("errorMessage", messageSource.getMessage("profile.update.error", null, Locale.getDefault()));
             model.addAttribute("shopForm", new ShopRegistrationForm("", "", "", ""));
             model.addAttribute("shops", shopRegistrationService.findOwnedShopSummaries(sessionUser.id()));
             return "profile/index";
@@ -75,7 +80,7 @@ public class ProfileController {
         user.setFullName(form.fullName().trim());
         user.setPhone(form.phone() == null || form.phone().isBlank() ? null : form.phone().trim());
         userRepository.save(user);
-        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công.");
+        redirectAttributes.addFlashAttribute("successMessage", messageSource.getMessage("profile.update.success", null, Locale.getDefault()));
         return "redirect:/profile";
     }
 
@@ -88,7 +93,7 @@ public class ProfileController {
             return "redirect:/auth/login";
         }
         shopRegistrationService.register(sessionUser.id(), form);
-        redirectAttributes.addFlashAttribute("successMessage", "Đã gửi đăng ký shop. Vui lòng chờ admin duyệt.");
+        redirectAttributes.addFlashAttribute("successMessage", messageSource.getMessage("profile.shop_submit", null, Locale.getDefault()));
         return "redirect:/profile";
     }
 

@@ -30,9 +30,7 @@
 
             <!-- Nút Edit (Chỉ hiện khi không ở Edit Mode) -->
             <div th:if="${!isEdit}">
-                <a th:href="@{/profile(edit=true)}" class="bg-brand-blue text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:shadow-md transition-all duration-300 inline-block">
-                    Edit
-                </a>
+                <a th:href="@{/profile(edit=true)}" class="bg-brand-blue text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:shadow-md transition-all duration-300 inline-block" th:text="#{profile.edit}">Edit</a>
             </div>
         </div>
 
@@ -40,7 +38,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="p-4 md:p-6 border-b border-gray-50">
                 <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <span class="text-brand-red">👤</span> Thông tin cá nhân
+                    <span class="text-brand-red">👤</span> <span th:text="#{profile.personal_info}">Thông tin cá nhân</span>
                 </h3>
             </div>
 
@@ -49,20 +47,20 @@
                 <!-- VIEW MODE -->
                 <div th:if="${!isEdit}" class="space-y-6">
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Họ và tên</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.full_name}">Họ và tên</label>
                         <p class="text-base text-gray-900 mt-1" th:text="${user.fullName}">Nguyễn Văn A</p>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Số điện thoại</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.phone}">Số điện thoại</label>
                         <p th:if="${user.phone != null and !user.phone.isBlank()}" class="text-base text-gray-900 mt-1" th:text="${user.phone}">0987654321</p>
-                        <p th:unless="${user.phone != null and !user.phone.isBlank()}" class="text-base text-gray-400 italic mt-1">Chưa cập nhật</p>
+                        <p th:unless="${user.phone != null and !user.phone.isBlank()}" class="text-base text-gray-400 italic mt-1" th:text="#{profile.not_updated}">Chưa cập nhật</p>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Tên đăng nhập</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.username}">Tên đăng nhập</label>
                         <p class="text-base text-gray-900 mt-1" th:text="${user.username}">username</p>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Email</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.email}">Email</label>
                         <p class="text-base text-gray-900 mt-1" th:text="${user.email}">email@example.com</p>
                     </div>
                 </div>
@@ -71,37 +69,33 @@
                 <form th:if="${isEdit}" th:action="@{/profile}" th:object="${profileForm}" method="post" class="space-y-6">
                     <!-- FullName Field -->
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Họ và tên <span class="text-red-500">*</span></label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.full_name}">Họ tên</label><span class="text-red-500 ml-1">*</span>
                         <input type="text" th:field="*{fullName}" class="w-full border border-gray-200 rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue outline-none transition" />
                         <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-red-500 text-xs mt-1"></p>
                     </div>
                     
                     <!-- Phone Field -->
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Số điện thoại</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.phone}">Số điện thoại</label>
                         <input type="text" th:field="*{phone}" placeholder="VD: 0912345678" class="w-full border border-gray-200 rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue outline-none transition" />
                         <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-red-500 text-xs mt-1"></p>
                     </div>
                     
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Tên đăng nhập</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.username}">Tên đăng nhập</label>
                         <p class="text-base text-gray-900 mt-1" th:text="${user.username}">username</p>
-                        <span class="text-xs text-gray-400">Không thể thay đổi</span>
+                        <span class="text-xs text-gray-400" th:text="#{profile.cannot_change}">Không thể thay đổi</span>
                     </div>
                     <div>
-                        <label class="text-sm font-medium text-gray-500">Email</label>
+                        <label class="text-sm font-medium text-gray-500" th:text="#{profile.email}">Email</label>
                         <p class="text-base text-gray-900 mt-1" th:text="${user.email}">email@example.com</p>
-                        <span class="text-xs text-gray-400">Không thể thay đổi</span>
+                        <span class="text-xs text-gray-400" th:text="#{profile.cannot_change}">Không thể thay đổi</span>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex gap-3 pt-4 border-t border-gray-100">
-                        <button type="submit" class="bg-brand-blue text-white px-6 py-2.5 rounded-lg font-bold hover:shadow-md transition-all duration-300">
-                            Save
-                        </button>
-                        <a th:href="@{/profile}" class="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg font-bold hover:bg-gray-200 transition-all duration-300 inline-block">
-                            Cancel
-                        </a>
+                        <button type="submit" class="bg-brand-blue text-white px-6 py-2.5 rounded-lg font-bold hover:shadow-md transition-all duration-300" th:text="#{profile.save}">Save</button>
+                        <a th:href="@{/profile}" class="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg font-bold hover:bg-gray-200 transition-all duration-300 inline-block" th:text="#{profile.cancel}">Cancel</a>
                     </div>
                 </form>
 
