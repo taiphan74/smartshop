@@ -10,9 +10,11 @@ import com.ptithcm.smartshop.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -28,14 +30,19 @@ public class ProfileController {
     }
 
     @GetMapping("/profile")
-    public String profile(@SessionAttribute(name = SessionConstants.CURRENT_USER, required = false) SessionUser sessionUser, Model model) {
+    public String profile(@SessionAttribute(name = SessionConstants.CURRENT_USER, required = false) SessionUser sessionUser, 
+                          @RequestParam(name = "edit", required = false, defaultValue = "false") boolean isEdit,
+                          Model model) {
         if (sessionUser == null) {
             return "redirect:/auth/login";
         }
         User user = userRepository.findById(sessionUser.id())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         model.addAttribute("user", user);
-        model.addAttribute("profileForm", new ProfileUpdateForm(user.getFullName(), user.getPhone()));
+        model.addAttribute("isEdit", isEdit);
+        if (isEdit) {
+            model.addAttribute("profileForm", new ProfileUpdateForm(user.getFullName(), user.getPhone()));
+        }
         model.addAttribute("shopForm", new ShopRegistrationForm("", "", "", ""));
         model.addAttribute("shops", shopRegistrationService.findOwnedShopSummaries(sessionUser.id()));
         return "profile/index";
@@ -45,10 +52,24 @@ public class ProfileController {
     public String updateProfile(
             @SessionAttribute(name = SessionConstants.CURRENT_USER, required = false) SessionUser sessionUser,
             @Valid @ModelAttribute("profileForm") ProfileUpdateForm form,
-            RedirectAttributes redirectAttributes) {
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model) {
         if (sessionUser == null) {
             return "redirect:/auth/login";
         }
+        
+        if (bindingResult.hasErrors()) {
+            User user = userRepository.findById(sessionUser.id())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            model.addAttribute("user", user);
+            model.addAttribute("isEdit", true);
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin nhập.");
+            model.addAttribute("shopForm", new ShopRegistrationForm("", "", "", ""));
+            model.addAttribute("shops", shopRegistrationService.findOwnedShopSummaries(sessionUser.id()));
+            return "profile/index";
+        }
+
         User user = userRepository.findById(sessionUser.id())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         user.setFullName(form.fullName().trim());

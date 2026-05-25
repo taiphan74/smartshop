@@ -10,6 +10,7 @@ import com.ptithcm.smartshop.user.entity.User;
 import com.ptithcm.smartshop.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.ui.ConcurrentModel;
+import org.springframework.validation.BindException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.util.List;
@@ -30,7 +31,7 @@ class ProfileControllerTest {
     void profilePageRedirectsGuestToLogin() {
         ProfileController controller = new ProfileController(mock(UserRepository.class), mock(ShopRegistrationService.class));
 
-        String view = controller.profile(null, new ConcurrentModel());
+        String view = controller.profile(null, false, new ConcurrentModel());
 
         assertThat(view).isEqualTo("redirect:/auth/login");
     }
@@ -50,7 +51,7 @@ class ProfileControllerTest {
         ProfileController controller = new ProfileController(userRepository, shopService);
         ConcurrentModel model = new ConcurrentModel();
 
-        String view = controller.profile(sessionUser, model);
+        String view = controller.profile(sessionUser, false, model);
 
         assertThat(view).isEqualTo("profile/index");
         assertThat(model.getAttribute("profileForm")).isInstanceOf(ProfileUpdateForm.class);
@@ -70,7 +71,7 @@ class ProfileControllerTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         ProfileController controller = new ProfileController(userRepository, mock(ShopRegistrationService.class));
 
-        String view = controller.updateProfile(sessionUser, new ProfileUpdateForm("New Name", "0911111111"), new RedirectAttributesModelMap());
+        String view = controller.updateProfile(sessionUser, new ProfileUpdateForm("New Name", "0911111111"), new BindException(new ProfileUpdateForm("New Name", "0911111111"), "profileForm"), new RedirectAttributesModelMap(), new ConcurrentModel());
 
         assertThat(view).isEqualTo("redirect:/profile");
         assertThat(user.getPhone()).isEqualTo("0911111111");
