@@ -2,13 +2,27 @@ package com.ptithcm.smartshop.auth.controller;
 
 import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
 import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
+import com.ptithcm.smartshop.auth.dto.AuthResponse;
 import com.ptithcm.smartshop.auth.service.AuthService;
-import com.ptithcm.smartshop.shared.exception.ConflictException;
+import com.ptithcm.smartshop.auth.service.RegistrationOtpService;
+import com.ptithcm.smartshop.security.principal.CustomUserDetails;
 import com.ptithcm.smartshop.security.session.SessionConstants;
+import com.ptithcm.smartshop.security.session.SessionUser;
+import com.ptithcm.smartshop.shared.exception.ConflictException;
+import com.ptithcm.smartshop.user.dto.UserResponse;
+import com.ptithcm.smartshop.user.entity.User;
+import com.ptithcm.smartshop.auth.service.AuthQueryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.UUID;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,171 +30,163 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Controller xử lý luồng xác thực phía giao diện web (Thymeleaf):
- * hiển thị form login/register, nhận submit và điều hướng sau xử lý.
- */
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
 
-	/**
-	 * Service chứa nghiệp vụ xác thực và quản lý phiên.
-	 */
-	private final AuthService authService;
+    private final AuthService authService;
+    private final RegistrationOtpService registrationOtpService;
+    private final AuthQueryService authQueryService;
 
-	/**
-	 * Khởi tạo controller với dependency nghiệp vụ auth.
-	 */
-	public AuthController(AuthService authService) {
-		this.authService = authService;
-	}
+    public AuthController(AuthService authService, RegistrationOtpService registrationOtpService, AuthQueryService authQueryService) {
+        this.authService = authService;
+        this.registrationOtpService = registrationOtpService;
+        this.authQueryService = authQueryService;
+    }
 
-	/**
-	 * Hiển thị trang đăng nhập.
-	 *
-	 * Luồng xử lý:
-	 * 1) Nếu đã có phiên hợp lệ thì chuyển hướng về trang chủ.
-	 * 2) Nếu chưa có dữ liệu form trong model thì khởi tạo object rỗng để bind.
-	 * 3) Trả về template đăng nhập.
-	 */
-	@GetMapping("/login")
-	public String loginPage(Model model, HttpServletRequest request) {
-		// Bước 1: chặn người dùng đã đăng nhập truy cập lại form login.
-		if (hasActiveSession(request)) {
-			return "redirect:/";
-		}
-		// Bước 2: tạo model mặc định cho form nếu chưa có dữ liệu trước đó.
-		if (!model.containsAttribute("loginRequest")) {
-			model.addAttribute("loginRequest", new AuthLoginRequest("", ""));
-		}
-		// Bước 3: render giao diện login.
-		return "auth/login";
-	}
+    @GetMapping("/login")
+    public String loginPage(Model model, HttpServletRequest request) {
+        if (hasActiveSession(request)) {
+            return "redirect:/";
+        }
+        if (!model.containsAttribute("loginRequest")) {
+            model.addAttribute("loginRequest", new AuthLoginRequest("", ""));
+        }
+        return "auth/login";
+    }
 
-	/**
-	 * Xử lý submit form đăng nhập.
-	 *
-	 * Luồng xử lý:
-	 * 1) Validate dữ liệu đầu vào; nếu sai trả lại form để hiển thị lỗi field.
-	 * 2) Gọi service để xác thực và tạo phiên đăng nhập.
-	 * 3) Nếu thành công chuyển hướng về trang chủ.
-	 * 4) Nếu xác thực thất bại thì trả thông báo lỗi tổng quát lên form.
-	 */
-	@PostMapping("/login")
-	public String login(
-			@Valid @ModelAttribute("loginRequest") AuthLoginRequest request,
-			BindingResult bindingResult,
-			HttpServletRequest httpServletRequest,
-			Model model) {
-		// Bước 1: dừng sớm khi dữ liệu không hợp lệ.
-		if (bindingResult.hasErrors()) {
-			return "auth/login";
-		}
+    @PostMapping("/login")
+    public String login(
+            @Valid @ModelAttribute("loginRequest") AuthLoginRequest request,
+            BindingResult bindingResult,
+            HttpServletRequest httpServletRequest,
+            Model model) {
+        if (bindingResult.hasErrors()) {
+            return "auth/login";
+        }
 
-		try {
-			// Bước 2: xác thực thông tin đăng nhập và gắn session/security context.
-			authService.login(request, httpServletRequest);
-			// Bước 3: điều hướng về trang chủ nếu đăng nhập thành công.
-			return "redirect:/";
-		} catch (AuthenticationException exception) {
-			// Bước 4: ẩn chi tiết lý do thất bại để tránh lộ thông tin nhạy cảm.
-			model.addAttribute("formError", "Email/so dien thoai hoac mat khau khong dung");
-			return "auth/login";
-		}
-	}
+        try {
+            AuthResponse authResp = authService.login(request);
+            UserResponse userResp = authResp.user();
+            User user = authQueryService.findUserByEmail(userResp.email());
 
-	/**
-	 * Hiển thị trang đăng ký.
-	 *
-	 * Luồng xử lý:
-	 * 1) Nếu đã đăng nhập thì chuyển hướng về trang chủ.
-	 * 2) Nếu model chưa có dữ liệu đăng ký thì khởi tạo object rỗng.
-	 * 3) Trả về template đăng ký.
-	 */
-	@GetMapping("/register")
-	public String registerPage(Model model, HttpServletRequest request) {
-		// Bước 1: người dùng đã đăng nhập không cần vào trang register.
-		if (hasActiveSession(request)) {
-			return "redirect:/";
-		}
-		// Bước 2: tạo model mặc định cho form đăng ký.
-		if (!model.containsAttribute("registerRequest")) {
-			model.addAttribute("registerRequest", new AuthRegisterRequest("", "", "", ""));
-		}
-		// Bước 3: render giao diện register.
-		return "auth/register";
-	}
+            CustomUserDetails principal = CustomUserDetails.from(user);
+            Authentication auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(auth);
+            SecurityContextHolder.setContext(context);
 
-	/**
-	 * Xử lý submit form đăng ký.
-	 *
-	 * Luồng xử lý:
-	 * 1) Validate dữ liệu đầu vào; nếu lỗi thì hiển thị lại form.
-	 * 2) Tạo tài khoản mới qua service.
-	 * 3) Tự động đăng nhập bằng thông tin vừa đăng ký.
-	 * 4) Gắn flash message thành công và chuyển hướng về trang chủ.
-	 * 5) Nếu trùng email/số điện thoại thì hiển thị lỗi business trên form.
-	 * 6) Nếu đăng ký thành công nhưng đăng nhập tự động thất bại thì điều hướng
-	 * sang login.
-	 */
-	@PostMapping("/register")
-	public String register(
-			@Valid @ModelAttribute("registerRequest") AuthRegisterRequest request,
-			BindingResult bindingResult,
-			HttpServletRequest httpServletRequest,
-			Model model,
-			RedirectAttributes redirectAttributes) {
-		// Bước 1: phản hồi sớm khi dữ liệu không hợp lệ.
-		if (bindingResult.hasErrors()) {
-			return "auth/register";
-		}
+            HttpSession session = httpServletRequest.getSession(true);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+            session.setAttribute(SessionConstants.CURRENT_USER, SessionUser.from(user));
 
-		try {
-			// Bước 2: tạo tài khoản mới.
-			authService.register(request);
-			// Bước 3: tự động đăng nhập ngay sau đăng ký.
-			authService.login(new AuthLoginRequest(request.email(), request.password()), httpServletRequest);
-			// Bước 4: thêm thông báo thành công ở request kế tiếp.
-			redirectAttributes.addFlashAttribute("successMessage", "Dang ky thanh cong");
-			return "redirect:/";
-		} catch (ConflictException exception) {
-			// Bước 5: hiển thị lỗi nghiệp vụ (trùng email/phone) cho người dùng.
-			model.addAttribute("formError", exception.getMessage());
-			return "auth/register";
-		} catch (AuthenticationException exception) {
-			// Bước 6: fallback sang trang login nếu auto-login không thành công.
-			model.addAttribute("formError", "Dang ky thanh cong nhung khong the dang nhap tu dong");
-			return "auth/login";
-		}
-	}
+            return "redirect:/";
+        } catch (DisabledException exception) {
+            model.addAttribute("formError", "Bạn chưa xác thực tài khoản, vui lòng xác thực tài khoản.");
+            return "auth/login";
+        } catch (AuthenticationException exception) {
+            model.addAttribute("formError", "Email hoặc mật khẩu không đúng");
+            return "auth/login";
+        }
+    }
 
-	/**
-	 * Xử lý đăng xuất người dùng hiện tại.
-	 *
-	 * Luồng xử lý:
-	 * 1) Gọi service để hủy session và dọn security context.
-	 * 2) Chuyển hướng về trang login kèm cờ logout.
-	 */
-	@PostMapping("/logout")
-	public String logout(HttpServletRequest httpServletRequest) {
-		// Bước 1: hủy phiên đăng nhập hiện tại.
-		authService.logout(httpServletRequest);
-		// Bước 2: điều hướng về trang login.
-		return "redirect:/auth/login?logout";
-	}
+    @GetMapping("/register")
+    public String registerPage(Model model, HttpServletRequest request) {
+        if (hasActiveSession(request)) {
+            return "redirect:/";
+        }
+        if (!model.containsAttribute("registerRequest")) {
+            model.addAttribute("registerRequest", new AuthRegisterRequest("", "", "", ""));
+        }
+        return "auth/register";
+    }
 
-	/**
-	 * Kiểm tra request hiện tại có session đăng nhập hợp lệ hay không.
-	 *
-	 * @return true nếu tồn tại session và có thông tin CURRENT_USER.
-	 */
-	private boolean hasActiveSession(HttpServletRequest request) {
-		// Bước 1: lấy session hiện hữu, không tạo mới nếu chưa có.
-		HttpSession session = request.getSession(false);
-		// Bước 2: xác nhận session chứa marker người dùng đã đăng nhập.
-		return session != null && session.getAttribute(SessionConstants.CURRENT_USER) != null;
-	}
+    @PostMapping("/register")
+    public String register(
+            @Valid @ModelAttribute("registerRequest") AuthRegisterRequest request,
+            BindingResult bindingResult,
+            HttpServletRequest httpServletRequest,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "auth/register";
+        }
+
+        try {
+            authService.register(request);
+            redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản.");
+            return "redirect:/auth/login";
+        } catch (DisabledException exception) {
+            redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công, vui lòng xác thực tài khoản.");
+            return "redirect:/auth/login";
+        } catch (ConflictException exception) {
+            model.addAttribute("formError", exception.getMessage());
+            return "auth/register";
+        } catch (AuthenticationException exception) {
+            model.addAttribute("formError", "Đăng ký thành công nhưng không thể đăng nhập tự động");
+            return "auth/login";
+        }
+    }
+
+    @GetMapping("/verify")
+    public String verifyPage(
+            @RequestParam(name = "otp", required = false) String otp,
+            Model model,
+            HttpServletRequest request) {
+        if (hasActiveSession(request)) {
+            return "redirect:/";
+        }
+        if (otp != null && !otp.isBlank()) {
+            model.addAttribute("otpCode", otp);
+        }
+        return "auth/verify";
+    }
+
+    @PostMapping("/verify")
+    public String verify(
+            @RequestParam("otp") String otp,
+            HttpServletRequest httpServletRequest,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            UserResponse userResp = registrationOtpService.activateByOtp(otp, UUID.randomUUID().toString());
+
+            User user = authQueryService.findUserByEmail(userResp.email());
+
+            CustomUserDetails principal = CustomUserDetails.from(user);
+            Authentication auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(auth);
+            SecurityContextHolder.setContext(context);
+
+            HttpSession session = httpServletRequest.getSession(true);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+            session.setAttribute(SessionConstants.CURRENT_USER, SessionUser.from(user));
+
+            redirectAttributes.addFlashAttribute("successMessage", "Xác thực tài khoản thành công");
+            return "redirect:/";
+        } catch (ConflictException exception) {
+            model.addAttribute("formError", exception.getMessage());
+            model.addAttribute("otpCode", otp);
+            return "auth/verify";
+        }
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return "redirect:/auth/login?logout";
+    }
+
+    private boolean hasActiveSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        return session != null && session.getAttribute(SessionConstants.CURRENT_USER) != null;
+    }
 }

@@ -23,7 +23,7 @@
             <form th:action="@{/auth/register}" th:object="${registerRequest}" method="post" class="space-y-5">
                 <div>
                     <label for="email" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{auth.register.email}">Email</label>
-                    <input type="email" th:field="*{email}" id="email" 
+                    <input type="email" th:field="*{email}" id="email"
                            th:placeholder="#{auth.register.email_placeholder}" placeholder="email@example.com"
                            class="w-full h-11 px-4 rounded-sm border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted text-sm">
                     <p class="mt-1 text-[11px] text-brand-red font-semibold uppercase tracking-tight" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
@@ -31,7 +31,7 @@
 
                 <div>
                     <label for="fullName" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{auth.register.full_name}">Họ và tên</label>
-                    <input type="text" th:field="*{fullName}" id="fullName" 
+                    <input type="text" th:field="*{fullName}" id="fullName"
                            th:placeholder="#{auth.register.full_name_placeholder}" placeholder="Nguyễn Văn A"
                            class="w-full h-11 px-4 rounded-sm border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted text-sm">
                     <p class="mt-1 text-[11px] text-brand-red font-semibold uppercase tracking-tight" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
@@ -39,7 +39,7 @@
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-text-primary mb-1.5" th:text="#{auth.register.password}">Mật khẩu</label>
-                    <input type="password" th:field="*{password}" id="password" 
+                    <input type="password" th:field="*{password}" id="password"
                            th:placeholder="#{auth.register.password_placeholder}" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
                            class="w-full h-11 px-4 rounded-sm border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted text-sm">
                     <p class="mt-1 text-[11px] text-brand-red font-semibold uppercase tracking-tight" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>

@@ -169,5 +169,18 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Invalid " + field + ": " + value);
         }
     }
-}
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductProjection> searchApprovedProducts(String keyword, Pageable pageable) {
+        String sanitized = keyword == null ? "" : keyword.trim();
+        if (sanitized.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        if (sanitized.length() > 200) {
+            sanitized = sanitized.substring(0, 200);
+        }
+        return productRepository.searchPublicProducts(sanitized, pageable);
+    }
+}

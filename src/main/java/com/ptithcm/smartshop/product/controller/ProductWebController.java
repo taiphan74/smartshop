@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import com.ptithcm.smartshop.product.repository.ProductProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 @Controller
 @RequestMapping("/products")
@@ -86,6 +90,8 @@ public class ProductWebController {
             productView.put("reviewCount", productDTO.getReviewCount());
             productView.put("ratingSum", productDTO.getRatingSum());
             productView.put("averageRating", productDTO.getAverageRating());
+            productView.put("options", productDTO.getOptions());
+            productView.put("variants", productDTO.getVariants());
 
             model.addAttribute("product", productView);
             return "product/detail";

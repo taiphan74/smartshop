@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-update-specific-product-images
+      author: muoi (via AI)
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            stripComments: true
+            sql: |
+              -- Cập nhật ảnh chính cho Samsung S24 Ultra
+              UPDATE product_images 
+              SET image_url = 'https://images.unsplash.com/photo-1718047915598-d8904128f7ff?q=80&w=800' 
+              WHERE product_id = (SELECT id FROM products WHERE slug = 'samsung-galaxy-s24-ultra') 
+              AND is_main = TRUE;
+
+              -- Cập nhật ảnh chính cho Sony XM5
+              UPDATE product_images 
+              SET image_url = 'https://images.unsplash.com/photo-1678129037996-3c72b22e70e9?q=80&w=800' 
+              WHERE product_id = (SELECT id FROM products WHERE slug = 'sony-wh-1000xm5') 
+              AND is_main = TRUE;

@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-seed-test-accounts-123456
+      author: gemini
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              -- 1. Insert User (Đồng bộ chuẩn xác theo dữ liệu thật từ DB)
+              INSERT INTO users (id, email, phone, password_hash, status, created_at, updated_at)
+              VALUES ('fe307d59-b17c-43ed-a66e-e13919d710f8', 'test@gmail.com', NULL, '$2a$10$e6IV.8/63oreV.8s8SWoZOW6CRIc8as3fGZCScZ67yRmQwnA87sKe', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+              ON CONFLICT (email) DO NOTHING;
+
+              -- 2. Insert Profile
+              INSERT INTO user_profiles (id, user_id, full_name, created_at, updated_at)
+              SELECT gen_random_uuid(), id, 'Vinh Ngu', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM users WHERE email = 'test@gmail.com'
+              ON CONFLICT DO NOTHING;
+
+              -- 3. Assign CUSTOMER role
+              INSERT INTO user_roles (id, user_id, role_id, created_at)
+              SELECT gen_random_uuid(), u.id, r.id, CURRENT_TIMESTAMP
+              FROM users u
+              JOIN roles r ON r.code = 'CUSTOMER'
+              WHERE u.email = 'test@gmail.com'
+              ON CONFLICT DO NOTHING;
+
+              -- 4. Tạo đơn hàng chứa TẤT CẢ sản phẩm cho tài khoản test
+              WITH product_total AS (
+                SELECT COALESCE(SUM(price), 0) AS total_amount FROM products
+              ),
+              inserted_order AS (
+                INSERT INTO orders (
+                  id, code, user_id, shop_id, receiver_name, receiver_phone,
+                  shipping_province, shipping_district, shipping_ward, shipping_detail,
+                  note, total_amount, shipping_fee, discount_amount, final_amount,
+                  status, payment_method, payment_status, created_at, updated_at
+                )
+                SELECT 
+                  gen_random_uuid(),
+                  'ORDER-TEST-GMAIL-ALL',
+                  u.id,
+                  s.id,
+                  'Vinh Ngu',
+                  '0900000000',
+                  'TP. Hồ Chí Minh', 'Quận 1', 'Phường Bến Nghé', '123 SmartShop Street',
+                  'Seed all products for test@gmail.com buyer',
+                  pt.total_amount, 0, 0, pt.total_amount,
+                  'DELIVERED', 'COD', 'UNPAID',
+                  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                FROM users u
+                CROSS JOIN shops s
+                CROSS JOIN product_total pt
+                WHERE u.email = 'test@gmail.com' 
+                  AND s.slug = 'smartshop-official'
+                  AND NOT EXISTS (SELECT 1 FROM orders WHERE code = 'ORDER-TEST-GMAIL-ALL')
+                RETURNING id
+              )
+              -- 5. Map toàn bộ sản phẩm vào Order Items với số lượng = 1
+              INSERT INTO order_items (id, order_id, product_id, product_name, product_image_url, price, quantity, subtotal, created_at)
+              SELECT 
+                gen_random_uuid(),
+                io.id,
+                p.id,
+                p.name,
+                COALESCE((SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY pi.is_main DESC, pi.sort_order ASC LIMIT 1), ''),
+                p.price,
+                1,
+                p.price,
+                CURRENT_TIMESTAMP
+              FROM products p
+              CROSS JOIN inserted_order io;

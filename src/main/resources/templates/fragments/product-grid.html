@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <!-- Component: Product Grid (E-commerce Standard Style) -->
+  <div th:fragment="grid(products)" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    
+    <a th:each="product, iter : ${products.content != null ? products.content : products}"
+       th:href="@{/products/{slug}(slug=${product.slug})}"
+       class="group block bg-white rounded-lg border border-border hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full">
+
+      <!-- 1. Image Area -->
+      <div class="aspect-[4/3] bg-surface-soft relative overflow-hidden">
+        <img th:src="${product.thumbnailUrl != null ? product.thumbnailUrl : 'https://via.placeholder.com/400'}"
+             th:alt="${product.name}"
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+      </div>
+
+      <!-- 2. Info Area -->
+      <div class="p-3 flex flex-col flex-grow">
+        
+        <!-- Title -->
+        <h3 class="text-sm font-medium text-text-primary line-clamp-2 mb-2 group-hover:text-brand-blue transition-colors"
+            th:text="${product.name}">Tên sản phẩm</h3>
+
+        <!-- Rating & Review Count -->
+        <div class="flex items-center gap-1 mb-3 text-xs">
+          <!-- Score (Red) -->
+          <span class="font-semibold text-brand-red"
+                th:with="rating=${product.averageRating != null ? product.averageRating : 0}"
+                th:text="${#numbers.formatDecimal(rating, 1, 'POINT', 1, 'COMMA')}">4,3</span>
+          
+          <!-- Stars (Yellow) - Using simple unicode for performance, can be replaced by SVG -->
+          <div class="flex text-yellow tracking-tight">
+            <span>★★★★☆</span>
+          </div>
+          
+          <!-- Count (Gray) -->
+          <span class="text-text-secondary" 
+                th:text="'(' + ${product.reviewCount} + ')'">(4)</span>
+        </div>
+
+        <!-- Price (Pushed to bottom) -->
+        <div class="mt-auto">
+          <p class="text-lg font-bold text-brand-red"
+             th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + '₫'">28,990,000₫</p>
+        </div>
+
+      </div>
+    </a>
+    
+  </div>
+</body>
+</html>

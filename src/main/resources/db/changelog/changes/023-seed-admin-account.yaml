@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 023-seed-admin-account
+      author: gemini
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              -- 1. Insert admin user (password: 123456)
+              INSERT INTO users (id, email, phone, password_hash, status, created_at, updated_at)
+              VALUES (gen_random_uuid(), 'admin@gmail.com', '0900000000', '$2a$10$e6IV.8/63oreV.8s8SWoZOW6CRIc8as3fGZCScZ67yRmQwnA87sKe', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+              ON CONFLICT (email) DO NOTHING;
+
+              -- 2. Insert profile
+              INSERT INTO user_profiles (id, user_id, full_name, created_at, updated_at)
+              SELECT gen_random_uuid(), id, 'System Administrator', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM users WHERE email = 'admin@gmail.com'
+              ON CONFLICT DO NOTHING;
+
+              -- 3. Assign ADMIN role
+              INSERT INTO user_roles (id, user_id, role_id, created_at)
+              SELECT gen_random_uuid(), u.id, r.id, CURRENT_TIMESTAMP
+              FROM users u
+              JOIN roles r ON r.code = 'ADMIN'
+              WHERE u.email = 'admin@gmail.com'
+              ON CONFLICT DO NOTHING;
