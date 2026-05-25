@@ -23,25 +23,11 @@
             </div>
         </section>
 
-        <section>
-            <div class="product-grid" th:if="${products != null and !products.isEmpty()}">
-                <a th:each="product : ${products}"
-                   th:href="@{/products/{slug}(slug=${product.slug})}"
-                   class="product-card">
-                    <div class="product-card__image">
-                        <img th:src="${product.thumbnailUrl != null ? product.thumbnailUrl : 'https://via.placeholder.com/300'}"
-                             th:alt="${product.name}">
-                    </div>
-                    <div class="product-card__body">
-                        <p class="product-category" th:text="${product.categoryName}">Danh mục</p>
-                        <h2 class="product-name" th:text="${product.name}">Tên sản phẩm</h2>
-                        <p class="product-price"
-                           th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</p>
-                    </div>
-                </a>
-            </div>
+        <section th:if="${products != null and !products.isEmpty()}">
+            <div th:replace="~{fragments/product-grid :: grid(products=${products})}"></div>
+        </section>
 
-            <div class="empty-state" th:if="${products == null or products.isEmpty()}">
+        <section class="empty-state" th:if="${products == null or products.isEmpty()}">
                 <p th:if="${activeCategory != null}" th:text="#{product.list.category_empty}">
                     Chưa có sản phẩm nào trong danh mục này.
                 </p>
