@@ -37,10 +37,17 @@
                         </svg>
                         <span class="site-action__label sr-only" th:text="#{nav.login}">Đăng nhập</span>
                     </a>
-                    <a href="/cart" class="site-action site-cart" th:attr="aria-label=#{nav.cart}">
+                      <a th:if="${sessionUser != null}" href="/cart" class="site-action site-cart" th:attr="aria-label=#{nav.cart}">
                         <span class="site-cart__badge"
                               th:if="${cartCount != null and cartCount > 0}"
                               th:text="${cartCount}">0</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                        <span class="site-action__label sr-only" th:text="#{nav.cart}">Giỏ hàng</span>
+                    </a>
+                    <a th:if="${sessionUser == null}" href="/auth/login" class="site-action site-cart" th:attr="aria-label=#{nav.cart}, title='Vui lòng đăng nhập để dùng giỏ hàng'">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z"/>

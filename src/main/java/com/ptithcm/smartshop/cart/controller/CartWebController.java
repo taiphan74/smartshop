@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +29,7 @@ import com.ptithcm.smartshop.voucher.entity.VoucherScope;
 import com.ptithcm.smartshop.voucher.service.VoucherService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/cart")
@@ -46,47 +49,50 @@ public class CartWebController {
     public String viewCart(@RequestParam(required = false) Boolean manageAddress,
                            @RequestParam(required = false) UUID editAddressId,
                            HttpSession session,
+                           RedirectAttributes redirectAttributes,
                            Model model) {
+        SessionUser sessionUser = resolveCurrentUser(session);
+        if (sessionUser == null) {
+            redirectAttributes.addFlashAttribute("formError", "Vui lòng đăng nhập để sử dụng giỏ hàng");
+            return "redirect:/auth/login";
+        }
+
         CartDTO cart = cartService.getCart(session);
         model.addAttribute("cart", cart);
         model.addAttribute("currentCartUrl", buildCartUrl(manageAddress, editAddressId));
 
         boolean showAddressManager = Boolean.TRUE.equals(manageAddress);
-        SessionUser sessionUser = resolveCurrentUser(session);
-        if (sessionUser != null) {
-            List<AddressViewDTO> savedAddresses = addressService.findByUserId(sessionUser.id());
-            UUID selectedAddressId = resolveSelectedAddressId(session, sessionUser.id(), savedAddresses);
-            Optional<AddressViewDTO> selectedAddress = savedAddresses.stream()
-                    .filter(address -> address.getId().equals(selectedAddressId))
-                    .findFirst();
+        List<AddressViewDTO> savedAddresses = addressService.findByUserId(sessionUser.id());
+        UUID selectedAddressId = resolveSelectedAddressId(session, sessionUser.id(), savedAddresses);
+        Optional<AddressViewDTO> selectedAddress = savedAddresses.stream()
+                .filter(address -> address.getId().equals(selectedAddressId))
+                .findFirst();
 
-            selectedAddress.ifPresent(address -> {
-                session.setAttribute(CartSessionConstants.SHIPPING_ADDRESS_ID, address.getId().toString());
-                session.setAttribute(CartSessionConstants.SHIPPING_ADDRESS, address.toShippingAddress());
-            });
+        selectedAddress.ifPresent(address -> {
+            session.setAttribute(CartSessionConstants.SHIPPING_ADDRESS_ID, address.getId().toString());
+            session.setAttribute(CartSessionConstants.SHIPPING_ADDRESS, address.toShippingAddress());
+        });
 
-            model.addAttribute("hasLoggedInUser", true);
-            model.addAttribute("showAddressManager", showAddressManager);
-            model.addAttribute("savedAddresses", savedAddresses);
-            model.addAttribute("selectedAddressId", selectedAddressId);
-            model.addAttribute("selectedAddress", selectedAddress.orElse(null));
-            model.addAttribute("addressForm", buildAddressForm(editAddressId, sessionUser.id(), sessionUser));
-            model.addAttribute("isAddressEdit", editAddressId != null);
-        } else {
-            model.addAttribute("hasLoggedInUser", false);
-            model.addAttribute("showAddressManager", false);
-            model.addAttribute("shippingAddress", resolveShippingAddress(session));
-        }
+        model.addAttribute("hasLoggedInUser", true);
+        model.addAttribute("showAddressManager", showAddressManager);
+        model.addAttribute("savedAddresses", savedAddresses);
+        model.addAttribute("selectedAddressId", selectedAddressId);
+        model.addAttribute("selectedAddress", selectedAddress.orElse(null));
+        model.addAttribute("addressForm", buildAddressForm(editAddressId, sessionUser.id(), sessionUser));
+        model.addAttribute("isAddressEdit", editAddressId != null);
 
         return "cart/index";
     }
 
     @PostMapping("/address")
-    public String saveShippingAddress(@ModelAttribute("shippingAddress") CartShippingAddressDTO shippingAddress,
+    public String saveShippingAddress(@Valid @ModelAttribute("shippingAddress") CartShippingAddressDTO shippingAddress,
+                                      BindingResult bindingResult,
                                       HttpSession session,
                                       RedirectAttributes redirectAttributes) {
-        if (!shippingAddress.isComplete()) {
-            redirectAttributes.addFlashAttribute("addressErrorMessage", "Vui lòng nhập đầy đủ tên, số điện thoại và địa chỉ giao hàng");
+        if (bindingResult.hasErrors()) {
+            FieldError firstError = bindingResult.getFieldErrors().stream().findFirst().orElse(null);
+            redirectAttributes.addFlashAttribute("addressErrorMessage",
+                    firstError != null ? firstError.getDefaultMessage() : "Thông tin địa chỉ chưa hợp lệ");
             return "redirect:/cart";
         }
 
@@ -130,7 +136,8 @@ public class CartWebController {
     }
 
     @PostMapping("/address/save")
-    public String saveUserAddress(@ModelAttribute("addressForm") AddressFormDTO addressForm,
+    public String saveUserAddress(@Valid @ModelAttribute("addressForm") AddressFormDTO addressForm,
+                                  BindingResult bindingResult,
                                   HttpSession session,
                                   RedirectAttributes redirectAttributes) {
         SessionUser sessionUser = resolveCurrentUser(session);
@@ -139,8 +146,10 @@ public class CartWebController {
             return "redirect:/auth/login";
         }
 
-        if (!addressForm.isComplete()) {
-            redirectAttributes.addFlashAttribute("addressErrorMessage", "Vui lòng nhập đầy đủ thông tin địa chỉ");
+        if (bindingResult.hasErrors()) {
+            FieldError firstError = bindingResult.getFieldErrors().stream().findFirst().orElse(null);
+            redirectAttributes.addFlashAttribute("addressErrorMessage",
+                    firstError != null ? firstError.getDefaultMessage() : "Thông tin địa chỉ chưa hợp lệ");
             return "redirect:/cart?manageAddress=true";
         }
 
@@ -230,28 +239,54 @@ public class CartWebController {
                             @RequestParam(required = false) String redirectUrl,
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
-        cartService.addToCart(session, productId, variantId, quantity);
-        redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng");
-
-        if (redirectUrl != null && !redirectUrl.isEmpty()) {
-            return "redirect:" + redirectUrl;
+        if (resolveCurrentUser(session) == null) {
+            boolean buyNowFlow = redirectUrl != null && redirectUrl.startsWith("/checkout");
+            redirectAttributes.addFlashAttribute("formError",
+                    buyNowFlow
+                            ? "Vui lòng đăng nhập để mua ngay"
+                            : "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+            return "redirect:/auth/login";
         }
-        return "redirect:/cart";
+
+        try {
+            cartService.addToCart(session, productId, variantId, quantity);
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("cartErrorMessage", exception.getMessage());
+            return buildRedirectResponse(redirectUrl);
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng");
+        return buildRedirectResponse(redirectUrl);
     }
 
     @PostMapping("/update")
     public String updateQuantity(@RequestParam String productId,
                                  @RequestParam(required = false) String variantId,
                                  @RequestParam Integer quantity,
-                                 HttpSession session) {
-        cartService.updateQuantity(session, productId, variantId, quantity);
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+        if (resolveCurrentUser(session) == null) {
+            redirectAttributes.addFlashAttribute("formError", "Vui lòng đăng nhập để sử dụng giỏ hàng");
+            return "redirect:/auth/login";
+        }
+
+        try {
+            cartService.updateQuantity(session, productId, variantId, quantity);
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("cartErrorMessage", exception.getMessage());
+        }
         return "redirect:/cart";
     }
 
     @PostMapping("/remove")
     public String removeItem(@RequestParam String productId,
                              @RequestParam(required = false) String variantId,
-                             HttpSession session) {
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+        if (resolveCurrentUser(session) == null) {
+            redirectAttributes.addFlashAttribute("formError", "Vui lòng đăng nhập để sử dụng giỏ hàng");
+            return "redirect:/auth/login";
+        }
         cartService.removeItem(session, productId, variantId);
         return "redirect:/cart";
     }
@@ -319,18 +354,4 @@ public class CartWebController {
         return "redirect:/cart";
     }
 
-    private CartShippingAddressDTO resolveShippingAddress(HttpSession session) {
-        Object savedAddress = session.getAttribute(CartSessionConstants.SHIPPING_ADDRESS);
-        if (savedAddress instanceof CartShippingAddressDTO address) {
-            return address;
-        }
-
-        CartShippingAddressDTO prefilled = new CartShippingAddressDTO();
-        Object currentUser = session.getAttribute(SessionConstants.CURRENT_USER);
-        if (currentUser instanceof SessionUser sessionUser) {
-            prefilled.setRecipientName(sessionUser.fullName());
-            prefilled.setPhone(sessionUser.phone());
-        }
-        return prefilled;
-    }
 }

@@ -162,54 +162,66 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void addToCart(HttpSession session, String productId, String variantId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Số lượng thêm vào giỏ hàng phải lớn hơn 0");
+        }
+
+        ProductDetailDTO product = productService.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+
         SessionCart cart = getDbCart(session);
 
         String finalVariantId = variantId != null && variantId.trim().isEmpty() ? null : variantId;
+        Optional<ProductVariantDTO> selectedVariant = resolveVariant(product, finalVariantId);
+        int stockQuantity = resolveStockQuantity(product, selectedVariant);
+        if (stockQuantity <= 0) {
+            throw new IllegalArgumentException("Sản phẩm đã hết hàng");
+        }
 
         Optional<SessionCartItem> existingItemOpt = cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(productId)
                         && (finalVariantId == null ? item.getVariantId() == null : finalVariantId.equals(item.getVariantId())))
                 .findFirst();
 
+        int existingQuantity = existingItemOpt.map(SessionCartItem::getQuantity).orElse(0);
+        int targetQuantity = existingQuantity + quantity;
+        if (targetQuantity > stockQuantity) {
+            throw new IllegalArgumentException("Chỉ còn " + stockQuantity + " sản phẩm trong kho");
+        }
+
         if (existingItemOpt.isPresent()) {
             SessionCartItem existingItem = existingItemOpt.get();
             existingItem.setQuantity(existingItem.getQuantity() + quantity);
             cartItemRepository.save(existingItem);
         } else {
-            Optional<ProductDetailDTO> productOpt = productService.findById(productId);
-            if (productOpt.isPresent()) {
-                ProductDetailDTO product = productOpt.get();
-                SessionCartItem newItem = new SessionCartItem();
-                newItem.setCart(cart);
-                newItem.setProductId(productId);
-                newItem.setVariantId(finalVariantId);
-                newItem.setProductName(product.getName());
+            SessionCartItem newItem = new SessionCartItem();
+            newItem.setCart(cart);
+            newItem.setProductId(productId);
+            newItem.setVariantId(finalVariantId);
+            newItem.setProductName(product.getName());
 
-                String imageUrl = "https://via.placeholder.com/400";
-                if (product.getImages() != null && !product.getImages().isEmpty()) {
-                    imageUrl = product.getImages().get(0).getImageUrl();
-                }
-
-                BigDecimal price = product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
-                if (finalVariantId != null && product.getVariants() != null) {
-                    Optional<ProductVariantDTO> variantOpt = product.getVariants().stream()
-                            .filter(variant -> finalVariantId.equals(variant.getId()))
-                            .findFirst();
-                    if (variantOpt.isPresent() && variantOpt.get().getPrice() != null) {
-                        price = variantOpt.get().getPrice();
-                        if (variantOpt.get().getThumbnailUrl() != null) {
-                            imageUrl = variantOpt.get().getThumbnailUrl();
-                        }
-                    }
-                }
-
-                newItem.setImageUrl(imageUrl);
-                newItem.setPrice(price);
-                newItem.setQuantity(quantity);
-
-                cart.getItems().add(newItem);
-                cartItemRepository.save(newItem);
+            String imageUrl = "https://via.placeholder.com/400";
+            if (product.getImages() != null && !product.getImages().isEmpty()) {
+                imageUrl = product.getImages().get(0).getImageUrl();
             }
+
+            BigDecimal price = product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
+            if (selectedVariant.isPresent()) {
+                ProductVariantDTO variant = selectedVariant.get();
+                if (variant.getPrice() != null) {
+                    price = variant.getPrice();
+                }
+                if (variant.getThumbnailUrl() != null) {
+                    imageUrl = variant.getThumbnailUrl();
+                }
+            }
+
+            newItem.setImageUrl(imageUrl);
+            newItem.setPrice(price);
+            newItem.setQuantity(quantity);
+
+            cart.getItems().add(newItem);
+            cartItemRepository.save(newItem);
         }
         cartRepository.save(cart);
     }
@@ -217,6 +229,10 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void updateQuantity(HttpSession session, String productId, String variantId, Integer quantity) {
+        if (quantity == null) {
+            throw new IllegalArgumentException("Số lượng sản phẩm không hợp lệ");
+        }
+
         SessionCart cart = getDbCart(session);
 
         String finalVariantId = variantId != null && variantId.trim().isEmpty() ? null : variantId;
@@ -232,11 +248,40 @@ public class CartServiceImpl implements CartService {
                 cart.getItems().remove(item);
                 cartItemRepository.delete(item);
             } else {
+                ProductDetailDTO product = productService.findById(productId)
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+                Optional<ProductVariantDTO> selectedVariant = resolveVariant(product, finalVariantId);
+                int stockQuantity = resolveStockQuantity(product, selectedVariant);
+                if (stockQuantity <= 0) {
+                    throw new IllegalArgumentException("Sản phẩm đã hết hàng");
+                }
+                if (quantity > stockQuantity) {
+                    throw new IllegalArgumentException("Chỉ còn " + stockQuantity + " sản phẩm trong kho");
+                }
                 item.setQuantity(quantity);
                 cartItemRepository.save(item);
             }
             cartRepository.save(cart);
         }
+    }
+
+    private Optional<ProductVariantDTO> resolveVariant(ProductDetailDTO product, String variantId) {
+        if (variantId == null) {
+            return Optional.empty();
+        }
+        if (product.getVariants() == null || product.getVariants().isEmpty()) {
+            throw new IllegalArgumentException("Phân loại sản phẩm không hợp lệ");
+        }
+        ProductVariantDTO variant = product.getVariants().stream()
+            .filter(item -> variantId.equals(item.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Phân loại sản phẩm không hợp lệ"));
+        return Optional.of(variant);
+    }
+
+    private int resolveStockQuantity(ProductDetailDTO product, Optional<ProductVariantDTO> variantOpt) {
+        Integer stock = variantOpt.map(ProductVariantDTO::getStockQuantity).orElse(product.getStockQuantity());
+        return stock != null ? Math.max(stock, 0) : 0;
     }
 
     @Override

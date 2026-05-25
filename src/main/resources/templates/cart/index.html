@@ -24,6 +24,7 @@
         </div>
 
         <div th:if="${successMessage}" class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700" th:text="${successMessage}"></div>
+        <div th:if="${cartErrorMessage}" class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" th:text="${cartErrorMessage}"></div>
         <div th:if="${addressSuccessMessage}" class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700" th:text="${addressSuccessMessage}"></div>
         <div th:if="${addressErrorMessage}" class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" th:text="${addressErrorMessage}"></div>
         <div th:if="${voucherSuccessMessage}" class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700" th:text="${voucherSuccessMessage}"></div>
@@ -112,11 +113,11 @@
 
                         <div>
                             <label for="receiverName" class="block text-sm font-medium text-text-primary mb-2">Họ và tên người nhận</label>
-                            <input id="receiverName" name="receiverName" type="text" th:value="${addressForm != null ? addressForm.receiverName : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <input id="receiverName" name="receiverName" type="text" maxlength="100" th:value="${addressForm != null ? addressForm.receiverName : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
                         </div>
                         <div>
                             <label for="addressPhone" class="block text-sm font-medium text-text-primary mb-2">Số điện thoại</label>
-                            <input id="addressPhone" name="phone" type="text" th:value="${addressForm != null ? addressForm.phone : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <input id="addressPhone" name="phone" type="text" inputmode="numeric" pattern="0[0-9]{9}" minlength="10" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và gồm 10 chữ số" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" th:value="${addressForm != null ? addressForm.phone : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
                         </div>
                         <div>
                             <label for="province" class="block text-sm font-medium text-text-primary mb-2">Tỉnh/Thành phố</label>
@@ -138,7 +139,7 @@
                         </div>
                         <div>
                             <label for="detail" class="block text-sm font-medium text-text-primary mb-2">Số nhà, tên đường</label>
-                            <input id="detail" name="detail" type="text" th:value="${addressForm != null ? addressForm.detail : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <input id="detail" name="detail" type="text" maxlength="255" th:value="${addressForm != null ? addressForm.detail : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
                         </div>
 
                         <div class="md:col-span-2 flex items-center gap-2">
@@ -173,15 +174,33 @@
             <form th:action="@{/cart/address}" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="recipientName" class="block text-sm font-medium text-text-primary mb-2">Họ và tên người nhận</label>
-                    <input id="recipientName" name="recipientName" type="text" th:value="${shippingAddress != null ? shippingAddress.recipientName : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <input id="recipientName" name="recipientName" type="text" maxlength="100" th:value="${shippingAddress != null ? shippingAddress.recipientName : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
                 </div>
                 <div>
                     <label for="recipientPhone" class="block text-sm font-medium text-text-primary mb-2">Số điện thoại</label>
-                    <input id="recipientPhone" name="phone" type="text" th:value="${shippingAddress != null ? shippingAddress.phone : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <input id="recipientPhone" name="phone" type="text" inputmode="numeric" pattern="0[0-9]{9}" minlength="10" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và gồm 10 chữ số" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" th:value="${shippingAddress != null ? shippingAddress.phone : ''}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+                <div>
+                    <label for="guestProvince" class="block text-sm font-medium text-text-primary mb-2">Tỉnh/Thành phố</label>
+                    <select id="guestProvince" name="province" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:attr="data-selected=${shippingAddress != null ? shippingAddress.province : ''}">
+                        <option value="">Chọn Tỉnh/Thành phố</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="guestDistrict" class="block text-sm font-medium text-text-primary mb-2">Quận/Huyện</label>
+                    <select id="guestDistrict" name="district" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:attr="data-selected=${shippingAddress != null ? shippingAddress.district : ''}" disabled>
+                        <option value="">Chọn Quận/Huyện</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="guestWard" class="block text-sm font-medium text-text-primary mb-2">Phường/Xã</label>
+                    <select id="guestWard" name="ward" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:attr="data-selected=${shippingAddress != null ? shippingAddress.ward : ''}" disabled>
+                        <option value="">Chọn Phường/Xã</option>
+                    </select>
                 </div>
                 <div class="md:col-span-2">
-                    <label for="detailAddress" class="block text-sm font-medium text-text-primary mb-2">Địa chỉ chi tiết</label>
-                    <textarea id="detailAddress" name="detailAddress" rows="3" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:text="${shippingAddress != null ? shippingAddress.detailAddress : ''}"></textarea>
+                    <label for="detailAddress" class="block text-sm font-medium text-text-primary mb-2">Số nhà, tên đường</label>
+                    <textarea id="detailAddress" name="detailAddress" rows="3" maxlength="255" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:text="${shippingAddress != null ? shippingAddress.detailAddress : ''}"></textarea>
                 </div>
                 <div class="md:col-span-2 flex justify-end">
                     <button type="submit" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-5 py-3 text-sm font-semibold text-white hover:bg-brand-blue-hover transition-colors">
@@ -438,17 +457,6 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
     <script>
         (function () {
-            const provinceSelect = document.getElementById('province');
-            const districtSelect = document.getElementById('district');
-            const wardSelect = document.getElementById('ward');
-
-            if (!provinceSelect || !districtSelect || !wardSelect) {
-                return;
-            }
-
-            const selectedProvince = provinceSelect.dataset.selected || '';
-            const selectedDistrict = districtSelect.dataset.selected || '';
-            const selectedWard = wardSelect.dataset.selected || '';
             const provinceCacheKey = 'smartshop-provinces';
 
             const normalizePlaceName = (value) => (value || '')
@@ -497,7 +505,7 @@
                 return response.json();
             };
 
-            const loadWards = async (districtCode, preselectedWard) => {
+            const loadWards = async (districtSelect, wardSelect, districtCode, preselectedWard) => {
                 if (!districtCode) {
                     setOptions(wardSelect, [], 'Chọn Phường/Xã', '');
                     return;
@@ -508,7 +516,7 @@
                 setOptions(wardSelect, district.wards || [], 'Chọn Phường/Xã', preselectedWard);
             };
 
-            const loadDistricts = async (provinceCode, preselectedDistrict, preselectedWard) => {
+            const loadDistricts = async (provinceSelect, districtSelect, wardSelect, provinceCode, preselectedDistrict, preselectedWard) => {
                 if (!provinceCode) {
                     setOptions(districtSelect, [], 'Chọn Quận/Huyện', '');
                     setOptions(wardSelect, [], 'Chọn Phường/Xã', '');
@@ -519,10 +527,21 @@
                 setLoading(wardSelect, 'Chọn Phường/Xã');
                 const province = await fetchJson('https://provinces.open-api.vn/api/p/' + provinceCode + '?depth=2');
                 setOptions(districtSelect, province.districts || [], 'Chọn Quận/Huyện', preselectedDistrict);
-                await loadWards(getSelectedCode(districtSelect), preselectedWard);
+                await loadWards(districtSelect, wardSelect, getSelectedCode(districtSelect), preselectedWard);
             };
 
-            const loadProvinces = async () => {
+            const initializeAddressSelectors = async (provinceId, districtId, wardId) => {
+                const provinceSelect = document.getElementById(provinceId);
+                const districtSelect = document.getElementById(districtId);
+                const wardSelect = document.getElementById(wardId);
+                if (!provinceSelect || !districtSelect || !wardSelect) {
+                    return;
+                }
+
+                const selectedProvince = provinceSelect.dataset.selected || '';
+                const selectedDistrict = districtSelect.dataset.selected || '';
+                const selectedWard = wardSelect.dataset.selected || '';
+
                 try {
                     setLoading(provinceSelect, 'Đang tải Tỉnh/Thành phố...');
                     let provinces = sessionStorage.getItem(provinceCacheKey);
@@ -534,7 +553,7 @@
                     }
 
                     setOptions(provinceSelect, provinces, 'Chọn Tỉnh/Thành phố', selectedProvince);
-                    await loadDistricts(getSelectedCode(provinceSelect), selectedDistrict, selectedWard);
+                    await loadDistricts(provinceSelect, districtSelect, wardSelect, getSelectedCode(provinceSelect), selectedDistrict, selectedWard);
                 } catch (error) {
                     provinceSelect.innerHTML = '<option value="">Không tải được dữ liệu Tỉnh/Thành phố</option>';
                     districtSelect.innerHTML = '<option value="">Không tải được dữ liệu Quận/Huyện</option>';
@@ -544,17 +563,18 @@
                     wardSelect.disabled = true;
                     console.error(error);
                 }
+
+                provinceSelect.addEventListener('change', async function () {
+                    await loadDistricts(provinceSelect, districtSelect, wardSelect, getSelectedCode(provinceSelect), '', '');
+                });
+
+                districtSelect.addEventListener('change', async function () {
+                    await loadWards(districtSelect, wardSelect, getSelectedCode(districtSelect), '');
+                });
             };
 
-            provinceSelect.addEventListener('change', async function () {
-                await loadDistricts(getSelectedCode(provinceSelect), '', '');
-            });
-
-            districtSelect.addEventListener('change', async function () {
-                await loadWards(getSelectedCode(districtSelect), '');
-            });
-
-            loadProvinces();
+            initializeAddressSelectors('province', 'district', 'ward');
+            initializeAddressSelectors('guestProvince', 'guestDistrict', 'guestWard');
         })();
     </script>
 

@@ -30,19 +30,52 @@
                 <form th:action="@{/checkout/process}" th:object="${checkoutRequest}" method="post" class="space-y-5">
                     <div>
                         <label for="customerName" class="block text-sm font-medium text-text-primary mb-2">Họ và tên người nhận</label>
-                        <input id="customerName" type="text" th:field="*{customerName}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <input id="customerName" type="text" th:field="*{customerName}" maxlength="100" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
                         <p th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
                     </div>
 
                     <div>
                         <label for="customerPhone" class="block text-sm font-medium text-text-primary mb-2">Số điện thoại</label>
-                        <input id="customerPhone" type="text" th:field="*{customerPhone}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <input id="customerPhone" type="text" th:field="*{customerPhone}" inputmode="numeric" pattern="0[0-9]{9}" minlength="10" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và gồm 10 chữ số" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
                         <p th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
                     </div>
 
-                    <div>
+                    <div th:if="${showAddressSelectors}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="checkoutProvince" class="block text-sm font-medium text-text-primary mb-2">Tỉnh/Thành phố</label>
+                            <select id="checkoutProvince" th:field="*{province}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:attr="data-selected=*{province}">
+                                <option value="">Chọn Tỉnh/Thành phố</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('province')}" th:errors="*{province}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
+                        </div>
+
+                        <div>
+                            <label for="checkoutDistrict" class="block text-sm font-medium text-text-primary mb-2">Quận/Huyện</label>
+                            <select id="checkoutDistrict" th:field="*{district}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:attr="data-selected=*{district}" disabled>
+                                <option value="">Chọn Quận/Huyện</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('district')}" th:errors="*{district}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
+                        </div>
+
+                        <div>
+                            <label for="checkoutWard" class="block text-sm font-medium text-text-primary mb-2">Phường/Xã</label>
+                            <select id="checkoutWard" th:field="*{ward}" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" th:attr="data-selected=*{ward}" disabled>
+                                <option value="">Chọn Phường/Xã</option>
+                            </select>
+                            <p th:if="${#fields.hasErrors('ward')}" th:errors="*{ward}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
+                        </div>
+
+                        <div>
+                            <label for="detailAddress" class="block text-sm font-medium text-text-primary mb-2">Số nhà, tên đường</label>
+                            <input id="detailAddress" type="text" th:field="*{detailAddress}" maxlength="255" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <p th:if="${#fields.hasErrors('detailAddress')}" th:errors="*{detailAddress}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
+                        </div>
+                        <input type="hidden" th:field="*{customerAddress}">
+                    </div>
+
+                    <div th:if="${!showAddressSelectors}">
                         <label for="customerAddress" class="block text-sm font-medium text-text-primary mb-2">Địa chỉ giao hàng chi tiết</label>
-                        <textarea id="customerAddress" th:field="*{customerAddress}" rows="4" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"></textarea>
+                        <textarea id="customerAddress" th:field="*{customerAddress}" rows="4" maxlength="255" class="w-full rounded-md border border-border bg-white px-4 py-3 text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"></textarea>
                         <p th:if="${#fields.hasErrors('customerAddress')}" th:errors="*{customerAddress}" class="mt-2 text-sm font-medium text-red-600">Lỗi</p>
                     </div>
 
@@ -104,5 +137,122 @@
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
+    <script>
+        (function () {
+            const provinceSelect = document.getElementById('checkoutProvince');
+            const districtSelect = document.getElementById('checkoutDistrict');
+            const wardSelect = document.getElementById('checkoutWard');
+            if (!provinceSelect || !districtSelect || !wardSelect) {
+                return;
+            }
+
+            const selectedProvince = provinceSelect.dataset.selected || '';
+            const selectedDistrict = districtSelect.dataset.selected || '';
+            const selectedWard = wardSelect.dataset.selected || '';
+            const provinceCacheKey = 'smartshop-provinces';
+
+            const normalizePlaceName = (value) => (value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/\b(thanh pho|tinh|quan|huyen|thi xa|thi tran|phuong|xa)\b/g, '')
+                .replace(/[^a-z0-9]+/g, ' ')
+                .trim();
+
+            const isSamePlace = (left, right) => normalizePlaceName(left) === normalizePlaceName(right);
+
+            const setOptions = (select, items, placeholder, selectedValue) => {
+                select.innerHTML = '';
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = placeholder;
+                select.appendChild(placeholderOption);
+
+                items.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.textContent = item.name;
+                    option.dataset.code = item.code;
+                    if (selectedValue && isSamePlace(selectedValue, item.name)) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+
+                select.disabled = items.length === 0;
+            };
+
+            const getSelectedCode = (select) => select.options[select.selectedIndex]?.dataset.code || '';
+
+            const setLoading = (select, placeholder) => {
+                select.innerHTML = '<option value="">' + placeholder + '</option>';
+                select.disabled = true;
+            };
+
+            const fetchJson = async (url) => {
+                const response = await fetch(url, { headers: { Accept: 'application/json' } });
+                if (!response.ok) {
+                    throw new Error('Fetch failed: ' + response.status);
+                }
+                return response.json();
+            };
+
+            const loadWards = async (districtCode, preselectedWard) => {
+                if (!districtCode) {
+                    setOptions(wardSelect, [], 'Chọn Phường/Xã', '');
+                    return;
+                }
+                setLoading(wardSelect, 'Đang tải Phường/Xã...');
+                const district = await fetchJson('https://provinces.open-api.vn/api/d/' + districtCode + '?depth=2');
+                setOptions(wardSelect, district.wards || [], 'Chọn Phường/Xã', preselectedWard);
+            };
+
+            const loadDistricts = async (provinceCode, preselectedDistrict, preselectedWard) => {
+                if (!provinceCode) {
+                    setOptions(districtSelect, [], 'Chọn Quận/Huyện', '');
+                    setOptions(wardSelect, [], 'Chọn Phường/Xã', '');
+                    return;
+                }
+                setLoading(districtSelect, 'Đang tải Quận/Huyện...');
+                setLoading(wardSelect, 'Chọn Phường/Xã');
+                const province = await fetchJson('https://provinces.open-api.vn/api/p/' + provinceCode + '?depth=2');
+                setOptions(districtSelect, province.districts || [], 'Chọn Quận/Huyện', preselectedDistrict);
+                await loadWards(getSelectedCode(districtSelect), preselectedWard);
+            };
+
+            const loadProvinces = async () => {
+                try {
+                    setLoading(provinceSelect, 'Đang tải Tỉnh/Thành phố...');
+                    let provinces = sessionStorage.getItem(provinceCacheKey);
+                    if (provinces) {
+                        provinces = JSON.parse(provinces);
+                    } else {
+                        provinces = await fetchJson('https://provinces.open-api.vn/api/p/');
+                        sessionStorage.setItem(provinceCacheKey, JSON.stringify(provinces));
+                    }
+                    setOptions(provinceSelect, provinces, 'Chọn Tỉnh/Thành phố', selectedProvince);
+                    await loadDistricts(getSelectedCode(provinceSelect), selectedDistrict, selectedWard);
+                } catch (error) {
+                    provinceSelect.innerHTML = '<option value="">Không tải được dữ liệu Tỉnh/Thành phố</option>';
+                    districtSelect.innerHTML = '<option value="">Không tải được dữ liệu Quận/Huyện</option>';
+                    wardSelect.innerHTML = '<option value="">Không tải được dữ liệu Phường/Xã</option>';
+                    provinceSelect.disabled = true;
+                    districtSelect.disabled = true;
+                    wardSelect.disabled = true;
+                    console.error(error);
+                }
+            };
+
+            provinceSelect.addEventListener('change', async function () {
+                await loadDistricts(getSelectedCode(provinceSelect), '', '');
+            });
+
+            districtSelect.addEventListener('change', async function () {
+                await loadWards(getSelectedCode(districtSelect), '');
+            });
+
+            loadProvinces();
+        })();
+    </script>
 </body>
 </html>

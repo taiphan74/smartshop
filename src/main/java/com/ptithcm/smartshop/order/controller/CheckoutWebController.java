@@ -52,6 +52,8 @@ public class CheckoutWebController {
         if (!model.containsAttribute("checkoutRequest")) {
             model.addAttribute("checkoutRequest", buildPrefilledRequest(session));
         }
+        CheckoutRequest checkoutRequest = (CheckoutRequest) model.getAttribute("checkoutRequest");
+        model.addAttribute("showAddressSelectors", shouldShowAddressSelectors(checkoutRequest));
         return "checkout/index";
     }
 
@@ -66,8 +68,12 @@ public class CheckoutWebController {
             return "redirect:/cart";
         }
 
+        composeAddressIfStructured(checkoutRequest);
+        validateAddress(checkoutRequest, bindingResult);
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("cart", cart);
+            model.addAttribute("showAddressSelectors", shouldShowAddressSelectors(checkoutRequest));
             return "checkout/index";
         }
 
@@ -90,6 +96,10 @@ public class CheckoutWebController {
             if (selectedAddress != null) {
                 request.setCustomerName(selectedAddress.getReceiverName());
                 request.setCustomerPhone(selectedAddress.getPhone());
+                request.setProvince(selectedAddress.getProvince());
+                request.setDistrict(selectedAddress.getDistrict());
+                request.setWard(selectedAddress.getWard());
+                request.setDetailAddress(selectedAddress.getDetail());
                 request.setCustomerAddress(selectedAddress.getFullAddress());
                 return request;
             }
@@ -99,9 +109,64 @@ public class CheckoutWebController {
         if (savedAddress instanceof CartShippingAddressDTO address && address.isComplete()) {
             request.setCustomerName(address.getRecipientName());
             request.setCustomerPhone(address.getPhone());
-            request.setCustomerAddress(address.getDetailAddress());
+            request.setProvince(address.getProvince());
+            request.setDistrict(address.getDistrict());
+            request.setWard(address.getWard());
+            request.setDetailAddress(address.getDetailAddress());
+            request.setCustomerAddress(address.getFullAddress());
         }
         return request;
+    }
+
+    private boolean shouldShowAddressSelectors(CheckoutRequest request) {
+        return request == null || !hasStructuredAddress(request);
+    }
+
+    private boolean hasStructuredAddress(CheckoutRequest request) {
+        return hasText(request.getProvince())
+                && hasText(request.getDistrict())
+                && hasText(request.getWard())
+                && hasText(request.getDetailAddress());
+    }
+
+    private void composeAddressIfStructured(CheckoutRequest request) {
+        if (!hasStructuredAddress(request)) {
+            return;
+        }
+        request.setCustomerAddress(String.join(", ",
+                request.getDetailAddress(),
+                request.getWard(),
+                request.getDistrict(),
+                request.getProvince()));
+    }
+
+    private void validateAddress(CheckoutRequest request, BindingResult bindingResult) {
+        if (!hasText(request.getCustomerAddress())) {
+            bindingResult.rejectValue("province", "checkout.province.required", "Vui lòng chọn tỉnh/thành phố");
+            bindingResult.rejectValue("district", "checkout.district.required", "Vui lòng chọn quận/huyện");
+            bindingResult.rejectValue("ward", "checkout.ward.required", "Vui lòng chọn phường/xã");
+            bindingResult.rejectValue("detailAddress", "checkout.detailAddress.required", "Vui lòng nhập số nhà, tên đường");
+            return;
+        }
+
+        if (hasText(request.getProvince()) || hasText(request.getDistrict()) || hasText(request.getWard()) || hasText(request.getDetailAddress())) {
+            if (!hasText(request.getProvince())) {
+                bindingResult.rejectValue("province", "checkout.province.required", "Vui lòng chọn tỉnh/thành phố");
+            }
+            if (!hasText(request.getDistrict())) {
+                bindingResult.rejectValue("district", "checkout.district.required", "Vui lòng chọn quận/huyện");
+            }
+            if (!hasText(request.getWard())) {
+                bindingResult.rejectValue("ward", "checkout.ward.required", "Vui lòng chọn phường/xã");
+            }
+            if (!hasText(request.getDetailAddress())) {
+                bindingResult.rejectValue("detailAddress", "checkout.detailAddress.required", "Vui lòng nhập số nhà, tên đường");
+            }
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     private AddressViewDTO resolveSelectedUserAddress(HttpSession session, UUID userId) {
