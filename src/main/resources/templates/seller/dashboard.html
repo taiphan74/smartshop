@@ -1,25 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{seller/layout/seller-layout :: main-layout(~{::div})}">
 <body>
-    <div>
-        <h2 class="mb-4 text-dark">Hiệu suất kinh doanh của Shop</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white p-4 border-0 shadow-sm">
-                    <h5>💰 Tổng doanh thu</h5>
-                    <h2 th:text="${#numbers.formatDecimal(metrics.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h2>
+        <div class="max-w-[1280px] mx-auto px-4 md:px-6 py-6">
+        <div class="mb-6">
+            <h2 class="text-lg md:text-xl font-bold text-gray-900">Hiệu suất kinh doanh của Shop</h2>
+            <p class="mt-1 text-sm text-gray-500">Tổng quan về hoạt động kinh doanh của bạn</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h5 class="text-sm font-medium text-gray-500 uppercase tracking-wider">💰 Tổng doanh thu</h5>
+                    <span class="w-10 h-10 rounded-full bg-brand-blue-soft flex items-center justify-center text-brand-blue text-lg">💰</span>
                 </div>
+                <h2 class="text-2xl font-bold text-gray-900" th:text="${metrics.totalRevenue != null ? #numbers.formatDecimal(metrics.totalRevenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">0 đ</h2>
+                <p class="mt-1 text-xs text-gray-400">Tổng doanh thu từ các đơn hàng</p>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-success text-white p-4 border-0 shadow-sm">
-                    <h5>📦 Đơn hàng mới</h5>
-                    <h2 th:text="${metrics.totalOrders}">0</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h5 class="text-sm font-medium text-gray-500 uppercase tracking-wider">📦 Đơn hàng mới</h5>
+                    <span class="w-10 h-10 rounded-full bg-brand-green-soft flex items-center justify-center text-brand-green text-lg">📦</span>
                 </div>
+                <h2 class="text-2xl font-bold text-gray-900" th:text="${metrics.totalOrders}">0</h2>
+                <p class="mt-1 text-xs text-gray-400">Đơn hàng đang chờ xử lý</p>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-warning text-dark p-4 border-0 shadow-sm">
-                    <h5>🛒 Sản phẩm đang bán</h5>
-                    <h2 th:text="${metrics.totalProducts}">0</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h5 class="text-sm font-medium text-gray-500 uppercase tracking-wider">🛒 Sản phẩm đang bán</h5>
+                    <span class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 text-lg">🛒</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900" th:text="${metrics.totalProducts}">0</h2>
+                <p class="mt-1 text-xs text-gray-400">Sản phẩm đang hiển thị trên kênh</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 md:p-6 border-b border-gray-50">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">⚡ Thao tác nhanh</h3>
+            </div>
+            <div class="p-4 md:p-6 bg-gray-50/30">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <a href="/seller/products" class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-brand-blue/30 hover:shadow-md transition-all duration-300 group">
+                        <span class="w-10 h-10 rounded-full bg-brand-blue-soft flex items-center justify-center text-brand-blue text-lg group-hover:scale-110 transition-transform">📦</span>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">Quản lý sản phẩm</p>
+                            <p class="text-xs text-gray-400">Thêm, sửa, xóa sản phẩm</p>
+                        </div>
+                    </a>
+                    <a href="/seller/products?action=new" class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-brand-blue/30 hover:shadow-md transition-all duration-300 group">
+                        <span class="w-10 h-10 rounded-full bg-brand-green-soft flex items-center justify-center text-brand-green text-lg group-hover:scale-110 transition-transform">➕</span>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">Thêm sản phẩm mới</p>
+                            <p class="text-xs text-gray-400">Đăng bán sản phẩm mới</p>
+                        </div>
+                    </a>
+                    <a href="/profile" class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-brand-blue/30 hover:shadow-md transition-all duration-300 group">
+                        <span class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 text-lg group-hover:scale-110 transition-transform">👤</span>
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">Thông tin shop</p>
+                            <p class="text-xs text-gray-400">Cập nhật thông tin cửa hàng</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>

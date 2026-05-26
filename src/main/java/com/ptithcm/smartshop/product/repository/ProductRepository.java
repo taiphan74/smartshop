@@ -160,4 +160,5 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "WHERE p.status = true AND s.status = 'APPROVED' " +
            "AND LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<ProductProjection> searchPublicProducts(@Param("keyword") String keyword, Pageable pageable);
+    long countByShopId(UUID shopId);
 }

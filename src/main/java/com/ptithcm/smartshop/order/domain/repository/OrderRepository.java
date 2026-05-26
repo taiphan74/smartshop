@@ -43,5 +43,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             List<OrderStatus> statuses);
 
     List<Order> findByOrderByCreatedAtDesc(Pageable pageable);
-}
+    long countByShopId(UUID shopId);
 
+    @Query("select coalesce(sum(o.finalAmount), 0) from Order o where o.shop.id = :shopId")
+    BigDecimal sumFinalAmountByShopId(@Param("shopId") UUID shopId);
+}
