@@ -158,7 +158,7 @@ public class VoucherListItemDTO {
         if (value % 1000 == 0 && value >= 1000) {
             return (value / 1000) + "K";
         }
-        java.text.NumberFormat nf = java.text.NumberFormat.getNumberInstance(new java.util.Locale("vi", "VN"));
+        java.text.NumberFormat nf = java.text.NumberFormat.getNumberInstance(java.util.Locale.of("vi", "VN"));
         return nf.format(value);
     }
 }
