@@ -56,7 +56,7 @@
                                   th:text="${shop.status}">PENDING</span>
                         </div>
                         <div>
-                            <a th:href="@{/seller/dashboard}" 
+                            <a th:href="@{/seller/dashboard(shopId=${shop.id})}" 
                                class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-sm transition-all duration-300 inline-block" 
                                th:text="#{profile.seller_center}">Vào Kênh Người Bán ➜</a>
                         </div>

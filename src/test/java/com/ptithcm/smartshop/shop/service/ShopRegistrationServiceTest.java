@@ -73,6 +73,7 @@ class ShopRegistrationServiceTest {
         shop.setSlug("shop-a");
         shop.setStatus(ShopStatus.PENDING);
         shop.setDescription("Pending shop");
+        shop.setId(UUID.randomUUID());
         ShopRepository shopRepository = mock(ShopRepository.class);
         UserRepository userRepository = mock(UserRepository.class);
         when(shopRepository.findByOwnerIdOrderByCreatedAtDesc(userId)).thenReturn(List.of(shop));

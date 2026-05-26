@@ -7,7 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/seller")
@@ -20,11 +22,13 @@ public class SellerDashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String dashboard(@AuthenticationPrincipal CustomUserDetails userDetails,
+                            @RequestParam UUID shopId,
+                            Model model) {
         if (userDetails == null) {
             return "redirect:/auth/login";
         }
-        Map<String, Object> metrics = sellerDashboardService.getDashboardMetrics(userDetails.getId());
+        Map<String, Object> metrics = sellerDashboardService.getDashboardMetrics(shopId);
         model.addAttribute("metrics", metrics);
         return "seller/dashboard";
     }

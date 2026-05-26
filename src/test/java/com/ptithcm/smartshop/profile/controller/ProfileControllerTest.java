@@ -49,7 +49,7 @@ class ProfileControllerTest {
         UserRepository userRepository = mock(UserRepository.class);
         ShopRegistrationService shopService = mock(ShopRegistrationService.class);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(shopService.findOwnedShopSummaries(userId)).thenReturn(List.of(new ShopSummary("Shop A", "shop-a", "", "0911111111", ShopStatus.PENDING)));
+        when(shopService.findOwnedShopSummaries(userId)).thenReturn(List.of(new ShopSummary(UUID.randomUUID(), "Shop A", "shop-a", "", "0911111111", ShopStatus.PENDING)));
         
         // Thêm mock(MessageSource.class) vào constructor
         ProfileController controller = new ProfileController(userRepository, shopService, mock(MessageSource.class));

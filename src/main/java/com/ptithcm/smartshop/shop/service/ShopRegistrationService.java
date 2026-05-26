@@ -44,6 +44,7 @@ public class ShopRegistrationService {
     public List<ShopSummary> findOwnedShopSummaries(UUID userId) {
         return shopRepository.findByOwnerIdOrderByCreatedAtDesc(userId).stream()
                 .map(shop -> new ShopSummary(
+                        shop.getId(),
                         shop.getName(),
                         shop.getSlug(),
                         shop.getDescription(),
