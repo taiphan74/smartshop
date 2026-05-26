@@ -52,6 +52,7 @@ public class SecurityConfig {
 						.authenticationEntryPoint(restAuthenticationEntryPoint)
 						.accessDeniedHandler(restAccessDeniedHandler))
 				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers("/promotion", "/promotion/**").hasRole("PROMOTION_MANAGER")
 						.requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/auth/registration/otp").permitAll()

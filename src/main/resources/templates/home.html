@@ -42,14 +42,7 @@
 					<div class="swiper-wrapper">
 						<div th:each="banner : ${banners}" class="swiper-slide relative"
 							 th:if="${banner.isActive}">
-							<a th:if="${banner.linkUrl != null and !#strings.isEmpty(banner.linkUrl)}"
-							   th:href="${banner.linkUrl}">
-								<img th:src="${banner.imageUrl}"
-									 th:alt="${banner.title}"
-									 class="w-full h-[300px] md:h-[400px] object-cover"/>
-							</a>
-							<img th:unless="${banner.linkUrl != null and !#strings.isEmpty(banner.linkUrl)}"
-								 th:src="${banner.imageUrl}"
+							<img th:src="${banner.imageUrl}"
 								 th:alt="${banner.title}"
 								 class="w-full h-[300px] md:h-[400px] object-cover"/>
 						</div>

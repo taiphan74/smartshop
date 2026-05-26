@@ -1,0 +1,15 @@
+<div th:fragment="topbar" class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shadow-sm">
+    <div>
+        <p class="text-xs uppercase tracking-[0.14em] text-slate-400">Promotion Manager</p>
+        <p class="text-sm text-slate-600 font-medium">Hệ thống quản lý khuyến mãi và sự kiện</p>
+    </div>
+
+    <div class="flex items-center gap-3 md:gap-4">
+        <a href="/" class="hidden sm:inline-flex rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 transition">Trang chủ</a>
+        <div class="h-4 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">P</span>
+            <span class="text-sm font-semibold text-slate-700" th:text="${sessionUser != null and sessionUser.fullName() != null ? sessionUser.fullName() : 'Promotion Manager'}">Promotion Manager</span>
+        </div>
+    </div>
+</div>
