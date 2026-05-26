@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{seller/layout/seller-layout :: main-layout(~{::div})}">
+<body>
+    <div>
+        <h2 class="mb-4 text-dark">Hiệu suất kinh doanh của Shop</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white p-4 border-0 shadow-sm">
+                    <h5>💰 Tổng doanh thu</h5>
+                    <h2 th:text="${#numbers.formatDecimal(metrics.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white p-4 border-0 shadow-sm">
+                    <h5>📦 Đơn hàng mới</h5>
+                    <h2 th:text="${metrics.totalOrders}">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-warning text-dark p-4 border-0 shadow-sm">
+                    <h5>🛒 Sản phẩm đang bán</h5>
+                    <h2 th:text="${metrics.totalProducts}">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

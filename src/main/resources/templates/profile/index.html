@@ -33,6 +33,38 @@
                 <a th:href="@{/profile(edit=true)}" class="bg-brand-blue text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:shadow-md transition-all duration-300 inline-block" th:text="#{profile.edit}">Edit</a>
             </div>
         </div>
+        <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 md:p-6 border-b border-gray-50 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    🏪 Cửa hàng của tôi
+                </h3>
+                <a th:href="@{/profile/shops/register}" 
+                   class="border border-brand-blue text-brand-blue hover:bg-blue-50 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-300 inline-block" 
+                   th:text="#{profile.register_shop}">Đăng ký mở cửa hàng +</a>
+            </div>
+            <div class="p-4 md:p-6 bg-gray-50/30">
+                <div th:if="${#lists.isEmpty(shops)}" class="text-center py-6 text-gray-500 text-sm">
+                    Bạn chưa đăng ký cửa hàng nào. Hãy ấn nút phía trên để bắt đầu!
+                </div>
+                
+                <div th:if="${!#lists.isEmpty(shops)}" class="space-y-4">
+                    <div th:each="shop : ${shops}" class="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-sm">
+                        <div>
+                            <h4 class="font-bold text-gray-900" th:text="${shop.name}">Tên Shop</h4>
+                            <span class="text-xs px-2 py-0.5 rounded-full inline-block mt-1" 
+                                  th:classappend="${shop.status.name() == 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}"
+                                  th:text="${shop.status}">PENDING</span>
+                        </div>
+                        <div>
+                            <a th:href="@{/seller/dashboard}" 
+                               class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-sm transition-all duration-300 inline-block" 
+                               th:text="#{profile.seller_center}">Vào Kênh Người Bán ➜</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Form Thông tin Chi tiết -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

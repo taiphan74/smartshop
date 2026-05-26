@@ -88,10 +88,18 @@ public class ProfileController {
     public String registerShop(
             @SessionAttribute(name = SessionConstants.CURRENT_USER, required = false) SessionUser sessionUser,
             @Valid @ModelAttribute("shopForm") ShopRegistrationForm form,
-            RedirectAttributes redirectAttributes) {
+            org.springframework.validation.BindingResult bindingResult,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes,
+            org.springframework.ui.Model model) {
         if (sessionUser == null) {
             return "redirect:/auth/login";
         }
+        
+        if (bindingResult.hasErrors()) {
+            // Nếu form nhập liệu dính lỗi, giữ người dùng lại trang điền form để hiển thị lỗi
+            return "profile/shops/register";
+        }
+        
         shopRegistrationService.register(sessionUser.id(), form);
         redirectAttributes.addFlashAttribute("successMessage", messageSource.getMessage("profile.shop_submit", null, Locale.getDefault()));
         return "redirect:/profile";
