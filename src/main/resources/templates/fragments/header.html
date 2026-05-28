@@ -6,12 +6,12 @@
         <div class="site-shell site-header__row">
           <a href="/" class="site-logo" th:attr="aria-label=#{common.home}">
             <img src="/images/smartshop-logo.png" alt="SmartShop Logo" class="site-logo__image" />
-            <span class="site-logo__tagline" th:text="#{nav.tagline}">Mua sắm thông minh</span>
+            <span class="site-logo__tagline" th:text="#{nav.tagline}">Mua sáº¯m thÃ´ng minh</span>
           </a>
 
           <form action="/search" method="get" class="site-search">
-            <label class="sr-only" for="site-search-input" th:text="#{nav.search_label}">Tìm kiếm sản phẩm</label>
-            <input id="site-search-input" type="text" name="q" th:placeholder="#{nav.search_placeholder}" placeholder="Bạn muốn tìm gì hôm nay?" class="site-search__input" />
+            <label class="sr-only" for="site-search-input" th:text="#{nav.search_label}">TÃ¬m kiáº¿m sáº£n pháº©m</label>
+            <input id="site-search-input" type="text" name="q" th:placeholder="#{nav.search_placeholder}" placeholder="Báº¡n muá»‘n tÃ¬m gÃ¬ hÃ´m nay?" class="site-search__input" />
             <span class="site-search__icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
@@ -25,13 +25,13 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
               </svg>
-              <span class="site-action__label sr-only" th:text="#{nav.home}">Trang chủ</span>
+              <span class="site-action__label sr-only" th:text="#{nav.home}">Trang chá»§</span>
             </a>
             <a th:if="${sessionUser == null}" href="/auth/login" class="site-action" th:attr="aria-label=#{nav.login}">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span class="site-action__label sr-only" th:text="#{nav.login}">Đăng nhập</span>
+              <span class="site-action__label sr-only" th:text="#{nav.login}">ÄÄƒng nháº­p</span>
             </a>
             <a href="/cart" class="site-action site-cart" th:attr="aria-label=#{nav.cart}">
               <span class="site-cart__badge" th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}">0</span>
@@ -39,20 +39,21 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 21H18.6L20 13H7z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 21a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4z" />
               </svg>
-              <span class="site-action__label sr-only" th:text="#{nav.cart}">Giỏ hàng</span>
+              <span class="site-action__label sr-only" th:text="#{nav.cart}">Giá» hÃ ng</span>
             </a>
             <details th:if="${sessionUser != null}" class="site-account-menu">
               <summary class="site-action site-account-trigger" th:attr="aria-label=#{nav.account}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span class="site-action__label sr-only" th:text="#{nav.account}">Tài khoản</span>
+                <span class="site-action__label sr-only" th:text="#{nav.account}">TÃ i khoáº£n</span>
               </summary>
               <div class="site-account-dropdown">
-                <a href="/profile" class="site-account-dropdown__item" th:text="#{nav.account}">Tài khoản</a>
-                <a href="/my/orders" class="site-account-dropdown__item">Đơn hàng của tôi</a>
+                <a href="/profile" class="site-account-dropdown__item" th:text="#{nav.account}">Account</a>
+                <a href="/my/orders" class="site-account-dropdown__item" th:text="#{nav.my_orders}">My orders</a>
+                <a th:if="${sessionUser.roles != null and (#strings.contains(sessionUser.roles.toString(), 'PROMOTION_MANAGER') or #strings.contains(sessionUser.roles.toString(), 'ADMIN'))}" href="/promotion/vouchers" class="site-account-dropdown__item" th:text="#{nav.promotion}">Promotion</a>
                 <form th:action="@{/auth/logout}" method="post">
-                  <button type="submit" class="site-account-dropdown__item site-account-dropdown__button font-bold text-red-600 hover:text-red-700" th:text="#{nav.logout}">Đăng xuất</button>
+                  <button type="submit" class="site-account-dropdown__item site-account-dropdown__button font-bold text-red-600 hover:text-red-700" th:text="#{nav.logout}">Log out</button>
                 </form>
               </div>
             </details>
@@ -66,9 +67,9 @@
 
       <nav class="site-categories" th:attr="aria-label=#{nav.categories}">
         <div class="site-shell site-categories__row">
-          <a th:each="cat : ${headerCategories}" th:href="@{/products(category=${cat.slug})}" class="site-category-link" th:classappend="${selectedCategorySlug != null and selectedCategorySlug == cat.slug} ? ' site-category-link--active' : ''" th:text="${cat.displayName}">Tên danh mục</a>
+          <a th:each="cat : ${headerCategories}" th:href="@{/products(category=${cat.slug})}" class="site-category-link" th:classappend="${selectedCategorySlug != null and selectedCategorySlug == cat.slug} ? ' site-category-link--active' : ''" th:text="${cat.displayName}">TÃªn danh má»¥c</a>
           <span th:if="${headerCategories == null or #lists.isEmpty(headerCategories)}" class="site-category-empty">
-            <span th:text="#{common.loading_categories}">Đang tải danh mục...</span>
+            <span th:text="#{common.loading_categories}">Äang táº£i danh má»¥c...</span>
           </span>
         </div>
       </nav>
@@ -89,3 +90,6 @@
     </header>
   </body>
 </html>
+
+
+

@@ -8,7 +8,15 @@ public enum Permission {
 	BANNER_READ("banner:read"),
 	BANNER_CREATE("banner:create"),
 	BANNER_UPDATE("banner:update"),
-	BANNER_DELETE("banner:delete");
+	BANNER_DELETE("banner:delete"),
+	VOUCHER_READ("voucher:read"),
+	VOUCHER_CREATE("voucher:create"),
+	VOUCHER_UPDATE("voucher:update"),
+	VOUCHER_DELETE("voucher:delete"),
+	EVENT_READ("event:read"),
+	EVENT_CREATE("event:create"),
+	EVENT_UPDATE("event:update"),
+	EVENT_PUBLISH("event:publish");
 
 	private final String code;
 

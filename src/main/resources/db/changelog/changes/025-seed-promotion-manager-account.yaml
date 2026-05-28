@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 025-seed-promotion-manager-account
+      author: github-copilot
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              INSERT INTO users (id, email, phone, password_hash, status, created_at, updated_at)
+              VALUES (
+                gen_random_uuid(),
+                'promotion.manager@gmail.com',
+                '0911111111',
+                '$2a$10$e6IV.8/63oreV.8s8SWoZOW6CRIc8as3fGZCScZ67yRmQwnA87sKe',
+                'ACTIVE',
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP
+              )
+              ON CONFLICT (email) DO NOTHING;
+
+              INSERT INTO user_profiles (id, user_id, full_name, created_at, updated_at)
+              SELECT gen_random_uuid(), id, 'Promotion Manager', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM users
+              WHERE email = 'promotion.manager@gmail.com'
+              ON CONFLICT DO NOTHING;
+
+              INSERT INTO user_roles (id, user_id, role_id, created_at)
+              SELECT gen_random_uuid(), u.id, r.id, CURRENT_TIMESTAMP
+              FROM users u
+              JOIN roles r ON r.code = 'PROMOTION_MANAGER'
+              WHERE u.email = 'promotion.manager@gmail.com'
+              ON CONFLICT DO NOTHING;

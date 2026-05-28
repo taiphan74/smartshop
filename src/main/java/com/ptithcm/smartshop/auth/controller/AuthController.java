@@ -1,21 +1,7 @@
 package com.ptithcm.smartshop.auth.controller;
 
-import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
-import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
-import com.ptithcm.smartshop.auth.dto.AuthResponse;
-import com.ptithcm.smartshop.auth.service.AuthService;
-import com.ptithcm.smartshop.auth.service.RegistrationOtpService;
-import com.ptithcm.smartshop.security.principal.CustomUserDetails;
-import com.ptithcm.smartshop.security.session.SessionConstants;
-import com.ptithcm.smartshop.security.session.SessionUser;
-import com.ptithcm.smartshop.shared.exception.ConflictException;
-import com.ptithcm.smartshop.user.dto.UserResponse;
-import com.ptithcm.smartshop.user.entity.User;
-import com.ptithcm.smartshop.auth.service.AuthQueryService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import java.util.UUID;
+
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +18,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.ptithcm.smartshop.auth.dto.AuthLoginRequest;
+import com.ptithcm.smartshop.auth.dto.AuthRegisterRequest;
+import com.ptithcm.smartshop.auth.dto.AuthResponse;
+import com.ptithcm.smartshop.auth.service.AuthQueryService;
+import com.ptithcm.smartshop.auth.service.AuthService;
+import com.ptithcm.smartshop.auth.service.RegistrationOtpService;
+import com.ptithcm.smartshop.security.principal.CustomUserDetails;
+import com.ptithcm.smartshop.security.session.SessionConstants;
+import com.ptithcm.smartshop.security.session.SessionUser;
+import com.ptithcm.smartshop.shared.exception.ConflictException;
+import com.ptithcm.smartshop.user.dto.UserResponse;
+import com.ptithcm.smartshop.user.entity.User;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/auth")
@@ -83,7 +86,7 @@ public class AuthController {
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
             session.setAttribute(SessionConstants.CURRENT_USER, SessionUser.from(user));
 
-            return "redirect:/";
+            return "redirect:" + resolvePostLoginRedirect(user);
         } catch (DisabledException exception) {
             model.addAttribute("formError", "Bạn chưa xác thực tài khoản, vui lòng xác thực tài khoản.");
             return "auth/login";
@@ -167,7 +170,7 @@ public class AuthController {
             session.setAttribute(SessionConstants.CURRENT_USER, SessionUser.from(user));
 
             redirectAttributes.addFlashAttribute("successMessage", "Xác thực tài khoản thành công");
-            return "redirect:/";
+            return "redirect:" + resolvePostLoginRedirect(user);
         } catch (ConflictException exception) {
             model.addAttribute("formError", exception.getMessage());
             model.addAttribute("otpCode", otp);
@@ -188,5 +191,14 @@ public class AuthController {
     private boolean hasActiveSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         return session != null && session.getAttribute(SessionConstants.CURRENT_USER) != null;
+    }
+
+    private String resolvePostLoginRedirect(User user) {
+        boolean isPromotionManager = user.getRoles().stream()
+                .anyMatch(role -> "PROMOTION_MANAGER".equalsIgnoreCase(role.getCode()));
+        if (isPromotionManager) {
+            return "/promotion/vouchers";
+        }
+        return "/";
     }
 }

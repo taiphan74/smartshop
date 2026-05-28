@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 024-seed-promotion-manager-permissions
+      author: github-copilot
+      validCheckSum:
+        - 9:4ccb1ae917933f3384fb237543a51929
+        - 9:e86118a092f6c3ed99e46f17bdbdaa55
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO permissions (code, description)
+              VALUES
+                ('voucher:read', 'View platform vouchers'),
+                ('voucher:create', 'Create platform vouchers'),
+                ('voucher:update', 'Update platform vouchers'),
+                ('voucher:delete', 'Delete platform vouchers'),
+                ('event:read', 'View promotion events'),
+                ('event:create', 'Create promotion events'),
+                ('event:update', 'Update promotion events'),
+                ('event:publish', 'Publish promotion events')
+              ON CONFLICT (code) DO NOTHING;
+
+              INSERT INTO roles (code, name, description)
+              VALUES ('PROMOTION_MANAGER', 'Promotion Manager', 'Manage platform vouchers and promotion events')
+              ON CONFLICT (code) DO NOTHING;
+
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id
+              FROM roles r
+              JOIN permissions p ON p.code IN (
+                'voucher:read',
+                'voucher:create',
+                'voucher:update',
+                'voucher:delete',
+                'event:read',
+                'event:create',
+                'event:update',
+                'event:publish'
+              )
+              WHERE r.code = 'PROMOTION_MANAGER'
+              ON CONFLICT DO NOTHING;

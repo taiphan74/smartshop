@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{promotion/fragments/layout :: promotionLayout(~{::main})}">
+<body>
+<main>
+    <div class="mb-6 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Quản lý sự kiện quảng cáo</h1>
+            <p class="mt-1 text-sm text-slate-500">Quản lý banner đang hiển thị ở carousel trang chủ: ảnh, thứ tự và trạng thái hiển thị.</p>
+        </div>
+        <a th:href="@{/promotion/vouchers}" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 transition">Quay lại voucher</a>
+    </div>
+
+    <div class="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tổng sự kiện</p>
+            <p class="mt-1 text-2xl font-bold text-slate-900" th:text="${events != null ? #lists.size(events) : 0}">0</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Đang hiển thị</p>
+            <p class="mt-1 text-2xl font-bold text-green-600" th:text="${events != null ? #lists.size(events.?[isActive]) : 0}">0</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Đang ẩn</p>
+            <p class="mt-1 text-2xl font-bold text-slate-600" th:text="${events != null ? #lists.size(events.?[isActive == false]) : 0}">0</p>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" th:text="${errorMessage}"></div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_460px] gap-6">
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between gap-3">
+                <h2 class="font-bold text-slate-800">Danh sách sự kiện quảng cáo</h2>
+                <span class="text-xs font-medium text-slate-500">Hiển thị trên carousel trang chủ</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-200">
+                        <th class="p-4">Ảnh</th>
+                        <th class="p-4">Tiêu đề</th>
+                        <th class="p-4">Thứ tự</th>
+                        <th class="p-4">Trạng thái</th>
+                        <th class="p-4">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                    <tr th:each="event : ${events}">
+                        <td class="p-4">
+                            <img th:src="${event.imageUrl}" th:alt="${event.title}" class="h-16 w-28 rounded-lg object-cover border border-slate-200" />
+                        </td>
+                        <td class="p-4">
+                            <p class="font-semibold text-slate-800" th:text="${event.title != null and !#strings.isEmpty(event.title)} ? ${event.title} : 'Không tiêu đề'">Tên sự kiện</p>
+                        </td>
+                        <td class="p-4 text-slate-700" th:text="${event.displayOrder}">0</td>
+                        <td class="p-4">
+                            <span th:if="${event.isActive}" class="px-2 py-1 rounded border border-green-200 bg-green-soft text-green-700 text-xs font-semibold">Đang hiển thị</span>
+                            <span th:unless="${event.isActive}" class="px-2 py-1 rounded border border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold">Đang ẩn</span>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex flex-wrap gap-2">
+                                <a th:href="@{/promotion/events(editId=${event.id})}" class="inline-flex rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold !text-white no-underline hover:bg-indigo-700 transition">Sửa</a>
+                                <form th:action="@{/promotion/events/{id}/toggle-active(id=${event.id})}" method="post">
+                                    <button type="submit" class="inline-flex rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition" th:text="${event.isActive} ? 'Ẩn' : 'Hiện'">Ẩn</button>
+                                </form>
+                                <form th:action="@{/promotion/events/{id}/delete(id=${event.id})}" method="post" onsubmit="return confirm('Bạn chắc chắn muốn xóa sự kiện quảng cáo này?');">
+                                    <button type="submit" class="inline-flex rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 transition">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${events == null or #lists.isEmpty(events)}">
+                        <td class="p-4 text-slate-500" colspan="5">Chưa có sự kiện quảng cáo nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <h2 class="font-bold text-slate-800 mb-4" th:text="${editing} ? 'Cập nhật sự kiện quảng cáo' : 'Tạo sự kiện quảng cáo mới'">Tạo sự kiện quảng cáo mới</h2>
+            <form th:action="${editing} ? @{/promotion/events/{id}/update(id=${editingId})} : @{/promotion/events}" th:object="${eventForm}" method="post" enctype="multipart/form-data" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Tiêu đề</label>
+                    <input type="text" th:field="*{title}" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" placeholder="VD: Sale cuối tuần" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">URL ảnh banner</label>
+                    <input type="text" th:field="*{imageUrl}" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" placeholder="/uploads/banners/... hoặc https://..." />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Hoặc tải ảnh mới</label>
+                    <input type="file" name="imageFile" accept="image/*" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Thứ tự hiển thị</label>
+                        <input type="number" min="0" th:field="*{displayOrder}" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500" />
+                    </div>
+                    <div class="flex items-center gap-2 pt-8">
+                        <input type="checkbox" th:field="*{isActive}" class="rounded border-slate-300" />
+                        <label class="text-sm text-slate-700">Hiển thị ngay trên trang chủ</label>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition" th:text="${editing} ? 'Lưu thay đổi' : 'Tạo sự kiện'">Tạo sự kiện</button>
+                    <a th:if="${editing}" th:href="@{/promotion/events}" class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Hủy sửa</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</main>
+</body>
+</html>
