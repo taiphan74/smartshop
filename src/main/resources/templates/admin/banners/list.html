@@ -2,68 +2,141 @@
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head(#{admin.banner.page_title})}"></head>
 <body>
+    <div th:replace="~{admin/fragments/topbar :: topbar}"></div>
 
-<div th:replace="~{fragments/header :: header}"></div>
+    <main class="container mx-auto py-8 px-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-6" th:text="#{admin.banner.title}">Quản lý Banner</h1>
 
-<main class="container mx-auto py-8 px-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6" th:text="#{admin.banner.title}">Quản lý Banner</h1>
+        <!-- Banner List with Bulk Actions -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200" th:text="#{admin.banner.list}">Danh sách Banner</h2>
 
-    <!-- Banner List -->
-    <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4" th:text="#{admin.banner.list}">Danh sách Banner</h2>
-        <div class="space-y-4">
-            <div th:each="banner : ${banners}" class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
-                <img th:src="${banner.imageUrl}" th:alt="#{admin.banner.alt}" alt="Banner" class="w-48 h-24 object-cover rounded"/>
-                <div class="flex-1">
-                    <h3 class="font-medium" th:text="${banner.title} != null && !banner.title.isBlank()} ? ${banner.title} : #{common.no_title}">Banner Title</h3>
-                    <p class="text-sm text-gray-500" th:text="#{admin.banner.display_order} + ' ' + ${banner.displayOrder}"></p>
-                    <span th:if="${banner.isActive}" class="text-xs text-green-600" th:text="#{admin.banner.active}">Đang hiển thị</span>
-                    <span th:unless="${banner.isActive}" class="text-xs text-red-600" th:text="#{admin.banner.hidden}">Đã ẩn</span>
+            <!-- Bulk Action Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" id="select-all-banners" class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500">
+                    <label for="select-all-banners" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Chọn tất cả
+                    </label>
                 </div>
-                <form th:action="@{'/admin/banners/delete/' + ${banner.id}}" method="post"
-                      th:attr="data-confirm-message=#{admin.banner.confirm_delete}" onsubmit="return confirm(this.dataset.confirmMessage);">
-                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm" th:text="#{admin.banner.delete}">Xóa</button>
-                </form>
+                <div class="flex gap-2">
+                    <button id="bulk-delete" class="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200">
+                        Xóa đã chọn
+                    </button>
+                    <button id="bulk-activate" class="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200">
+                        Kích hoạt
+                    </button>
+                    <button id="bulk-deactivate" class="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200">
+                        Ẩn
+                    </button>
+                </div>
             </div>
-            <p th:if="${banners == null or #lists.isEmpty(banners)}" class="text-gray-500" th:text="#{admin.banner.empty}">Chưa có banner nào.</p>
+
+            <!-- Banner Rows -->
+            <div class="divide-y divide-gray-200 dark:divide-gray-700 rounded-b-lg overflow-hidden">
+                <div th:each="banner : ${banners}" class="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 flex items-center gap-4">
+                    <input type="checkbox" class="h-4 w-4 rounded text-blue-600 banner-checkbox" th:attr="data-banner-id=${banner.id}">
+                    <img th:src="${banner.imageUrl}" th:alt="#{admin.banner.alt}" class="w-20 h-12 object-cover rounded">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate" th:text="${banner.title} != null && !banner.title.isBlank() ? ${banner.title} : #{common.no_title}">Banner Title</p>
+                        <div class="flex items-center gap-2 text-xs mt-1">
+                            <span class="text-gray-500 dark:text-gray-400">Order: <span th:text="${banner.displayOrder}">1</span></span>
+                            <span th:if="${banner.isActive}" class="text-green-600 dark:text-green-400">● Active</span>
+                            <span th:unless="${banner.isActive}" class="text-red-600 dark:text-red-400">● Hidden</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <a th:href="@{/admin/banners/edit/{id}(id=${banner.id})}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
+                            Sửa
+                        </a>
+                        <form th:action="@{'/admin/banners/delete/' + ${banner.id}}" method="post"
+                              th:attr="data-confirm-message=#{admin.banner.confirm_delete}" onsubmit="return confirm(this.dataset.confirmMessage);">
+                            <button type="submit" class="text-red-600 dark:text-red-400 hover:underline text-sm font-medium">
+                                Xóa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <p th:if="${banners == null or #lists.isEmpty(banners)}" class="text-gray-500 dark:text-gray-400 p-6 text-center">
+                    <span th:text="#{admin.banner.empty}">Chưa có banner nào.</span>
+                </p>
+            </div>
         </div>
-    </div>
 
-    <!-- Create Form -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold mb-4" th:text="#{admin.banner.create}">Thêm Banner mới</h2>
-        <form th:action="@{/admin/banners/create}" method="post" enctype="multipart/form-data"
-              th:object="${bannerForm}" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700" th:text="#{admin.banner.field.title}">Tiêu đề</label>
-                    <input type="text" th:field="*{title}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+        <!-- Create Form (existing) -->
+        <div class="bg-white dark:bg-gray-900 rounded-lg shadow p-6 mt-8">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200" th:text="#{admin.banner.create}">Thêm Banner mới</h2>
+            <!-- Existing form content remains unchanged -->
+            <form th:action="@{/admin/banners/create}" method="post" enctype="multipart/form-data"
+                  th:object="${bannerForm}" class="space-y-4">
+                <!-- Form fields remain as in original template -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" th:text="#{admin.banner.field.title}">Tiêu đề</label>
+                        <input type="text" th:field="*{title}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" th:text="#{admin.banner.field.link_url}">URL đích</label>
+                        <input type="text" th:field="*{linkUrl}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" th:text="#{admin.banner.field.display_order}">Thứ tự</label>
+                        <input type="number" th:field="*{displayOrder}" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="flex items-center mt-6">
+                        <input type="checkbox" th:field="*{isActive}" checked class="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500">
+                        <label class="text-sm text-gray-700 dark:text-gray-300" th:text="#{admin.banner.field.active}">Hiển thị</label>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" th:text="#{admin.banner.field.image}">Hình ảnh</label>
+                        <input type="file" name="imageFile" accept="image/*" class="mt-1 block w-full dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700" th:text="#{admin.banner.field.link_url}">URL đích</label>
-                    <input type="text" th:field="*{linkUrl}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700" th:text="#{admin.banner.field.display_order}">Thứ tự</label>
-                    <input type="number" th:field="*{displayOrder}" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
-                </div>
-                <div class="flex items-center mt-6">
-                    <input type="checkbox" th:field="*{isActive}" checked class="mr-2"/>
-                    <label class="text-sm text-gray-700" th:text="#{admin.banner.field.active}">Hiển thị</label>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700" th:text="#{admin.banner.field.image}">Hình ảnh</label>
-                    <input type="file" name="imageFile" accept="image/*" class="mt-1 block w-full"/>
-                </div>
-            </div>
-            <button type="submit" class="bg-[#0A68FF] text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                <span th:text="#{admin.banner.submit}">Thêm banner</span>
-            </button>
-        </form>
-    </div>
+                <button type="submit" class="bg-[#0A68FF] text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
+                    <span th:text="#{admin.banner.submit}">Thêm banner</span>
+                </button>
+            </form>
+        </div>
 
-    <a href="/" class="mt-6 inline-block text-[#0A68FF] hover:underline">&larr; <span th:text="#{common.back_home}">Quay lại trang chủ</span></a>
-</main>
+        <a href="/" class="mt-6 inline-block text-[#0A68FF] dark:text-blue-400 hover:underline">&larr; <span th:text="#{common.back_home}">Quay lại trang chủ</span></a>
+    </main>
 
+    <script>
+        // Bulk action handlers
+        document.getElementById('select-all-banners').addEventListener('change', function(e) {
+            document.querySelectorAll('.banner-checkbox').forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+        });
+
+        document.getElementById('bulk-delete').addEventListener('click', function() {
+            const selected = Array.from(document.querySelectorAll('.banner-checkbox:checked')).map(el => el.dataset.bannerId);
+            if (selected.length === 0) {
+                alert('Vui lòng chọn ít nhất một banner');
+                return;
+            }
+            if (confirm(`Xóa ${selected.length} banner đã chọn?`)) {
+                alert('Bulk delete would be implemented with endpoint: POST /admin/banners/bulk-delete with IDs: ' + selected.join(', '));
+            }
+        });
+
+        document.getElementById('bulk-activate').addEventListener('click', function() {
+            const selected = Array.from(document.querySelectorAll('.banner-checkbox:checked')).map(el => el.dataset.bannerId);
+            if (selected.length === 0) {
+                alert('Vui lòng chọn ít nhất một banner');
+                return;
+            }
+            alert('Bulk activate would be implemented with endpoint: POST /admin/banners/bulk-activate with IDs: ' + selected.join(', '));
+        });
+
+        document.getElementById('bulk-deactivate').addEventListener('click', function() {
+            const selected = Array.from(document.querySelectorAll('.banner-checkbox:checked')).map(el => el.dataset.bannerId);
+            if (selected.length === 0) {
+                alert('Vui lòng chọn ít nhất một banner');
+                return;
+            }
+            alert('Bulk deactivate would be implemented with endpoint: POST /admin/banners/bulk-deactivate with IDs: ' + selected.join(', '));
+        });
+    </script>
 </body>
 </html>

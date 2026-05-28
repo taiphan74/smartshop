@@ -19,6 +19,14 @@
 	--radius-sm: 10px;
 	--radius-md: 16px;
 	--radius-lg: 24px;
+	--color-admin-bg: #ffffff;
+	--color-admin-surface: #f9fafb;
+	--color-admin-border: #e5e7eb;
+	--color-admin-text: #111827;
+	--color-admin-text-secondary: #6b7280;
+	--color-admin-text-muted: #9ca3af;
+	--color-admin-primary: #3b82f6;
+	--color-admin-primary-hover: #2563eb;
 }
 
 * {
