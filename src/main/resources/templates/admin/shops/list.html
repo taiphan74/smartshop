@@ -37,7 +37,7 @@
             <tbody class="divide-y divide-slate-100 text-sm">
             <tr th:each="shop : ${shops}">
                 <td class="p-4">
-                    <p class="font-semibold text-slate-800" th:text="${shop.name}">Shop name</p>
+                    <a class="font-semibold text-indigo-700 hover:text-indigo-800" th:href="@{/admin/shops/{id}(id=${shop.id})}" th:text="${shop.name}">Shop name</a>
                     <p class="text-xs text-slate-500" th:text="${shop.slug}">slug</p>
                 </td>
                 <td class="p-4 text-slate-700" th:text="${shop.owner.fullName != null ? shop.owner.fullName : shop.owner.email}">Owner</td>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/layout :: adminLayout(~{::main})}">
+<body>
+<main>
+    <div class="mb-6 flex items-start justify-between">
+        <div>
+            <a th:href="@{/admin/reviews}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">← Quay lại feedback</a>
+            <h1 class="mt-2 text-2xl font-bold text-slate-900">Chi tiết feedback</h1>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" th:text="${errorMessage}"></div>
+
+    <div class="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <dl class="grid gap-4 text-sm md:grid-cols-2">
+                <div>
+                    <dt class="font-semibold text-slate-500">Sản phẩm</dt>
+                    <dd class="mt-1 text-slate-900" th:text="${review.product.name}">Product</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold text-slate-500">Người đánh giá</dt>
+                    <dd class="mt-1 text-slate-900" th:text="${review.user.fullName != null ? review.user.fullName : review.user.email}">User</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold text-slate-500">Đơn hàng</dt>
+                    <dd class="mt-1 text-slate-900" th:text="${review.order.code}">Order</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold text-slate-500">Rating</dt>
+                    <dd class="mt-1 text-amber-600" th:text="${review.rating + ' sao'}">5 sao</dd>
+                </div>
+                <div class="md:col-span-2">
+                    <dt class="font-semibold text-slate-500">Bình luận</dt>
+                    <dd class="mt-2 whitespace-pre-line rounded-lg bg-slate-50 p-4 text-slate-700" th:text="${review.comment}">Comment</dd>
+                </div>
+            </dl>
+        </section>
+
+        <aside class="space-y-4">
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 class="font-bold text-slate-900">Trạng thái</h2>
+                <p class="mt-2 text-sm">
+                    <span th:if="${review.visible}" class="rounded bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">Đang hiển thị</span>
+                    <span th:unless="${review.visible}" class="rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">Đã ẩn</span>
+                </p>
+                <form th:if="${review.visible}" th:action="@{/admin/reviews/{id}/hide(id=${review.id})}" method="post" class="mt-4">
+                    <button class="w-full rounded bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700" type="submit">Ẩn feedback</button>
+                </form>
+                <form th:unless="${review.visible}" th:action="@{/admin/reviews/{id}/show(id=${review.id})}" method="post" class="mt-4">
+                    <button class="w-full rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" type="submit">Hiện feedback</button>
+                </form>
+            </div>
+
+            <div class="rounded-xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
+                <h2 class="font-bold text-rose-900">Danger zone</h2>
+                <p class="mt-2 text-sm text-rose-700">Xóa vĩnh viễn feedback và cập nhật lại điểm trung bình sản phẩm.</p>
+                <form th:action="@{/admin/reviews/{id}/delete(id=${review.id})}" method="post" class="mt-4" onsubmit="return confirm('Xóa vĩnh viễn feedback này?');">
+                    <button class="w-full rounded bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" type="submit">Xóa vĩnh viễn</button>
+                </form>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

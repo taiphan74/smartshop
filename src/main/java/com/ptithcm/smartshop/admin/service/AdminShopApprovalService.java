@@ -1,5 +1,8 @@
 package com.ptithcm.smartshop.admin.service;
 
+import com.ptithcm.smartshop.admin.dto.AdminShopForm;
+import com.ptithcm.smartshop.order.domain.repository.OrderRepository;
+import com.ptithcm.smartshop.product.repository.ProductRepository;
 import com.ptithcm.smartshop.shop.entity.Shop;
 import com.ptithcm.smartshop.shop.entity.ShopApprovalHistory;
 import com.ptithcm.smartshop.shop.enums.ShopStatus;
@@ -19,14 +22,20 @@ public class AdminShopApprovalService {
 	private final ShopRepository shopRepository;
 	private final UserRepository userRepository;
 	private final ShopApprovalHistoryRepository historyRepository;
+	private final ProductRepository productRepository;
+	private final OrderRepository orderRepository;
 
 	public AdminShopApprovalService(
 			ShopRepository shopRepository,
 			UserRepository userRepository,
-			ShopApprovalHistoryRepository historyRepository) {
+			ShopApprovalHistoryRepository historyRepository,
+			ProductRepository productRepository,
+			OrderRepository orderRepository) {
 		this.shopRepository = shopRepository;
 		this.userRepository = userRepository;
 		this.historyRepository = historyRepository;
+		this.productRepository = productRepository;
+		this.orderRepository = orderRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -38,8 +47,39 @@ public class AdminShopApprovalService {
 	}
 
 	@Transactional(readOnly = true)
+	public Shop getShop(UUID shopId) {
+		return shopRepository.findById(shopId)
+				.orElseThrow(() -> new IllegalArgumentException("Shop không tồn tại"));
+	}
+
+	@Transactional(readOnly = true)
 	public List<ShopApprovalHistory> history(UUID shopId) {
 		return historyRepository.findByShopIdOrderByCreatedAtDesc(shopId);
+	}
+
+	@Transactional
+	public void updateShop(UUID shopId, AdminShopForm form) {
+		Shop shop = getShop(shopId);
+		if (shopRepository.existsBySlugAndIdNot(form.getSlug(), shopId)) {
+			throw new IllegalArgumentException("Slug shop đã tồn tại");
+		}
+		shop.setName(form.getName().trim());
+		shop.setSlug(form.getSlug().trim());
+		shop.setLogoUrl(trimToNull(form.getLogoUrl()));
+		shop.setBannerUrl(trimToNull(form.getBannerUrl()));
+		shop.setEmail(trimToNull(form.getEmail()));
+		shop.setPhone(trimToNull(form.getPhone()));
+		shop.setDescription(trimToNull(form.getDescription()));
+		shop.setStatus(form.getStatus());
+	}
+
+	@Transactional
+	public void deleteShop(UUID shopId) {
+		Shop shop = getShop(shopId);
+		if (productRepository.countByShopId(shopId) > 0 || orderRepository.countByShopId(shopId) > 0) {
+			throw new IllegalArgumentException("Shop còn dữ liệu liên quan, hãy tạm ngưng thay vì xóa");
+		}
+		shopRepository.delete(shop);
 	}
 
 	@Transactional
@@ -83,5 +123,9 @@ public class AdminShopApprovalService {
 		if (!StringUtils.hasText(reason)) {
 			throw new IllegalArgumentException("Vui lòng nhập lý do");
 		}
+	}
+
+	private String trimToNull(String value) {
+		return StringUtils.hasText(value) ? value.trim() : null;
 	}
 }

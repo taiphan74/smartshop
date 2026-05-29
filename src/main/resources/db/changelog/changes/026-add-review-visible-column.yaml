@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 026-add-review-visible-column
+      author: claude
+      changes:
+        - addColumn:
+            tableName: product_reviews
+            columns:
+              - column:
+                  name: visible
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

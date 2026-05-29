@@ -39,6 +39,21 @@ public class AdminBannerController {
         return "admin/banners/list";
     }
 
+    @GetMapping("/edit/{id}")
+    @RequirePermission(Permission.BANNER_UPDATE)
+    public String edit(@PathVariable UUID id, Model model) {
+        Banner banner = bannerService.findById(id);
+        model.addAttribute("banners", bannerService.findAll());
+        model.addAttribute("bannerForm", new BannerForm(
+                banner.getTitle(),
+                banner.getImageUrl(),
+                banner.getLinkUrl(),
+                banner.getDisplayOrder(),
+                banner.getIsActive()));
+        model.addAttribute("editingId", id);
+        return "admin/banners/list";
+    }
+
     @PostMapping("/create")
     @RequirePermission(Permission.BANNER_CREATE)
     public String create(

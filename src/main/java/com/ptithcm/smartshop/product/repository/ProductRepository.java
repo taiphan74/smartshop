@@ -22,9 +22,27 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
         long getProductCount();
     }
 
+    @Query(value = "SELECT p FROM Product p JOIN FETCH p.shop JOIN FETCH p.category",
+           countQuery = "SELECT count(p) FROM Product p")
+    Page<Product> findAll(Pageable pageable);
+
+    @Query(value = "SELECT p FROM Product p JOIN FETCH p.shop JOIN FETCH p.category WHERE p.status = :status",
+           countQuery = "SELECT count(p) FROM Product p WHERE p.status = :status")
+    Page<Product> findByStatus(Boolean status, Pageable pageable);
+
+    @Query(value = "SELECT p FROM Product p JOIN FETCH p.shop JOIN FETCH p.category WHERE p.id = :id")
+    Optional<Product> findById(@Param("id") UUID id);
+
+    @Query(value = "SELECT p FROM Product p JOIN FETCH p.shop JOIN FETCH p.category WHERE p.slug = :slug")
+    Optional<Product> findBySlug(@Param("slug") String slug);
+
+    @Query(value = "SELECT p FROM Product p JOIN FETCH p.shop JOIN FETCH p.category WHERE p.category.id = :categoryId",
+           countQuery = "SELECT count(p) FROM Product p WHERE p.category.id = :categoryId")
     Page<Product> findByCategory_Id(UUID categoryId, Pageable pageable);
 
-    Optional<Product> findBySlug(String slug);
+    boolean existsBySlug(String slug);
+
+    boolean existsBySlugAndIdNot(String slug, UUID id);
 
     @Query("SELECT p.id AS id, " +
            "p.name AS name, " +
@@ -130,6 +148,13 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     void incrementRatingSummary(UUID productId, int rating);
 
     long countByStatusTrue();
+
+    long countByShopId(UUID shopId);
+
+    long countByCategoryId(UUID categoryId);
+
+    @Query("select count(i.id) from OrderItem i where i.product.id = :productId")
+    long countOrderItemsByProductId(@Param("productId") UUID productId);
 
     @Query("""
             select p.category.name as categoryName, count(p.id) as productCount

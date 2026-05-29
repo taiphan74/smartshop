@@ -87,7 +87,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     @Override
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getProductReviews(UUID productId, int page, int size) {
-        return reviewRepository.findByProductId(productId, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+        return reviewRepository.findByProductIdAndVisible(productId, true, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .map(this::mapToResponse);
     }
 

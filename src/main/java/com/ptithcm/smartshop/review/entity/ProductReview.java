@@ -29,6 +29,9 @@ public class ProductReview extends AuditableEntity {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
+    @Column(nullable = false)
+    private Boolean visible = true;
+
     public Product getProduct() { return product; }
     public void setProduct(Product product) { this.product = product; }
 
@@ -43,4 +46,7 @@ public class ProductReview extends AuditableEntity {
 
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
+
+    public Boolean getVisible() { return visible; }
+    public void setVisible(Boolean visible) { this.visible = visible; }
 }

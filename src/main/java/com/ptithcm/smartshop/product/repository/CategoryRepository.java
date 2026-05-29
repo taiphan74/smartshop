@@ -18,6 +18,12 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
     boolean existsBySlugAndIdNot(String slug, UUID id);
 
+    boolean existsByPath(String path);
+
+    boolean existsByPathAndIdNot(String path, UUID id);
+
+    long countByParentId(UUID parentId);
+
     Page<Category> findByParentIsNull(Pageable pageable);
 
     Page<Category> findByParent(Category parent, Pageable pageable);

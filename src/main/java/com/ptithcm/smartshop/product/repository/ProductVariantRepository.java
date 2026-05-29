@@ -21,5 +21,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     boolean existsBySkuIgnoreCase(String sku);
 
     boolean existsBySkuIgnoreCaseAndIdNot(String sku, UUID id);
+
+    Optional<ProductVariant> findByIdAndProductId(UUID variantId, UUID productId);
 }
 

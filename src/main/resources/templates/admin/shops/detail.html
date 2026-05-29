@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/layout :: adminLayout(~{::main})}">
+<body>
+<main>
+    <div class="mb-6 flex items-start justify-between">
+        <div>
+            <a th:href="@{/admin/shops}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">← Quay lại shop</a>
+            <h1 class="mt-2 text-2xl font-bold text-slate-900" th:text="${shop.name}">Shop</h1>
+        </div>
+        <a th:href="@{/admin/shops/{id}/edit(id=${shop.id})}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Sửa shop</a>
+    </div>
+
+    <div th:if="${successMessage}" class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" th:text="${errorMessage}"></div>
+
+    <div class="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <dl class="grid gap-4 text-sm md:grid-cols-2">
+                <div><dt class="font-semibold text-slate-500">Slug</dt><dd th:text="${shop.slug}">slug</dd></div>
+                <div><dt class="font-semibold text-slate-500">Trạng thái</dt><dd th:text="${shop.status}">status</dd></div>
+                <div><dt class="font-semibold text-slate-500">Chủ shop</dt><dd th:text="${shop.owner.fullName != null ? shop.owner.fullName : shop.owner.email}">owner</dd></div>
+                <div><dt class="font-semibold text-slate-500">Email</dt><dd th:text="${shop.email ?: 'Chưa có'}">email</dd></div>
+                <div><dt class="font-semibold text-slate-500">SĐT</dt><dd th:text="${shop.phone ?: 'Chưa có'}">phone</dd></div>
+                <div><dt class="font-semibold text-slate-500">Ngày tạo</dt><dd th:text="${#temporals.format(shop.createdAt, 'dd/MM/yyyy HH:mm')}">date</dd></div>
+                <div class="md:col-span-2"><dt class="font-semibold text-slate-500">Mô tả</dt><dd class="whitespace-pre-line" th:text="${shop.description ?: 'Chưa có'}">description</dd></div>
+                <div><dt class="font-semibold text-slate-500">Logo URL</dt><dd class="break-all" th:text="${shop.logoUrl ?: 'Chưa có'}">logo</dd></div>
+                <div><dt class="font-semibold text-slate-500">Banner URL</dt><dd class="break-all" th:text="${shop.bannerUrl ?: 'Chưa có'}">banner</dd></div>
+            </dl>
+        </section>
+
+        <aside class="space-y-4">
+            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 class="font-bold text-slate-900">Lịch sử duyệt</h2>
+                <div class="mt-3 space-y-3 text-sm">
+                    <div th:each="item : ${history}" class="border-l-2 border-indigo-200 pl-3">
+                        <p class="font-semibold" th:text="${item.oldStatus + ' → ' + item.newStatus}">status</p>
+                        <p class="text-slate-500" th:text="${item.reason}">reason</p>
+                    </div>
+                    <p th:if="${history.isEmpty()}" class="text-slate-500">Chưa có lịch sử.</p>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
+                <h2 class="font-bold text-rose-900">Danger zone</h2>
+                <p class="mt-2 text-sm text-rose-700">Chỉ xóa được shop chưa có sản phẩm và đơn hàng.</p>
+                <form th:action="@{/admin/shops/{id}/delete(id=${shop.id})}" method="post" class="mt-4" onsubmit="return confirm('Xóa vĩnh viễn shop này?');">
+                    <button class="w-full rounded bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" type="submit">Xóa vĩnh viễn</button>
+                </form>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -13,5 +15,9 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, UUID
     Page<ProductImage> findByProduct_Id(UUID productId, Pageable pageable);
 
     Page<ProductImage> findByProduct_IdAndIsMainTrue(UUID productId, Pageable pageable);
+
+    List<ProductImage> findByProductIdOrderBySortOrderAsc(UUID productId);
+
+    Optional<ProductImage> findByIdAndProductId(UUID imageId, UUID productId);
 }
 
