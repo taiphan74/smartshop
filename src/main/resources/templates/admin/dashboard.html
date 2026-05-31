@@ -2,30 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/fragments/layout :: adminLayout(~{::main})}">
 <body>
 <main>
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-slate-900">Bảng điều khiển tổng quan</h1>
-        <p class="text-sm text-slate-500">Dữ liệu thật từ đơn hàng, khách hàng, sản phẩm và shop.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-        <div th:each="metric : ${dashboard.metrics()}"
-             class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-                <p class="text-sm font-medium text-slate-400 uppercase tracking-wider" th:text="${metric.label()}">Metric</p>
-                <h3 class="text-2xl font-bold text-slate-900 mt-1" th:text="${metric.value()}">0</h3>
-                <span class="text-xs font-medium text-slate-400 block mt-3" th:text="${metric.helperText()}">Nguồn dữ liệu thật</span>
-            </div>
+    <div class="admin-page-header">
+        <div>
+            <h1 class="admin-page-title">Bảng điều khiển tổng quan</h1>
+            <p class="admin-page-subtitle">Dữ liệu thật từ đơn hàng, khách hàng, sản phẩm và shop.</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div th:each="metric : ${dashboard.metrics()}" class="admin-card admin-card-padded">
+            <p class="text-xs font-black uppercase tracking-[0.16em] text-slate-500" th:text="${metric.label()}">Metric</p>
+            <h3 class="mt-2 text-3xl font-black tracking-tight text-slate-950" th:text="${metric.value()}">0</h3>
+            <span class="mt-4 block text-sm font-semibold text-slate-600" th:text="${metric.helperText()}">Nguồn dữ liệu thật</span>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap">
         <div class="p-5 border-b border-slate-200 flex items-center justify-between">
             <h2 class="font-bold text-slate-800">Đơn hàng xử lý gần đây</h2>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="admin-table">
                 <thead>
-                <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase border-b border-slate-200">
+                <tr>
                     <th class="p-4">Mã đơn</th>
                     <th class="p-4">Khách hàng</th>
                     <th class="p-4">Ngày đặt</th>
@@ -33,18 +32,18 @@
                     <th class="p-4">Trạng thái</th>
                 </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
+                <tbody>
                 <tr th:each="order : ${dashboard.recentOrders()}">
                     <td class="p-4 font-medium text-indigo-600" th:text="${order.code()}">#ORDER</td>
                     <td class="p-4 font-semibold text-slate-700" th:text="${order.customerName()}">Khách hàng</td>
                     <td class="p-4 text-slate-500" th:text="${#temporals.format(order.createdAt(), 'dd/MM/yyyy HH:mm')}">20/05/2026</td>
                     <td class="p-4 font-medium text-slate-900" th:text="${#numbers.formatDecimal(order.finalAmount(), 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</td>
                     <td class="p-4">
-                        <span class="px-2 py-1 text-xs font-semibold rounded bg-slate-50 text-slate-700 border border-slate-200" th:text="${order.status()}">PENDING</span>
+                        <span class="admin-badge-info" th:text="${order.status()}">PENDING</span>
                     </td>
                 </tr>
                 <tr th:if="${dashboard.recentOrders().isEmpty()}">
-                    <td class="p-4 text-slate-500" colspan="5">Chưa có đơn hàng.</td>
+                    <td class="p-4 admin-empty" colspan="5">Chưa có đơn hàng.</td>
                 </tr>
                 </tbody>
             </table>
@@ -52,7 +51,7 @@
     </div>
 
     <div class="mt-8 grid grid-cols-1 xl:grid-cols-2 gap-8">
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="admin-card">
             <div class="p-5 border-b border-slate-200">
                 <h2 class="font-bold text-slate-800">Sản phẩm theo danh mục</h2>
             </div>
@@ -61,14 +60,14 @@
                     <span class="font-medium text-slate-700" th:text="${category.categoryName()}">Danh mục</span>
                     <span class="text-slate-500" th:text="${category.productCount()} + ' sản phẩm'">0 sản phẩm</span>
                 </div>
-                <div th:if="${dashboard.categoryProductCounts().isEmpty()}" class="p-4 text-sm text-slate-500">Chưa có sản phẩm active.</div>
+                <div th:if="${dashboard.categoryProductCounts().isEmpty()}" class="p-4 admin-empty">Chưa có sản phẩm active.</div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="admin-card">
             <div class="p-5 border-b border-slate-200 flex items-center justify-between">
                 <h2 class="font-bold text-slate-800">Shop chờ duyệt</h2>
-                <a th:href="@{/admin/shops(status='PENDING')}" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Duyệt shop</a>
+                <a th:href="@{/admin/shops(status='PENDING')}" class="admin-btn-primary text-sm px-3 py-1.5">Duyệt shop</a>
             </div>
             <div class="divide-y divide-slate-100">
                 <div th:each="shop : ${dashboard.pendingShops()}" class="p-4 flex items-center justify-between text-sm">
@@ -76,9 +75,9 @@
                         <p class="font-semibold text-slate-800" th:text="${shop.name()}">Tên shop</p>
                         <p class="text-slate-500" th:text="${shop.ownerName()}">Chủ shop</p>
                     </div>
-                    <a th:href="@{/admin/shops(status='PENDING')}" class="text-indigo-600 font-semibold">Xem</a>
+                    <a th:href="@{/admin/shops(status='PENDING')}" class="admin-btn-secondary text-sm">Xem</a>
                 </div>
-                <div th:if="${dashboard.pendingShops().isEmpty()}" class="p-4 text-sm text-slate-500">Không có shop chờ duyệt.</div>
+                <div th:if="${dashboard.pendingShops().isEmpty()}" class="p-4 admin-empty">Không có shop chờ duyệt.</div>
             </div>
         </div>
     </div>
