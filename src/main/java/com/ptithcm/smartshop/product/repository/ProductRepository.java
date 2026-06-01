@@ -140,6 +140,24 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             """)
     List<CategoryProductCountProjection> countActiveProductsByCategory();
 
+    @Query(value = "SELECT p.id AS id, " +
+           "p.name AS name, " +
+           "p.slug AS slug, " +
+           "p.status AS status, " +
+           "p.category.name AS categoryName, " +
+           "COALESCE(" +
+           "  (SELECT MIN(pv.price) FROM ProductVariant pv WHERE pv.product.id = p.id), " +
+           "  0.0" +
+           ") AS price, " +
+           "COALESCE(" +
+           "  (SELECT pi.imageUrl FROM ProductImage pi WHERE pi.product.id = p.id AND pi.isMain = true), " +
+           "  (SELECT MIN(pi2.imageUrl) FROM ProductImage pi2 WHERE pi2.product.id = p.id)" +
+           ") AS thumbnailUrl, " +
+           "p.reviewCount AS reviewCount, " +
+           "p.averageRating AS averageRating " +
+           "FROM Product p WHERE p.shop.id = :shopId",
+           countQuery = "SELECT COUNT(p.id) FROM Product p WHERE p.shop.id = :shopId")
+    Page<ProductProjection> findByShopIdProjection(@Param("shopId") UUID shopId, Pageable pageable);
 
     @Query("SELECT p.id AS id, " +
            "p.name AS name, " +
@@ -160,5 +178,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
            "WHERE p.status = true AND s.status = 'APPROVED' " +
            "AND LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<ProductProjection> searchPublicProducts(@Param("keyword") String keyword, Pageable pageable);
-    long countByShopId(UUID shopId);
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.shop.id = :shopId")
+    Long countByShopId(@Param("shopId") UUID shopId);
 }

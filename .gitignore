@@ -45,3 +45,6 @@ docs/
 # other folder
 .deepseek
 .playwright-mcp
+
+# Uploaded product images
+src/main/resources/static/uploads/products/

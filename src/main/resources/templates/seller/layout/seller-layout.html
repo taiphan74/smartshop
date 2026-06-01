@@ -3,55 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Kênh Người Bán - SmartShop</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              brand: {
-                blue: "#0A68FF",
-                "blue-hover": "#0059D6",
-                "blue-soft": "#EAF2FF",
-                red: "#FF424E",
-                "red-hover": "#F92F3B",
-                "red-soft": "#FFF0F1",
-                green: "#00AB56",
-                "green-soft": "#EFFFF4",
-              },
-              primary: {
-                DEFAULT: "#0A68FF",
-                hover: "#0059D6",
-                soft: "#EAF2FF",
-              },
-              surface: {
-                DEFAULT: "#FFFFFF",
-                soft: "#FAFAFC",
-              },
-              border: {
-                DEFAULT: "#EBEBF0",
-                strong: "#DDDDE3",
-              },
-              text: {
-                primary: "#27272A",
-                secondary: "#808089",
-                muted: "#A6A6B0",
-              },
+              brand: { blue: "#0A68FF", "blue-hover": "#0059D6", "blue-soft": "#EAF2FF", red: "#FF424E", "red-hover": "#F92F3B", "red-soft": "#FFF0F1", green: "#00AB56", "green-soft": "#EFFFF4" },
+              primary: { DEFAULT: "#0A68FF", hover: "#0059D6", soft: "#EAF2FF" },
+              surface: { DEFAULT: "#FFFFFF", soft: "#FAFAFC" },
+              border: { DEFAULT: "#EBEBF0", strong: "#DDDDE3" },
+              text: { primary: "#27272A", secondary: "#808089", muted: "#A6A6B0" },
             },
-            backgroundColor: {
-              "page-bg": "#F5F5FA",
-            },
-            borderRadius: {
-              sm: "8px",
-              md: "12px",
-              lg: "16px",
-              pill: "999px",
-            },
-            boxShadow: {
-              sm: "0 1px 2px rgba(39, 39, 42, 0.04)",
-              md: "0 4px 14px rgba(39, 39, 42, 0.08)",
-            },
+            backgroundColor: { "page-bg": "#F5F5FA" },
+            borderRadius: { sm: "8px", md: "12px", lg: "16px", pill: "999px" },
+            boxShadow: { sm: "0 1px 2px rgba(39, 39, 42, 0.04)", md: "0 4px 14px rgba(39, 39, 42, 0.08)" },
           },
         },
       };
@@ -59,131 +25,25 @@
     <link rel="stylesheet" th:href="@{/css/app.css}" />
     <style>
         body { margin: 0; min-height: 100vh; background-color: #F5F5FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        
-        /* Top bar - giống header trang chủ */
-        .seller-header {
-            background: linear-gradient(135deg, #0a68ff, #0059d6);
-            color: white;
-            padding: 0 24px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .seller-header__logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
-        }
-        .seller-header__logo img {
-            height: 32px;
-            width: auto;
-        }
-        .seller-header__tagline {
-            font-size: 12px;
-            opacity: 0.8;
-            font-weight: 400;
-            margin-left: 4px;
-            padding-left: 12px;
-            border-left: 1px solid rgba(255,255,255,0.3);
-        }
-        .seller-header__user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .seller-header__user a {
-            color: rgba(255,255,255,0.9);
-            text-decoration: none;
-            font-size: 14px;
-            padding: 6px 14px;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        .seller-header__user a:hover {
-            background: rgba(255,255,255,0.15);
-            color: white;
-        }
-        
-        /* Layout chính */
-        .seller-body {
-            display: flex;
-            min-height: calc(100vh - 56px);
-        }
-        
-        /* Sidebar */
-        .seller-sidebar {
-            width: 250px;
-            background: white;
-            border-right: 1px solid #EBEBF0;
-            padding: 20px 12px;
-            display: flex;
-            flex-direction: column;
-            position: sticky;
-            top: 56px;
-            height: calc(100vh - 56px);
-        }
-        .seller-sidebar__title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #808089;
-            padding: 0 12px;
-            margin-bottom: 12px;
-        }
-        .seller-sidebar a {
-            color: #27272A;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            transition: all 0.2s;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-        .seller-sidebar a:hover {
-            background: #EAF2FF;
-            color: #0A68FF;
-        }
-        .seller-sidebar a.active {
-            background: #EAF2FF;
-            color: #0A68FF;
-            font-weight: 600;
-        }
-        .seller-sidebar__back {
-            margin-top: auto !important;
-            border-top: 1px solid #EBEBF0;
-            padding-top: 14px !important;
-            color: #808089 !important;
-            font-size: 13px !important;
-        }
-        .seller-sidebar__back:hover {
-            color: #FF424E !important;
-            background: #FFF0F1 !important;
-        }
-        
-        /* Main content */
-        .seller-main {
-            flex: 1;
-            background-color: #F5F5FA;
-            min-width: 0;
-        }
+        .seller-header { background: linear-gradient(135deg, #0a68ff, #0059d6); color: white; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .seller-header__logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-weight: 700; font-size: 18px; }
+        .seller-header__logo img { height: 32px; width: auto; }
+        .seller-header__tagline { font-size: 12px; opacity: 0.8; font-weight: 400; margin-left: 4px; padding-left: 12px; border-left: 1px solid rgba(255,255,255,0.3); }
+        .seller-header__user { display: flex; align-items: center; gap: 12px; }
+        .seller-header__user a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 14px; padding: 6px 14px; border-radius: 6px; transition: all 0.2s; }
+        .seller-header__user a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .seller-body { display: flex; min-height: calc(100vh - 56px); }
+        .seller-sidebar { width: 250px; background: white; border-right: 1px solid #EBEBF0; padding: 20px 12px; display: flex; flex-direction: column; position: sticky; top: 56px; height: calc(100vh - 56px); }
+        .seller-sidebar__title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #808089; padding: 0 12px; margin-bottom: 12px; }
+        .seller-sidebar a { color: #27272A; text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; transition: all 0.2s; font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .seller-sidebar a:hover { background: #EAF2FF; color: #0A68FF; }
+        .seller-sidebar a.active { background: #EAF2FF; color: #0A68FF; font-weight: 600; }
+        .seller-sidebar__back { margin-top: auto !important; border-top: 1px solid #EBEBF0; padding-top: 14px !important; color: #808089 !important; font-size: 13px !important; }
+        .seller-sidebar__back:hover { color: #FF424E !important; background: #FFF0F1 !important; }
+        .seller-main { flex: 1; background-color: #F5F5FA; min-width: 0; }
     </style>
 </head>
 <body>
-    <!-- Header top bar -->
     <header class="seller-header">
         <a href="/" class="seller-header__logo">
             <img src="/images/smartshop-logo.png" alt="SmartShop" />
@@ -197,15 +57,13 @@
     </header>
     
     <div class="seller-body">
-        <!-- Sidebar -->
         <aside class="seller-sidebar">
             <div class="seller-sidebar__title">Quản lý shop</div>
-            <a href="/seller/dashboard" class="active">📊 Giao diện Tổng quan</a>
-            <a href="/seller/products">📦 Danh mục sản phẩm</a>
+            <a th:href="@{/seller/dashboard(shopId=${shopId})}" th:classappend="${activeMenu == 'dashboard'} ? 'active'">📊 Giao diện Tổng quan</a>
+            <a th:href="@{/seller/products(shopId=${shopId})}" th:classappend="${activeMenu == 'products'} ? 'active'">📦 Danh mục sản phẩm</a>
             <a href="/" class="seller-sidebar__back">↩ Về trang chủ SmartShop</a>
         </aside>
         
-        <!-- Main content -->
         <main class="seller-main">
             <div th:replace="${content}"></div>
         </main>

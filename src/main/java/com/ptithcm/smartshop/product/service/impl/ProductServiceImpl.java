@@ -6,12 +6,15 @@ import com.ptithcm.smartshop.product.dto.ProductListDTO;
 import com.ptithcm.smartshop.product.dto.request.ProductRequest;
 import com.ptithcm.smartshop.product.entity.Category;
 import com.ptithcm.smartshop.product.entity.Product;
+import com.ptithcm.smartshop.product.entity.ProductImage;
+import com.ptithcm.smartshop.shop.entity.Shop;
 import com.ptithcm.smartshop.shared.exception.ResourceNotFoundException;
 import com.ptithcm.smartshop.product.mapper.ProductMapper;
 import com.ptithcm.smartshop.product.repository.CategoryRepository;
 import com.ptithcm.smartshop.product.repository.ProductProjection;
 import com.ptithcm.smartshop.product.repository.ProductRepository;
 import com.ptithcm.smartshop.product.service.ProductService;
+import com.ptithcm.smartshop.shop.repository.ShopRepository;
 import com.ptithcm.smartshop.shared.util.SlugUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,13 +32,16 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ShopRepository shopRepository;
     private final ProductMapper productMapper;
 
     public ProductServiceImpl(ProductRepository productRepository,
             CategoryRepository categoryRepository,
+            ShopRepository shopRepository,
             ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.shopRepository = shopRepository;
         this.productMapper = productMapper;
     }
 
@@ -112,6 +118,27 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));
         product.setCategory(category);
 
+        if (request.getShopId() != null && !request.getShopId().isBlank()) {
+            Shop shop = shopRepository.findById(parseUuid(request.getShopId(), "shopId"))
+                    .orElseThrow(() -> new ResourceNotFoundException("Shop", request.getShopId()));
+            product.setShop(shop);
+        }
+
+        // === MAP IMAGES ===
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            String mainUrl = request.getMainImageUrl();
+            int order = 0;
+            for (String url : request.getImageUrls()) {
+                ProductImage img = new ProductImage();
+                img.setImageUrl(url);
+                img.setIsMain(mainUrl != null && url.equals(mainUrl));
+                img.setSortOrder(order++);
+                img.setProduct(product);
+                product.getImages().add(img);
+            }
+        }
+        // === END MAP IMAGES ===
+
         Product saved = productRepository.save(product);
         return productMapper.toDetailDTO(saved);
     }
@@ -122,7 +149,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));
 
-        // Only regenerate slug if name changed and the resulting slug is different
         if (!java.util.Objects.equals(product.getName(), request.getName())) {
             String baseSlug = SlugUtil.toSlug(request.getName());
             if (!baseSlug.equals(product.getSlug())) {
@@ -137,6 +163,22 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", request.getCategoryId()));
         product.setCategory(category);
 
+        // === MAP IMAGES ===
+        product.getImages().clear(); // Xóa ảnh cũ (orphanRemoval tự DELETE DB)
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            String mainUrl = request.getMainImageUrl();
+            int order = 0;
+            for (String url : request.getImageUrls()) {
+                ProductImage img = new ProductImage();
+                img.setImageUrl(url);
+                img.setIsMain(mainUrl != null && url.equals(mainUrl));
+                img.setSortOrder(order++);
+                img.setProduct(product);
+                product.getImages().add(img);
+            }
+        }
+        // === END MAP IMAGES ===
+
         Product updated = productRepository.save(product);
         return productMapper.toDetailDTO(updated);
     }
@@ -146,6 +188,26 @@ public class ProductServiceImpl implements ProductService {
         UUID productId = parseUuid(id, "id");
         if (!productRepository.existsById(productId)) {
             throw new ResourceNotFoundException("Product", id);
+        }
+        productRepository.deleteById(productId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ProductListDTO> findProductsByShop(UUID shopId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<ProductProjection> projections = productRepository.findByShopIdProjection(shopId, pageable);
+        return convertToPageResponse(projections);
+    }
+
+    @Override
+    public void deleteProductByShop(UUID productId, UUID shopId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", productId.toString()));
+        if (!product.getShop().getId().equals(shopId)) {
+            throw new IllegalArgumentException("Sản phẩm không thuộc shop này");
         }
         productRepository.deleteById(productId);
     }
@@ -169,7 +231,6 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Invalid " + field + ": " + value);
         }
     }
-
 
     @Override
     @Transactional(readOnly = true)

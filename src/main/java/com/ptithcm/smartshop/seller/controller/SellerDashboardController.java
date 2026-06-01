@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/seller")
-public class SellerDashboardController {
+public class SellerDashboardController extends BaseSellerController {
 
     private final SellerDashboardService sellerDashboardService;
 
@@ -28,6 +28,7 @@ public class SellerDashboardController {
         if (userDetails == null) {
             return "redirect:/auth/login";
         }
+        model.addAttribute("activeMenu", "dashboard");
         Map<String, Object> metrics = sellerDashboardService.getDashboardMetrics(shopId);
         model.addAttribute("metrics", metrics);
         return "seller/dashboard";

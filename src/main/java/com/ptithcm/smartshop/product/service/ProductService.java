@@ -6,6 +6,7 @@ import com.ptithcm.smartshop.product.dto.ProductListDTO;
 import com.ptithcm.smartshop.product.dto.request.ProductRequest;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import com.ptithcm.smartshop.product.repository.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,4 +33,7 @@ public interface ProductService {
 
     Page<ProductProjection> searchApprovedProducts(String keyword, Pageable pageable);
 
+    PageResponse<ProductListDTO> findProductsByShop(UUID shopId, int pageNo, int pageSize, String sortBy, String sortDir);
+
+    void deleteProductByShop(UUID productId, UUID shopId);
 }

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 024-drop-products-price-and-stock
+      author: codex
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              ALTER TABLE products DROP COLUMN IF EXISTS price;
+              ALTER TABLE products DROP COLUMN IF EXISTS stock_quantity;

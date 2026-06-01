@@ -7,9 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Configuration
 public class I18nConfig implements WebMvcConfigurer {
@@ -28,6 +32,14 @@ public class I18nConfig implements WebMvcConfigurer {
         LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
         interceptor.setParamName("language");
         return interceptor;
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        Path uploadPath = Paths.get("src/main/resources/static/uploads").toAbsolutePath();
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + uploadPath.toString() + "/")
+                .setCachePeriod(3600);
     }
 
     @Override

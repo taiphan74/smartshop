@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products", indexes = {@Index(name = "idx_product_shop_status", columnList = "shop_id, status")})
 public class Product {
 
     @Id
@@ -190,6 +190,12 @@ public class Product {
 
     public void setAverageRating(BigDecimal averageRating) {
         this.averageRating = averageRating;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate

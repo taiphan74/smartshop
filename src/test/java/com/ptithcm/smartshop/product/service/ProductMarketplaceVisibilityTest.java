@@ -5,6 +5,7 @@ import com.ptithcm.smartshop.product.repository.CategoryRepository;
 import com.ptithcm.smartshop.product.repository.ProductProjection;
 import com.ptithcm.smartshop.product.repository.ProductRepository;
 import com.ptithcm.smartshop.product.service.impl.ProductServiceImpl;
+import com.ptithcm.smartshop.shop.repository.ShopRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,8 +20,9 @@ class ProductMarketplaceVisibilityTest {
     void findAllProductsUsesApprovedShopQuery() {
         ProductRepository productRepository = mock(ProductRepository.class);
         CategoryRepository categoryRepository = mock(CategoryRepository.class);
+        ShopRepository shopRepository = mock(ShopRepository.class);
         ProductMapper productMapper = mock(ProductMapper.class);
-        ProductServiceImpl service = new ProductServiceImpl(productRepository, categoryRepository, productMapper);
+        ProductServiceImpl service = new ProductServiceImpl(productRepository, categoryRepository, shopRepository, productMapper);
         ProductProjection projection = mock(ProductProjection.class);
         when(productRepository.findPublicProductsFromApprovedShops()).thenReturn(List.of(projection));
         when(productMapper.toProjectionDTOList(List.of(projection))).thenReturn(List.of());
